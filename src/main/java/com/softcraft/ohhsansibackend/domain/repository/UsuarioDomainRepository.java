@@ -1,19 +1,15 @@
-package com.softcraft.ohhsansibackend.persistance.repository;
+package com.softcraft.ohhsansibackend.domain.repository;
 
-import com.softcraft.ohhsansibackend.persistance.models.Usuario;
+import com.softcraft.ohhsansibackend.domain.models.Usuario;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 @Repository
-public class UsuarioRepository {
+public class UsuarioDomainRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    public UsuarioRepository(JdbcTemplate jdbcTemplate) {
+    public UsuarioDomainRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

@@ -2,8 +2,8 @@ package com.softcraft.ohhsansibackend.config;
 
 import com.softcraft.ohhsansibackend.config.filter.JwtTokenValidator;
 import com.softcraft.ohhsansibackend.config.filter.JwtUtils;
-import com.softcraft.ohhsansibackend.persistance.models.Usuario;
-import com.softcraft.ohhsansibackend.persistance.repository.UsuarioRepository;
+import com.softcraft.ohhsansibackend.domain.models.Usuario;
+import com.softcraft.ohhsansibackend.domain.repository.UsuarioDomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,7 +36,7 @@ public class SecurityConfig {
     private JwtUtils jwtUtils;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UsuarioDomainRepository usuarioDomainRepository;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -85,7 +85,7 @@ public class SecurityConfig {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
         provider.setUserDetailsService(username -> {
-            Usuario usuario = usuarioRepository.findByCorreo(username);
+            Usuario usuario = usuarioDomainRepository.findByCorreo(username);
             if (usuario == null) {
                 throw new UsernameNotFoundException("User not found");
             }

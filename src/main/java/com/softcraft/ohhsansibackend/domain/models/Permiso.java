@@ -1,4 +1,4 @@
-package com.softcraft.ohhsansibackend.persistance.models;
+package com.softcraft.ohhsansibackend.domain.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
