@@ -66,7 +66,6 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.GET, "/**").permitAll();
                     http.requestMatchers(HttpMethod.DELETE, "/**").permitAll();
                     http.requestMatchers(HttpMethod.PUT, "/**").permitAll();
-
                     http.requestMatchers(HttpMethod.GET, "/method/get").hasAuthority("READ");
                     http.requestMatchers(HttpMethod.POST, "/method/post").hasAuthority("CREATE");
                     http.requestMatchers(HttpMethod.DELETE, "/method/delete").hasAuthority("DELETE");
