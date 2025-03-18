@@ -1,19 +1,12 @@
 package com.softcraft.ohhsansibackend.infraestucture.rest;
 
 import com.softcraft.ohhsansibackend.application.usecases.AuthService;
-import com.softcraft.ohhsansibackend.application.usecases.UserService;
 import com.softcraft.ohhsansibackend.domain.models.Usuario;
 import com.softcraft.ohhsansibackend.infraestucture.rest.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
