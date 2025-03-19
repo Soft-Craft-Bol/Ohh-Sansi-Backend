@@ -17,8 +17,8 @@ public class AreaDomainRepository {
     }
 
     public void save(Area area) {
-        String sql = "INSERT INTO AREA (ID_AREA, NOMBRE_AREA) VALUES (?, ?)";
-        jdbcTemplate.update(sql, area.getIdArea(), area.getNombreArea());
+        String sql = "INSERT INTO AREA ( NOMBRE_AREA) VALUES ( ?)";
+        jdbcTemplate.update(sql, area.getNombreArea());
     }
 
     public void update(Area area) {
@@ -26,15 +26,15 @@ public class AreaDomainRepository {
         jdbcTemplate.update(sql, area.getNombreArea(), area.getIdArea());
     }
 
-    public void delete(Long idArea) {  // Cambiado a Long
+    public void delete(Long idArea) {
         String sql = "DELETE FROM AREA WHERE ID_AREA = ?";
         jdbcTemplate.update(sql, idArea);
     }
 
-    public Optional<Area> findById(Long idArea) { // Ahora devuelve Optional<Area>
+    public Optional<Area> findById(Long idArea) {
         String sql = "SELECT * FROM AREA WHERE ID_AREA = ?";
         List<Area> areas = jdbcTemplate.query(sql, new Object[]{idArea}, new BeanPropertyRowMapper<>(Area.class));
-        return areas.stream().findFirst();  // Evita error si no encuentra nada
+        return areas.stream().findFirst();
     }
 
     public List<Area> findAll() {
@@ -42,8 +42,4 @@ public class AreaDomainRepository {
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Area.class));
     }
 
-    public List<Area> findByNombreArea(String nombreArea) {
-        String sql = "SELECT * FROM AREA WHERE NOMBRE_AREA = ?";
-        return jdbcTemplate.query(sql, new Object[]{nombreArea}, new BeanPropertyRowMapper<>(Area.class));
-    }
 }

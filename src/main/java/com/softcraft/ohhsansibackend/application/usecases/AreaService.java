@@ -24,7 +24,6 @@ public class AreaService {
         areaDomainRepository.save(area);
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Área creada con éxito");
-        response.put("area", area);
         return response;
     }
 
