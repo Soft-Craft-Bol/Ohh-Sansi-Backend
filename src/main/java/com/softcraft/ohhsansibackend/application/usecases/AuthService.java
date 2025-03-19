@@ -3,6 +3,7 @@ package com.softcraft.ohhsansibackend.application.usecases;
 import com.softcraft.ohhsansibackend.config.filter.JwtUtils;
 import com.softcraft.ohhsansibackend.domain.models.Usuario;
 import com.softcraft.ohhsansibackend.domain.repository.UsuarioDomainRepository;
+import com.softcraft.ohhsansibackend.domain.services.UserDomainService;
 import com.softcraft.ohhsansibackend.infraestucture.rest.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,22 +19,19 @@ import java.util.Map;
 @Service
 public class AuthService {
 
-    private final UsuarioDomainRepository usuarioDomainRepository;
+    private final UserDomainService userDomainService;
     private final JwtUtils jwtUtils;
-    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public AuthService(UsuarioDomainRepository usuarioDomainRepository, JwtUtils jwtUtils, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
-        this.usuarioDomainRepository = usuarioDomainRepository;
+    public AuthService(UserDomainService userDomainService, JwtUtils jwtUtils, AuthenticationManager authenticationManager) {
+        this.userDomainService = userDomainService;
         this.jwtUtils = jwtUtils;
-        this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
     }
 
     public Map<String, Object> registerUser(Usuario usuario) {
-        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-        usuarioDomainRepository.save(usuario);
+        userDomainService.registerUser(usuario);
         Map<String, Object> response = new HashMap<>();
         response.put("message", "User registered successfully");
         return response;
