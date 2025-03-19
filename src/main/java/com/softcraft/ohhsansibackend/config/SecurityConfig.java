@@ -62,6 +62,7 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.GET, "/auth/**").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll();
+                    http.requestMatchers(HttpMethod.PUT, "/api/v1/auth/areas").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/**").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/**").permitAll();
                     http.requestMatchers(HttpMethod.DELETE, "/**").permitAll();
