@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class UsuarioAdapter {
-
     private final UserDomainService userDomainService;
     @Autowired
     public UsuarioAdapter(UserDomainService userDomainService) {
