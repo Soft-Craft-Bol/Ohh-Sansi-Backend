@@ -18,7 +18,6 @@ public class AreaService {
         this.areaAdapter = areaAdapter;
     }
 
-
     public void saveArea(Area area) {
         areaAdapter.saveArea(area);
     }
@@ -35,9 +34,7 @@ public class AreaService {
         return areaAdapter.findAreaById(id);
     }
 
-    public List<Area> getAreas() {
-        return areaAdapter.getAreas();
-    }
+    public List<Area> getAreas() { return areaAdapter.getAreas(); }
 
 }
 

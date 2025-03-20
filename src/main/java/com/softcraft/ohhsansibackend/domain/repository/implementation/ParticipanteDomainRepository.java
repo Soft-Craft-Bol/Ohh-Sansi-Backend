@@ -38,7 +38,7 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
 
     @Override
     public Participante findById(Long idParticipante) {
-        String sql = "SELECT * FROM participante WHERE id_inscripcion = ? AND id_participante = ?";
+        String sql = "SELECT * FROM participante WHERE id_participante = ?";
         return jdbcTemplate.queryForObject(sql, new Object[]{idParticipante}, new BeanPropertyRowMapper<>(Participante.class));
     }
 
