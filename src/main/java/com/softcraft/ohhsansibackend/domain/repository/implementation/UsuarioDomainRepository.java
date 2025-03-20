@@ -1,4 +1,4 @@
-package com.softcraft.ohhsansibackend.domain.repository;
+package com.softcraft.ohhsansibackend.domain.repository.implementation;
 
 import com.softcraft.ohhsansibackend.domain.models.Usuario;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
