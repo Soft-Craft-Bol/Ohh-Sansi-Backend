@@ -6,28 +6,28 @@ import org.hibernate.validator.constraints.Email;
 import java.sql.Date;
 
 public class Participante {
-    @NotNull(message = "idInscripcion is required")
+    @NotNull(message = "idInscripcion es requerido")
     private int idInscripcion;
     private int idParticipante;
-    @NotNull(message = "idDepartamento is required")
+    @NotNull(message = "idDepartamento es requerido")
     private int idDepartamento;
-    @NotNull(message = "idMunicipio is required")
+    @NotNull(message = "idMunicipio es requerido")
     private int idMunicipio;
-    @NotNull(message = "idColegio is required")
+    @NotNull(message = "idColegio es requerido")
     private int idColegio;
     private String participanteHash;
-    @NotNull(message = "apellidoPaterno is required")
+    @NotNull(message = "apellidoPaterno es requerido")
     private String apellidoPaterno;
-    @NotNull(message = "apellidoMaterno is required")
+    @NotNull(message = "apellidoMaterno es requerido")
     private String apellidoMaterno;
-    @NotNull(message = "nombreParticipante is required")
+    @NotNull(message = "nombreParticipante es requerido")
     private String nombreParticipante;
-    @NotNull(message = "fechaNacimiento is required")
+    @NotNull(message = "fechaNacimiento es requerido")
     private Date fechaNacimiento;
-    @NotNull(message = "correoElectronicoParticipante is required")
-    @Email(message = "correoElectronicoParticipante should be a valid email")
+    @NotNull(message = "correoElectronicoParticipante es requerido")
+    @Email(message = "correoElectronicoParticipante debe ser un email")
     private String correoElectronicoParticipante;
-    @NotNull(message = "carnetIdentidadParticipante is required")
+    @NotNull(message = "carnetIdentidadParticipante es requerido")
     private Integer carnetIdentidadParticipante;
     public Participante() {
 

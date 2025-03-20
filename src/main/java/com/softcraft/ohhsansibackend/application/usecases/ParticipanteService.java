@@ -60,4 +60,13 @@ public class ParticipanteService {
             throw new RuntimeException("Error al obtener el participante");
         }
     }
+    public Map<String, Object> findByCarnetIdentidad(int carnetIdentidad){
+        try{
+            Map<String, Object> response = new HashMap<>();
+            response.put("participante", participanteAdapter.findByCarnetIdentidad(carnetIdentidad));
+            return response;
+        }catch (Exception e){
+            throw new RuntimeException("Error al obtener el participante");
+        }
+    }
 }
