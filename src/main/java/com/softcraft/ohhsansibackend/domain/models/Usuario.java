@@ -1,10 +1,16 @@
 package com.softcraft.ohhsansibackend.domain.models;
 
-import java.sql.Date;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.sql.Date;
+@Getter
+@Setter
+@AllArgsConstructor
 public class Usuario {
     private int idUsuario;
-    private String idGeneral;
+    private String carnetIdentidad;
     private String nombreUsuario;
     private String apellidoPaternoUsuario;
     private String apellidoMaternoUsuario;
@@ -17,18 +23,6 @@ public class Usuario {
 
     }
 
-    public Usuario(int idUsuario, String idGeneral, String nombreUsuario, String apellidoPaternoUsuario, String apellidoMaternoUsuario, String correoUsuario, String contrasenaUsuario, String password, Date fechaNacimiento) {
-        this.idUsuario = idUsuario;
-        this.idGeneral = idGeneral;
-        this.nombreUsuario = nombreUsuario;
-        this.apellidoPaternoUsuario = apellidoPaternoUsuario;
-        this.apellidoMaternoUsuario = apellidoMaternoUsuario;
-        this.correoUsuario = correoUsuario;
-        this.contrasenaUsuario = contrasenaUsuario;
-        this.password = password;
-        this.fechaNacimiento = fechaNacimiento;
-    }
-
     public int getIdUsuario() {
         return idUsuario;
     }
@@ -37,12 +31,12 @@ public class Usuario {
         this.idUsuario = idUsuario;
     }
 
-    public String getIdGeneral() {
-        return idGeneral;
+    public String getCarnetIdentidad() {
+        return carnetIdentidad;
     }
 
-    public void setIdGeneral(String idGeneral) {
-        this.idGeneral = idGeneral;
+    public void setCarnetIdentidad(String carnetIdentidad) {
+        this.carnetIdentidad = carnetIdentidad;
     }
 
     public String getNombreUsuario() {

@@ -1,7 +1,7 @@
 package com.softcraft.ohhsansibackend.application.usecases;
 
 import com.softcraft.ohhsansibackend.domain.models.Usuario;
-import com.softcraft.ohhsansibackend.domain.repository.UsuarioDomainRepository;
+import com.softcraft.ohhsansibackend.domain.repository.implementation.UsuarioDomainRepository;
 import com.softcraft.ohhsansibackend.config.filter.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;

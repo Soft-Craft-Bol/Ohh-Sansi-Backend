@@ -3,7 +3,7 @@ package com.softcraft.ohhsansibackend.config;
 import com.softcraft.ohhsansibackend.config.filter.JwtTokenValidator;
 import com.softcraft.ohhsansibackend.config.filter.JwtUtils;
 import com.softcraft.ohhsansibackend.domain.models.Usuario;
-import com.softcraft.ohhsansibackend.domain.repository.UsuarioDomainRepository;
+import com.softcraft.ohhsansibackend.domain.repository.implementation.UsuarioDomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,6 +62,7 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.GET, "/auth/**").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll();
+                    http.requestMatchers(HttpMethod.PUT, "/api/v1/auth/areas").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/**").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/**").permitAll();
                     http.requestMatchers(HttpMethod.DELETE, "/**").permitAll();
