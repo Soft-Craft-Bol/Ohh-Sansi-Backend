@@ -5,7 +5,7 @@ import com.softcraft.ohhsansibackend.domain.models.Category;
 import java.util.List;
 import java.util.Optional;
 
-public interface CategoryRepository {
+public interface ICategoryRepository {
     void save(Category category);
     Optional<Category> findById(Long idCategory);
     List<Category> findAll();

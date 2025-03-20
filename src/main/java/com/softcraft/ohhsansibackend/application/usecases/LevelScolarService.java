@@ -1,5 +1,6 @@
 package com.softcraft.ohhsansibackend.application.usecases;
 
+import com.softcraft.ohhsansibackend.application.ports.LevelScolarAdapter;
 import com.softcraft.ohhsansibackend.domain.models.LevelScolar;
 import com.softcraft.ohhsansibackend.domain.services.LevelScolarDomainService;
 import org.springframework.stereotype.Service;
@@ -9,29 +10,29 @@ import java.util.Optional;
 
 @Service
 public class LevelScolarService {
-    private final LevelScolarDomainService levelScolarDomainService;
+    private final LevelScolarAdapter levelScolarAdapter;
 
-    public LevelScolarService(LevelScolarDomainService levelScolarDomainService) {
-        this.levelScolarDomainService = levelScolarDomainService;
+    public LevelScolarService(LevelScolarAdapter levelScolarAdapter) {
+        this.levelScolarAdapter = levelScolarAdapter;
     }
 
     public void saveLevelScolar(LevelScolar levelScolar) {
-        levelScolarDomainService.createLevelScolar(levelScolar);
-    }
-
-    public void updateLevelScolar(LevelScolar levelScolar) {
-        levelScolarDomainService.updateLevelScolar(levelScolar);
-    }
-
-    public void deleteLevelScolar(Long id) {
-        levelScolarDomainService.deleteLevelScolar(id);
+        levelScolarAdapter.saveLevelScolar(levelScolar);
     }
 
     public Optional<LevelScolar> findLevelScolarById(Long id) {
-        return levelScolarDomainService.findLevelScolarById(id);
+        return levelScolarAdapter.findLevelScolarById(id);
     }
 
-    public List<LevelScolar> getLevels() {
-        return levelScolarDomainService.getLevelScolar();
+    public List<LevelScolar> getLevelScolars() {
+        return levelScolarAdapter.getLevels();
+    }
+
+    public void updateLevelScolar(LevelScolar levelScolar) {
+        levelScolarAdapter.updateLevelScolar(levelScolar);
+    }
+
+    public void deleteLevelScolar(Long id) {
+        levelScolarAdapter.deleteLevelScolar(id);
     }
 }

@@ -2,7 +2,7 @@ package com.softcraft.ohhsansibackend.domain.services;
 
 
 import com.softcraft.ohhsansibackend.domain.models.Area;
-import com.softcraft.ohhsansibackend.domain.repository.abstraction.AreaRepository;
+import com.softcraft.ohhsansibackend.domain.repository.abstraction.IAreaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,32 +11,32 @@ import java.util.Optional;
 
 @Service
 public class AreaDomainService {
-    private final AreaRepository areaRepository;
+    private final IAreaRepository IAreaRepository;
 
 
     @Autowired
-    public AreaDomainService(AreaRepository areaRepository) {
-        this.areaRepository = areaRepository;
+    public AreaDomainService(IAreaRepository IAreaRepository) {
+        this.IAreaRepository = IAreaRepository;
     }
 
     public void createArea(Area area) {
-        areaRepository.save(area);
+        IAreaRepository.save(area);
     }
 
     public void updateArea(Area area) {
-        areaRepository.update(area);
+        IAreaRepository.update(area);
     }
 
     public void deleteArea(Long id) {
-        areaRepository.delete(id);
+        IAreaRepository.delete(id);
     }
 
     public Optional<Area> findAreaById(Long id) {
-        return areaRepository.findById(id);
+        return IAreaRepository.findById(id);
     }
 
     public List<Area> getAreas() {
-        return areaRepository.findAll();
+        return IAreaRepository.findAll();
     }
 
 
