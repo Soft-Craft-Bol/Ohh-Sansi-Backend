@@ -694,7 +694,7 @@ create  index r8_fk on tutor_area (
 /*==============================================================*/
 create table usuario (
                          id_usuario           serial               not null,
-                         id_general           varchar(50)          null,
+                         carnet_identidad     varchar(50)          not null ,
                          nombre_usuario       varchar(50)          not null,
                          apellido_paterno_usuario varchar(50)          not null,
                          apellido_materno_usuario varchar(50)          not null,

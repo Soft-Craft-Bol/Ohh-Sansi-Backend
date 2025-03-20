@@ -28,8 +28,16 @@ public class UsuarioDomainRepository implements IUsuarioRepository {
 
     @Override
     public Usuario save(Usuario usuario) {
-        String sql = "INSERT INTO USUARIO (ID_GENERAL, NOMBRE_USUARIO, APELLIDO_PATERNO_USUARIO, APELLIDO_MATERNO_USUARIO, CORREO_USUARIO, PASSWORD, FECHA_NACIMIENTO) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING ID_USUARIO";
-        int id = jdbcTemplate.queryForObject(sql, new Object[]{usuario.getIdGeneral(), usuario.getNombreUsuario(), usuario.getApellidoPaternoUsuario(), usuario.getApellidoMaternoUsuario(), usuario.getCorreoUsuario(), usuario.getPassword(), usuario.getFechaNacimiento()}, Integer.class);
+        String sql = "SELECT insert_usuario(?, ?, ?, ?, ?, ?, ?)";
+        int id = jdbcTemplate.queryForObject(sql, new Object[]{
+                usuario.getCarnetIdentidad(),
+                usuario.getNombreUsuario(),
+                usuario.getApellidoPaternoUsuario(),
+                usuario.getApellidoMaternoUsuario(),
+                usuario.getCorreoUsuario(),
+                usuario.getPassword(),
+                usuario.getFechaNacimiento()
+        }, Integer.class);
         usuario.setIdUsuario(id);
         return usuario;
     }

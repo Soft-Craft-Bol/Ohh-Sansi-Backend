@@ -1,81 +1,81 @@
 select * from area;
 -----------------------------------------------------------------------------------------------------------------------
-    CREATE OR REPLACE FUNCTION InsertArea(nombreArea VARCHAR, precioArea DECIMAL, nombreCortoArea VARCHAR)
-        RETURNS BOOLEAN AS $$
-    DECLARE
-        newId INTEGER;
-    BEGIN
-        INSERT INTO AREA (NOMBRE_AREA, PRECIO_AREA, NOMBRE_CORTO_AREA)
-        VALUES (nombreArea, precioArea, nombreCortoArea)
-        RETURNING ID_AREA INTO newId;
-        IF newId IS NOT NULL THEN
-            RETURN TRUE;
-        ELSE
-            RETURN FALSE;
-        END IF;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RETURN FALSE;
-    END;
-    $$ LANGUAGE plpgsql;
-select InsertArea('HUmanidades',20.0,'HUM');
+create or replace function insertarea(nombrearea varchar, precioarea decimal, nombrecortoarea varchar)
+    returns boolean as $$
+declare
+    newid integer;
+begin
+    insert into area (nombre_area, precio_area, nombre_corto_area)
+    values (nombrearea, precioarea, nombrecortoarea)
+    returning id_area into newid;
+    if newid is not null then
+        return true;
+    else
+        return false;
+    end if;
+exception
+    when others then
+        return false;
+end;
+$$ language plpgsql;
+select insertarea('humanidades',20.0,'hum');
 -----------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION UpdateArea(idArea INTEGER, nombreArea VARCHAR, precioArea DECIMAL, nombreCortoArea VARCHAR)
-    RETURNS BOOLEAN AS $$
-BEGIN
-    UPDATE AREA
-    SET NOMBRE_AREA = nombreArea, PRECIO_AREA = precioArea, NOMBRE_CORTO_AREA = nombreCortoArea
-    WHERE ID_AREA = idArea;
-    IF FOUND THEN
-        RETURN TRUE;
-    ELSE
-        RETURN FALSE;
-    END IF;
-EXCEPTION
-    WHEN OTHERS THEN
-        RETURN FALSE;
-END;
-$$ LANGUAGE plpgsql;
+create or replace function updatearea(idarea integer, nombrearea varchar, precioarea decimal, nombrecortoarea varchar)
+    returns boolean as $$
+begin
+    update area
+    set nombre_area = nombrearea, precio_area = precioarea, nombre_corto_area = nombrecortoarea
+    where id_area = idarea;
+    if found then
+        return true;
+    else
+        return false;
+    end if;
+exception
+    when others then
+        return false;
+end;
+$$ language plpgsql;
 
 select * from area;
-select UpdateArea(1,'Ciencias',20.0,'CIE');
+select updatearea(1,'ciencias',20.0,'cie');
 -----------------------------------------------------------------------------------------------------------------------
 --se recibe como parametro
-CREATE OR REPLACE FUNCTION DeleteArea(idArea INTEGER)
-    RETURNS BOOLEAN AS $$
-BEGIN
-    DELETE FROM AREA WHERE ID_AREA = idArea;
-    IF FOUND THEN
-        RETURN TRUE;
-    ELSE
-        RETURN FALSE;
-    END IF;
-EXCEPTION
-    WHEN OTHERS THEN
-        RETURN FALSE;
-END;
-$$ LANGUAGE plpgsql;
+create or replace function deletearea(idarea integer)
+    returns boolean as $$
+begin
+    delete from area where id_area = idarea;
+    if found then
+        return true;
+    else
+        return false;
+    end if;
+exception
+    when others then
+        return false;
+end;
+$$ language plpgsql;
 
-select DeleteArea(2);
+select deletearea(2);
 select * from area;
 -----------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION SelectAreaById(idArea INTEGER)
-    RETURNS TABLE (ID_AREA INTEGER, NOMBRE_AREA VARCHAR, PRECIO_AREA DECIMAL, NOMBRE_CORTO_AREA VARCHAR) AS $$
-BEGIN
-    RETURN QUERY SELECT AREA.ID_AREA, AREA.NOMBRE_AREA, AREA.PRECIO_AREA, AREA.NOMBRE_CORTO_AREA
-                 FROM AREA
-                 WHERE AREA.ID_AREA = idArea;
-END;
-$$ LANGUAGE plpgsql;
-select * from SelectAreaById(1);
+create or replace function selectareabyid(idarea integer)
+    returns table (id_area integer, nombre_area varchar, precio_area decimal, nombre_corto_area varchar) as $$
+begin
+    return query select area.id_area, area.nombre_area, area.precio_area, area.nombre_corto_area
+                 from area
+                 where area.id_area = idarea;
+end;
+$$ language plpgsql;
+select * from selectareabyid(1);
 
 -----------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION SelectAllAreas()
-    RETURNS TABLE (ID_AREA INTEGER, NOMBRE_AREA VARCHAR, PRECIO_AREA DECIMAL, NOMBRE_CORTO_AREA VARCHAR) AS $$
-BEGIN
-    RETURN QUERY SELECT AREA.ID_AREA, AREA.NOMBRE_AREA, AREA.PRECIO_AREA, AREA.NOMBRE_CORTO_AREA
-                 FROM AREA;
-END;
-$$ LANGUAGE plpgsql;
-select * from SelectAllAreas();
+create or replace function selectallareas()
+    returns table (id_area integer, nombre_area varchar, precio_area decimal, nombre_corto_area varchar) as $$
+begin
+    return query select area.id_area, area.nombre_area, area.precio_area, area.nombre_corto_area
+                 from area;
+end;
+$$ language plpgsql;
+select * from selectallareas();
 -----------------------------------------------------------------------------------------------------------------------

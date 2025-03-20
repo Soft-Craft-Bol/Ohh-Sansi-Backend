@@ -2,9 +2,11 @@ package com.softcraft.ohhsansibackend.application.usecases;
 
 import com.softcraft.ohhsansibackend.config.filter.JwtUtils;
 import com.softcraft.ohhsansibackend.domain.models.Usuario;
-import com.softcraft.ohhsansibackend.domain.services.UserDomainService;
 import com.softcraft.ohhsansibackend.infraestucture.rest.dto.UserDTO;
+import com.softcraft.ohhsansibackend.application.ports.UsuarioAdapter;
+import com.softcraft.ohhsansibackend.application.exception.DuplicateResourceException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,21 +19,25 @@ import java.util.Map;
 @Service
 public class AuthService {
 
-    private final UserDomainService userDomainService;
+    private final UsuarioAdapter usuarioAdapter;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public AuthService(UserDomainService userDomainService, JwtUtils jwtUtils, AuthenticationManager authenticationManager) {
-        this.userDomainService = userDomainService;
+    public AuthService(UsuarioAdapter usuarioAdapter, JwtUtils jwtUtils, AuthenticationManager authenticationManager) {
+        this.usuarioAdapter = usuarioAdapter;
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
     }
 
     public Map<String, Object> registerUser(Usuario usuario) {
-        userDomainService.registerUser(usuario);
+        try {
+            usuarioAdapter.save(usuario);
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateResourceException("Email o carnet de identidad ya registrados");
+        }
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "User registered successfully");
+        response.put("message", "Usuario registrado exitosamente");
         return response;
     }
 

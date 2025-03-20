@@ -1,28 +1,20 @@
-CREATE OR REPLACE FUNCTION SelectUsuarioByCorreo(correoUsuario VARCHAR)
-    RETURNS TABLE (
-                      ID_USUARIO INT4,
-                      ID_GENERAL VARCHAR(50),
-                      NOMBRE_USUARIO VARCHAR(50),
-                      APELLIDO_PATERNO_USUARIO VARCHAR(50),
-                      APELLIDO_MATERNO_USUARIO VARCHAR(50),
-                      CORREO_USUARIO VARCHAR(50),
-                      CONTRASENA_USUARIO VARCHAR(50),
-                      FECHA_NACIMIENTO DATE,
-                      PASSWORD VARCHAR(1024)
-                  ) AS $$
-BEGIN
-    RETURN QUERY SELECT
-                     USUARIO.ID_USUARIO,
-                     USUARIO.ID_GENERAL,
-                     USUARIO.NOMBRE_USUARIO,
-                     USUARIO.APELLIDO_PATERNO_USUARIO,
-                     USUARIO.APELLIDO_MATERNO_USUARIO,
-                     USUARIO.CORREO_USUARIO,
-                     USUARIO.CONTRASENA_USUARIO,
-                     USUARIO.FECHA_NACIMIENTO,
-                     USUARIO.PASSWORD
-                 FROM USUARIO
-                 WHERE USUARIO.CORREO_USUARIO = correoUsuario;
-END;
-$$ LANGUAGE plpgsql;
-SELECT * FROM SelectUsuarioByCorreo('123456alfredo@gmail.com');
+create or replace function insert_usuario(
+    p_carnet_identidad varchar,
+    p_nombre_usuario varchar,
+    p_apellido_paterno_usuario varchar,
+    p_apellido_materno_usuario varchar,
+    p_correo_usuario varchar,
+    p_password varchar,
+    p_fecha_nacimiento date
+)
+    returns integer as $$
+declare
+    v_id_usuario integer;
+begin
+    insert into usuario (carnet_identidad, nombre_usuario, apellido_paterno_usuario, apellido_materno_usuario, correo_usuario, password, fecha_nacimiento)
+    values (p_carnet_identidad, p_nombre_usuario, p_apellido_paterno_usuario, p_apellido_materno_usuario, p_correo_usuario, p_password, p_fecha_nacimiento)
+    returning id_usuario into v_id_usuario;
+
+    return v_id_usuario;
+end;
+$$ language plpgsql;
