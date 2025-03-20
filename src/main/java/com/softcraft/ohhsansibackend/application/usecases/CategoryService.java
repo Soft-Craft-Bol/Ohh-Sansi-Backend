@@ -1,5 +1,6 @@
 package com.softcraft.ohhsansibackend.application.usecases;
 
+import com.softcraft.ohhsansibackend.application.ports.CategoryAdapter;
 import com.softcraft.ohhsansibackend.domain.models.Category;
 import com.softcraft.ohhsansibackend.domain.services.CategoryDomainService;
 import org.springframework.stereotype.Service;
@@ -9,29 +10,29 @@ import java.util.Optional;
 
 @Service
 public class CategoryService {
-    private final CategoryDomainService categoryDomainService;
+    private final CategoryAdapter categoryAdapter;
 
-    public CategoryService(CategoryDomainService categoryDomainService) {
-        this.categoryDomainService = categoryDomainService;
+    public CategoryService(CategoryAdapter categoryAdapter) {
+        this.categoryAdapter = categoryAdapter;
     }
 
     public void saveCategory(Category category) {
-        categoryDomainService.createCategory(category);
+        categoryAdapter.saveCategory(category);
     }
 
     public Optional<Category> findById(Long idCategory) {
-        return categoryDomainService.getCategory(idCategory);
+        return categoryAdapter.findById(idCategory);
     }
 
     public List<Category> findAll() {
-        return categoryDomainService.listCategory();
+        return categoryAdapter.findAll();
     }
 
     public void updateCategory(Category category) {
-        categoryDomainService.updateCategory(category);
+        categoryAdapter.updateCategory(category);
     }
 
     public void deleteCategory(Long idCategory) {
-        categoryDomainService.deleteCategory(idCategory);
+        categoryAdapter.deleteCategory(idCategory);
     }
 }

@@ -47,7 +47,7 @@ public class LevelScolarController {
 
     @GetMapping
     public ResponseEntity<List<LevelScolar>> getLevelScolar() {
-        return ResponseEntity.ok(levelScolarService.getLevels());
+        return ResponseEntity.ok(levelScolarService.getLevelScolars());
     }
 
 }

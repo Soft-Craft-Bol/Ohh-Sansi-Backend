@@ -1,5 +1,6 @@
 package com.softcraft.ohhsansibackend.domain.models;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -95,3 +96,4 @@ public class Usuario {
         this.fechaNacimiento = fechaNacimiento;
     }
 }
+

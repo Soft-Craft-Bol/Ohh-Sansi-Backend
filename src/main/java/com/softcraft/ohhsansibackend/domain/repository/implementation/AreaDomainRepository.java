@@ -1,7 +1,7 @@
 package com.softcraft.ohhsansibackend.domain.repository.implementation;
 
 import com.softcraft.ohhsansibackend.domain.models.Area;
-import com.softcraft.ohhsansibackend.domain.repository.abstraction.AreaRepository;
+import com.softcraft.ohhsansibackend.domain.repository.abstraction.IAreaRepository;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class AreaDomainRepository implements AreaRepository {
+public class AreaDomainRepository implements IAreaRepository {
     private final JdbcTemplate jdbcTemplate;
 
     public AreaDomainRepository(JdbcTemplate jdbcTemplate) {

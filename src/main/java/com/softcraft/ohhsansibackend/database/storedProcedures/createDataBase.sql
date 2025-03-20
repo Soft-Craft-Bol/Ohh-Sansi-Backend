@@ -432,12 +432,13 @@ create table participante (
                               id_departamento      int4                 not null,
                               id_municipio         int4                 not null,
                               id_colegio           int4                 not null,
-                              id_general           varchar(50)          null,
+                              participante_hash     varchar(50)          null,
                               apellido_paterno     varchar(50)          not null,
                               apellido_materno     varchar(50)          not null,
                               nombre_participante  varchar(50)          not null,
                               fecha_nacimiento     date                 not null,
-                              codigo_unico_participante varchar(1024)        not null,
+                              correo_electronico_participante varchar(1024)        not null,
+                              carnet_identidad_participante int4 not null,
                               constraint pk_participante primary key (id_inscripcion, id_participante)
 );
 
@@ -715,12 +716,12 @@ create unique index usuario_pk on usuario (
 /* Table: usuario_rol                                           */
 /*==============================================================*/
 create table usuario_rol (
-                             id_rol               int4                 not null,
-                             id_usuario           int4                 not null,
-                             id_usuario_rol       serial               not null,
-                             fecha_designacion_rol date                 not null,
-                             usuario_rol_activo   bool                 not null,
-                             constraint pk_usuario_rol primary key (id_rol, id_usuario, id_usuario_rol)
+     id_rol               int4                 not null,
+     id_usuario           int4                 not null,
+     id_usuario_rol       serial               not null,
+     fecha_designacion_rol date                 not null,
+     usuario_rol_activo   bool                 not null,
+     constraint pk_usuario_rol primary key (id_rol, id_usuario, id_usuario_rol)
 );
 
 /*==============================================================*/

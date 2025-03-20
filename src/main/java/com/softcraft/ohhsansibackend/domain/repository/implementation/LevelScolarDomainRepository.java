@@ -1,7 +1,7 @@
 package com.softcraft.ohhsansibackend.domain.repository.implementation;
 
 import com.softcraft.ohhsansibackend.domain.models.LevelScolar;
-import com.softcraft.ohhsansibackend.domain.repository.abstraction.LevelScolarRepository;
+import com.softcraft.ohhsansibackend.domain.repository.abstraction.ILevelScolarRepository;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class LevelScolarDomainRepository implements LevelScolarRepository {
+public class LevelScolarDomainRepository implements ILevelScolarRepository {
     private final JdbcTemplate jdbcTemplate;
 
     public LevelScolarDomainRepository(JdbcTemplate jdbcTemplate) {
