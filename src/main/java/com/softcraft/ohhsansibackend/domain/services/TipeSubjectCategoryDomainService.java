@@ -1,7 +1,7 @@
 package com.softcraft.ohhsansibackend.domain.services;
 
 import com.softcraft.ohhsansibackend.domain.models.TipeSubjectCategory;
-import com.softcraft.ohhsansibackend.domain.repository.TipeSubjectCategoryRepository;
+import com.softcraft.ohhsansibackend.domain.repository.abstraction.TipeSubjectCategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

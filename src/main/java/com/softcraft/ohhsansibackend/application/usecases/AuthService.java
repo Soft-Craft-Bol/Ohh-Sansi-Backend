@@ -2,7 +2,6 @@ package com.softcraft.ohhsansibackend.application.usecases;
 
 import com.softcraft.ohhsansibackend.config.filter.JwtUtils;
 import com.softcraft.ohhsansibackend.domain.models.Usuario;
-import com.softcraft.ohhsansibackend.domain.repository.UsuarioDomainRepository;
 import com.softcraft.ohhsansibackend.domain.services.UserDomainService;
 import com.softcraft.ohhsansibackend.infraestucture.rest.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;

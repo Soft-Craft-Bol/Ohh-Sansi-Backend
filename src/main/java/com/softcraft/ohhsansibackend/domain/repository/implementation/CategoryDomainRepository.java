@@ -1,7 +1,7 @@
-package com.softcraft.ohhsansibackend.domain.repository;
+package com.softcraft.ohhsansibackend.domain.repository.implementation;
 
 import com.softcraft.ohhsansibackend.domain.models.Category;
-import com.softcraft.ohhsansibackend.domain.repository.CategoryRepository;
+import com.softcraft.ohhsansibackend.domain.repository.abstraction.CategoryRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 

@@ -1,6 +1,7 @@
-package com.softcraft.ohhsansibackend.domain.repository;
+package com.softcraft.ohhsansibackend.domain.repository.implementation;
 
 import com.softcraft.ohhsansibackend.domain.models.Area;
+import com.softcraft.ohhsansibackend.domain.repository.abstraction.AreaRepository;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;

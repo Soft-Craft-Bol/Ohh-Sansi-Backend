@@ -2,7 +2,7 @@ package com.softcraft.ohhsansibackend.domain.services;
 
 
 import com.softcraft.ohhsansibackend.domain.models.Category;
-import com.softcraft.ohhsansibackend.domain.repository.CategoryRepository;
+import com.softcraft.ohhsansibackend.domain.repository.abstraction.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

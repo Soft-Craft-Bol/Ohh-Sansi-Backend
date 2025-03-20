@@ -1,6 +1,7 @@
-package com.softcraft.ohhsansibackend.domain.repository;
+package com.softcraft.ohhsansibackend.domain.repository.implementation;
 
 import com.softcraft.ohhsansibackend.domain.models.TipeSubjectCategory;
+import com.softcraft.ohhsansibackend.domain.repository.abstraction.TipeSubjectCategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;

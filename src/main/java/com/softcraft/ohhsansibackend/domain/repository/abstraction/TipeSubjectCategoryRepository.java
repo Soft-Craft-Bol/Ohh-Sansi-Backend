@@ -1,4 +1,4 @@
-package com.softcraft.ohhsansibackend.domain.repository;
+package com.softcraft.ohhsansibackend.domain.repository.abstraction;
 
 import com.softcraft.ohhsansibackend.domain.models.TipeSubjectCategory;
 

@@ -2,7 +2,7 @@ package com.softcraft.ohhsansibackend.domain.services;
 
 
 import com.softcraft.ohhsansibackend.domain.models.Area;
-import com.softcraft.ohhsansibackend.domain.repository.AreaRepository;
+import com.softcraft.ohhsansibackend.domain.repository.abstraction.AreaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
