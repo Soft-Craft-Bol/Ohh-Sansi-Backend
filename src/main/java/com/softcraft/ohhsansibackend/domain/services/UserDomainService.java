@@ -18,8 +18,12 @@ public class UserDomainService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void registerUser(Usuario usuario) {
+    public Usuario findByCorreo(String correo) {
+        return usuarioDomainRepository.findByCorreo(correo);
+    }
+
+    public Usuario save(Usuario usuario) {
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-        usuarioDomainRepository.save(usuario);
+        return usuarioDomainRepository.save(usuario);
     }
 }
