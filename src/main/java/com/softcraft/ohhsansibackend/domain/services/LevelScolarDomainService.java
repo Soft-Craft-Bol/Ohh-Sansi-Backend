@@ -1,7 +1,7 @@
 package com.softcraft.ohhsansibackend.domain.services;
 
 import com.softcraft.ohhsansibackend.domain.models.LevelScolar;
-import com.softcraft.ohhsansibackend.domain.repository.abstraction.LevelScolarRepository;
+import com.softcraft.ohhsansibackend.domain.repository.abstraction.ILevelScolarRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,30 +10,30 @@ import java.util.Optional;
 
 @Service
 public class LevelScolarDomainService {
-    private final LevelScolarRepository levelScolarRepository;
+    private final ILevelScolarRepository ILevelScolarRepository;
 
     @Autowired
-    public LevelScolarDomainService(LevelScolarRepository levelScolarRepository) {
-        this.levelScolarRepository = levelScolarRepository;
+    public LevelScolarDomainService(ILevelScolarRepository ILevelScolarRepository) {
+        this.ILevelScolarRepository = ILevelScolarRepository;
     }
 
     public void createLevelScolar(LevelScolar levelScolar) {
-        levelScolarRepository.save(levelScolar);
+        ILevelScolarRepository.save(levelScolar);
     }
 
     public void updateLevelScolar(LevelScolar levelScolar) {
-        levelScolarRepository.update(levelScolar);
+        ILevelScolarRepository.update(levelScolar);
     }
 
     public void deleteLevelScolar(Long id) {
-        levelScolarRepository.delete(id);
+        ILevelScolarRepository.delete(id);
     }
 
     public Optional<LevelScolar> findLevelScolarById(Long id) {
-        return levelScolarRepository.findById(id);
+        return ILevelScolarRepository.findById(id);
     }
 
     public List<LevelScolar> getLevelScolar() {
-        return levelScolarRepository.findAll();
+        return ILevelScolarRepository.findAll();
     }
 }

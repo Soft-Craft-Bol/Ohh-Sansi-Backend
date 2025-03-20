@@ -5,7 +5,7 @@ import com.softcraft.ohhsansibackend.domain.models.LevelScolar;
 import java.util.List;
 import java.util.Optional;
 
-public interface LevelScolarRepository {
+public interface ILevelScolarRepository {
     void save(LevelScolar levelScolar);
 
     void update(LevelScolar levelScolar);
