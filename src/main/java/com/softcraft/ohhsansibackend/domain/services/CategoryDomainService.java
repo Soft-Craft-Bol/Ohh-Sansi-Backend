@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CategoryDomainService {
@@ -18,11 +17,11 @@ public class CategoryDomainService {
         this.ICategoryRepository = ICategoryRepository;
     }
 
-    public void createCategory(Category category) {
-        ICategoryRepository.save(category);
+    public Category createCategory(Category category) {
+        return ICategoryRepository.save(category);
     }
 
-    public Optional<Category> getCategory(Long id) {
+    public Category getCategory(int id) {
         return ICategoryRepository.findById(id);
     }
 
@@ -30,11 +29,11 @@ public class CategoryDomainService {
         return ICategoryRepository.findAll();
     }
 
-    public void updateCategory(Category category) {
-        ICategoryRepository.update(category);
+    public boolean updateCategory(Category category) {
+        return ICategoryRepository.update(category);
     }
 
-    public void deleteCategory(Long id) {
-        ICategoryRepository.delete(id);
+    public boolean deleteCategory(int id) {
+        return ICategoryRepository.delete(id);
     }
 }

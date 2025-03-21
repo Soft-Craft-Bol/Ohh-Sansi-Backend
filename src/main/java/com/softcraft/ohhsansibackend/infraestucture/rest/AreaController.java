@@ -9,48 +9,50 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/areas")
 public class AreaController {
-
     private final AreaService areaService;
-
     @Autowired
     public AreaController(AreaService areaService) {
         this.areaService = areaService;
     }
 
-    @PostMapping
+    @PostMapping("/register-area")
     public ResponseEntity<Map<String, Object>> createArea(@RequestBody Area area) {
-        areaService.saveArea(area);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("message", "Área creada con éxito", "area", area));
+        Map<String,Object> response = areaService.saveArea(area);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
     public ResponseEntity<List<Area>> getAllAreas() {
-        return ResponseEntity.ok(areaService.getAreas());
+        List<Area> areas = areaService.getAreas();
+        return ResponseEntity.ok(areas);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Area> getAreaById(@PathVariable Long id) {
-        Optional<Area> area = areaService.findAreaById(id);
-        return area.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Map<String, Object>> getAreaById(@PathVariable int id) {
+        Area area = areaService.findAreaById(id);
+        if(area != null) {
+            return ResponseEntity.ok(Map.of( "data", area));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("success", false, "message", "Area not found"));
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateArea(@PathVariable Long id, @RequestBody Area area) {
+    public ResponseEntity<Map<String, Object>> updateArea(@PathVariable int id, @RequestBody Area area) {
         area.setIdArea(id);
-        areaService.updateArea(area);
-        return ResponseEntity.ok(Map.of("message", "Área actualizada con éxito", "area", area));
+        Map<String, Object> response = areaService.updateArea(area);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteArea(@PathVariable Long id) {
-        areaService.deleteArea(id);
-        return ResponseEntity.ok(Map.of("message", "Área eliminada con éxito"));
+    public ResponseEntity<Map<String, Object>> deleteArea(@PathVariable int id) {
+        Map<String, Object> response = areaService.deleteArea(id);
+        return ResponseEntity.ok(response);
     }
 }
 

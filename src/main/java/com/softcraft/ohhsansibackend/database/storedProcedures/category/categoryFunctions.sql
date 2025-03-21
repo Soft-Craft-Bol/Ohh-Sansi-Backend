@@ -1,11 +1,14 @@
-CREATE OR REPLACE FUNCTION insertCategory(codCategory VARVCHAR)
+CREATE OR REPLACE FUNCTION insertCategory(
+    codCategoria VARCHAR,
+    idArea INTEGER
+)
 RETURNS BOOLEAN AS $$
 DECLARE
     newId INTEGER;
 BEGIN
-    INSERT INTO category (codCategory)
-    VALUES (codCategory)
-    RETURNING id_category INTO newId;
+    INSERT INTO categorias (codigo_categoria, id_area)
+    VALUES (codCategoria, idArea)
+    RETURNING id_categoria INTO newId;
 
     IF newId IS NOT NULL THEN
         RETURN TRUE;
@@ -19,14 +22,15 @@ END;
 
 $$ LANGUAGE plpgsql;
 
-SELECT insertCategory('Guacamayo');
+SELECT insertCategory('Guacamayo', 1);
 -----------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION updateCategory(idCategory INTEGER, codCategory VARCHAR)
+CREATE OR REPLACE FUNCTION updateCategory(idCategoria INTEGER, codCategoria VARCHAR, idArea INTEGER)
 RETURNS BOOLEAN AS $$
 BEGIN
-    UPDATE     category
-    SET cod_Category = codCategory
-    WHERE id_category = idCategory;
+    UPDATE categorias
+    SET codigo_categoria = codCategoria,
+        id_area = idArea
+    WHERE id_categoria = idCategoria;
     IF FOUND THEN
         RETURN TRUE;
     ELSE
@@ -37,12 +41,12 @@ EXCEPTION
         RETURN FALSE;
 END;
 $$ LANGUAGE plpgsql;
-SELECT updateCategory(1,'cat2');
+SELECT updateCategory(1,'cat2', 1);
 -----------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION deleteCategory(idCategory INTEGER)
+CREATE OR REPLACE FUNCTION deleteCategory(idCategoria INTEGER)
 RETURNS BOOLEAN AS $$
 BEGIN
-    DELETE FROM category WHERE id_category = idCategory;
+    DELETE FROM categorias WHERE id_categoria = idCategoria;
     IF FOUND THEN
         RETURN TRUE;
     ELSE
@@ -55,24 +59,24 @@ END;
 $$ LANGUAGE plpgsql;
 SELECT deleteCategory(2);
 -----------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION selectCategoryById(idCategory INTEGER)
-RETURNS TABLE (id_category INTEGER, cod_category VARCHAR) AS $$
+CREATE OR REPLACE FUNCTION selectCategoryById(idCategoria INTEGER)
+RETURNS TABLE (id_categoria INTEGER, codigo_categoria VARCHAR, id_area INTEGER) AS $$
 BEGIN
-RETURN QUERY
-SELECT category.id_category, category.cod_category
-FROM category
-WHERE category.id_category = idCategory;
+    RETURN QUERY
+    SELECT categorias.id_categoria, categorias.codigo_categoria, categorias.id_area
+    FROM categorias
+    WHERE categorias.id_categoria = idCategoria;
 END;
 $$ LANGUAGE plpgsql;
 
 SELECT * FROM selectCategoryById(1);
 -----------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION selectAllCategories()
-RETURNS TABLE (id_category INTEGER, cod_category VARCHAR) AS $$
+RETURNS TABLE (id_categoria INTEGER, codigo_categoria VARCHAR, id_area INTEGER) AS $$
 BEGIN
-RETURN QUERY
-SELECT category.id_category, category.cod_category
-FROM category;
+    RETURN QUERY
+    SELECT  categorias.id_area, categorias.id_categoria, categorias.codigo_categoria,
+    FROM categorias;
 END;
 $$ LANGUAGE plpgsql;
 
