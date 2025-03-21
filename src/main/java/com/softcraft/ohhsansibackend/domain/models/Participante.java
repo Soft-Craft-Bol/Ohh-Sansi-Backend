@@ -1,32 +1,45 @@
 package com.softcraft.ohhsansibackend.domain.models;
 
+import jakarta.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.Email;
+
 import java.sql.Date;
 
 public class Participante {
+    @NotNull(message = "idInscripcion es requerido")
     private int idInscripcion;
     private int idParticipante;
+    @NotNull(message = "idDepartamento es requerido")
     private int idDepartamento;
+    @NotNull(message = "idMunicipio es requerido")
     private int idMunicipio;
+    @NotNull(message = "idColegio es requerido")
     private int idColegio;
-    private int carnetIdentidad;
     private String participanteHash;
+    @NotNull(message = "apellidoPaterno es requerido")
     private String apellidoPaterno;
+    @NotNull(message = "apellidoMaterno es requerido")
     private String apellidoMaterno;
+    @NotNull(message = "nombreParticipante es requerido")
     private String nombreParticipante;
+    @NotNull(message = "fechaNacimiento es requerido")
     private Date fechaNacimiento;
+    @NotNull(message = "correoElectronicoParticipante es requerido")
+    @Email(message = "correoElectronicoParticipante debe ser un email")
     private String correoElectronicoParticipante;
-    private int carnetIdentidadParticipante;
+    @NotNull(message = "carnetIdentidadParticipante es requerido")
+    private Integer carnetIdentidadParticipante;
     public Participante() {
 
     }
 
-    public Participante(int idInscripcion, int idParticipante, int idDepartamento, int idMunicipio, int idColegio, int carnetIdentidad, String participanteHash, String apellidoPaterno, String apellidoMaterno, String nombreParticipante, Date fechaNacimiento, String correoElectronicoParticipante, int carnetIdentidadParticipante) {
+    public Participante(int idInscripcion, int idParticipante, int idDepartamento, int idMunicipio, int idColegio, String participanteHash, String apellidoPaterno, String apellidoMaterno, String nombreParticipante, Date fechaNacimiento, String correoElectronicoParticipante, int carnetIdentidadParticipante) {
         this.idInscripcion = idInscripcion;
         this.idParticipante = idParticipante;
         this.idDepartamento = idDepartamento;
         this.idMunicipio = idMunicipio;
         this.idColegio = idColegio;
-        this.carnetIdentidad = carnetIdentidad;
+
         this.participanteHash = participanteHash;
         this.apellidoPaterno = apellidoPaterno;
         this.apellidoMaterno = apellidoMaterno;
@@ -76,13 +89,7 @@ public class Participante {
         this.idColegio = idColegio;
     }
 
-    public int getCarnetIdentidad() {
-        return carnetIdentidad;
-    }
 
-    public void setCarnetIdentidad(int carnetIdentidad) {
-        this.carnetIdentidad = carnetIdentidad;
-    }
 
     public String getParticipanteHash() {
         return participanteHash;

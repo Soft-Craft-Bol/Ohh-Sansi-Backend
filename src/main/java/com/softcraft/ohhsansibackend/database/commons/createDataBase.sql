@@ -640,6 +640,7 @@ create table tutor (
                        nombres_tutor        varchar(100)         not null,
                        apellidos_tutor      varchar(100)         not null,
                        telefono             int4                 not null,
+                       carnet_identidad_tutor int4              not null,
                        constraint pk_tutor primary key (id_tutor)
 );
 

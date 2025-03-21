@@ -17,13 +17,15 @@ public class ParticipanteAdapter {
     public Participante save(Participante participante){
         return participanteDomainService.save(participante);
     }
-    public List<Participante> findAll(){
-        return participanteDomainService.findAll();
-    }
 
     public Participante findById(Long idParticipante){
         return participanteDomainService.findById(idParticipante);
     }
+
+    public List<Participante> findAll(){
+        return participanteDomainService.findAll();
+    }
+
     public Participante findByEmail(String email){
         return participanteDomainService.findByEmail(email);
     }

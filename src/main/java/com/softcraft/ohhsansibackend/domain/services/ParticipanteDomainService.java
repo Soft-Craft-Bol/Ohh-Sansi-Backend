@@ -20,6 +20,11 @@ public class ParticipanteDomainService {
     public Participante findById(Long idParticipante){
         return participanteRepository.findById(idParticipante);
     }
+
+    public List<Participante> findAll(){
+        return participanteRepository.findAll();
+    }
+
     public Participante findByEmail(String email){
         return participanteRepository.findByEmail(email);
     }
@@ -32,7 +37,5 @@ public class ParticipanteDomainService {
     public boolean deleteParticipant(Long id){
         return participanteRepository.deleteParticipant(id);
     }
-    public List<Participante> findAll(){
-        return participanteRepository.findAll();
-    }
+
 }

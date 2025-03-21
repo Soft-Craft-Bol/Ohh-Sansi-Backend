@@ -20,7 +20,6 @@ public class AreaService {
         this.areaAdapter = areaAdapter;
     }
 
-
     public Map<String, Object> saveArea(Area area) {
         try {
             areaAdapter.saveArea(area);
@@ -28,6 +27,7 @@ public class AreaService {
             throw new DuplicateKeyException(e.getMessage());
         }
         return Map.of("success", true, "message", "Area creado exitosamente");
+
     }
 
     public Map<String, Object> updateArea(Area area) {
@@ -54,9 +54,7 @@ public class AreaService {
         return area;
     }
 
-    public List<Area> getAreas() {
-        return areaAdapter.getAreas();
-    }
+    public List<Area> getAreas() { return areaAdapter.getAreas(); }
 
 }
 

@@ -1,0 +1,31 @@
+package com.softcraft.ohhsansibackend.application.ports;
+
+import com.softcraft.ohhsansibackend.domain.models.Tutor;
+import com.softcraft.ohhsansibackend.domain.services.TutorDomainService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public class TutorAdapter {
+
+    private final TutorDomainService tutorDomainService;
+
+    @Autowired
+    public TutorAdapter(TutorDomainService tutorDomainService) {
+        this.tutorDomainService = tutorDomainService;
+    }
+
+    public Tutor save(Tutor tutor) {
+        return tutorDomainService.save(tutor);
+    }
+
+    public Tutor findByIdTutor(int idTutor) {
+        return tutorDomainService.findByIdTutor(idTutor);
+    }
+
+    public List<Tutor> findAllTutor() {
+        return tutorDomainService.findAllTutor();
+    }
+}
