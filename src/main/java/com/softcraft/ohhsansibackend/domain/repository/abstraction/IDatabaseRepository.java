@@ -9,7 +9,7 @@ public interface IDatabaseRepository<T, ID> {
     default List<T> saveAll(Iterable<T> entities) {
         throw new UnsupportedOperationException("sin implementacion");
     }
-    default Optional<T> findById(ID id) {
+    default T findById(ID id) {
         throw new UnsupportedOperationException("sin implementacion");
     }
     default boolean existsById(ID id) {
@@ -24,10 +24,12 @@ public interface IDatabaseRepository<T, ID> {
     default long count() {
         throw new UnsupportedOperationException("sin implementacion");
     }
-    default void deleteById(ID id) {
-        throw new UnsupportedOperationException("sin implementacion");
+
+    default boolean delete (ID id) {
+        return delete((ID) null);
     }
-    default void delete(T entity) {
+
+    default void deleteById(ID id) {
         throw new UnsupportedOperationException("sin implementacion");
     }
     default void deleteAllById(Iterable<? extends ID> ids) {

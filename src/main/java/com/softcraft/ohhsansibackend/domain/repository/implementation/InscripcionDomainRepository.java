@@ -2,6 +2,7 @@ package com.softcraft.ohhsansibackend.domain.repository.implementation;
 
 import com.softcraft.ohhsansibackend.domain.models.Inscripcion;
 import com.softcraft.ohhsansibackend.domain.repository.abstraction.IInscripcionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -9,10 +10,10 @@ import java.util.List;
 
 
 @Repository
-
 public class InscripcionDomainRepository implements IInscripcionRepository {
     private final JdbcTemplate jdbcTemplate;
 
+    @Autowired
     public InscripcionDomainRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
