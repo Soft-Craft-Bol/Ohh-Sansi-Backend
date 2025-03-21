@@ -5,9 +5,8 @@ import com.softcraft.ohhsansibackend.domain.repository.abstraction.ICategoryRepo
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
-import java.util.Optional;
+
 
 @Repository
 public class CategoryDomainRepository implements ICategoryRepository {
@@ -18,34 +17,37 @@ public class CategoryDomainRepository implements ICategoryRepository {
     }
 
     @Override
-    public void save(Category category) {
-        String sql = "SELECT insertCategory(?)";
-        jdbcTemplate.update(sql, category.getCodCategory());
+    public Category save(Category category) {
+        String sql = "SELECT insertCategory(?,?)";
+        return jdbcTemplate.queryForObject(sql, new Object[] {category.getCodigoCategoria(), category.getIdArea()}
+        , new BeanPropertyRowMapper<>(Category.class));
+
     }
 
     @Override
-    public Optional<Category> findById(Long idCategory) {
-        String sql = "SELECT ";
-        return jdbcTemplate.query(sql, new Object[]{idCategory},
-                new BeanPropertyRowMapper <Category>(Category.class)).stream().findFirst();
+    public Category findById(int idCategoria) {
+        String sql = "SELECT * FROM selectCategoryById(?)";
+        return jdbcTemplate.queryForObject(sql, new Object[]{idCategoria}, new BeanPropertyRowMapper<>(Category.class));
     }
 
 
     @Override
     public List<Category> findAll() {
-        String sql = "SELECT ";
+        String sql = "SELECT * FROM selectAllCategories()";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Category.class));
     }
 
     @Override
-    public void update(Category category) {
-        String sql = "SELECT updateCategory(?, ?)";
-        jdbcTemplate.update(sql, category.getIdCategory(), category.getCodCategory());
+    public boolean update(Category category) {
+        String sql = "SELECT updateCategory(?, ?, ?)";
+        Boolean result = jdbcTemplate.queryForObject(sql, Boolean.class, category.getIdCategoria(), category.getCodigoCategoria(), category.getIdArea());
+        return result;
     }
 
     @Override
-    public void delete(Long idCategory) {
+    public boolean delete(int idCategoria) {
         String sql = "SELECT deleteCategory(?)";
-        jdbcTemplate.update(sql, idCategory);
+        Boolean result = jdbcTemplate.queryForObject(sql, Boolean.class, idCategoria);
+        return result;
     }
 }

@@ -2,37 +2,38 @@ package com.softcraft.ohhsansibackend.application.ports;
 
 import com.softcraft.ohhsansibackend.domain.models.Category;
 import com.softcraft.ohhsansibackend.domain.services.CategoryDomainService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
-import java.util.Optional;
+
 
 @Repository
 public class CategoryAdapter {
     private final CategoryDomainService categoryDomainService;
 
+    @Autowired
     public CategoryAdapter(CategoryDomainService categoryDomainService) {
         this.categoryDomainService = categoryDomainService;
     }
 
-    public void saveCategory(Category category) {
-        categoryDomainService.createCategory(category);
+    public Category saveCategory(Category category) {
+        return categoryDomainService.createCategory(category);
     }
 
-    public Optional<Category> findById(Long idCategory) {
-        return categoryDomainService.getCategory(idCategory);
+    public Category findById(int idCategoria) {
+        return categoryDomainService.getCategory(idCategoria);
     }
 
     public List<Category> findAll() {
         return categoryDomainService.listCategory();
     }
 
-    public void updateCategory(Category category) {
-        categoryDomainService.updateCategory(category);
+    public boolean updateCategory(Category category) {
+        return categoryDomainService.updateCategory(category);
     }
 
-    public void deleteCategory(Long idCategory) {
-        categoryDomainService.deleteCategory(idCategory);
+    public boolean deleteCategory(int idCategoria) {
+        return categoryDomainService.deleteCategory(idCategoria);
     }
 
 }

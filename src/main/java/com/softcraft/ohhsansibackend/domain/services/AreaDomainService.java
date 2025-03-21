@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AreaDomainService {
@@ -19,19 +18,19 @@ public class AreaDomainService {
         this.IAreaRepository = IAreaRepository;
     }
 
-    public void createArea(Area area) {
-        IAreaRepository.save(area);
+    public Area createArea(Area area) {
+        return IAreaRepository.save(area);
     }
 
-    public void updateArea(Area area) {
-        IAreaRepository.update(area);
+    public boolean updateArea(Area area) {
+        return IAreaRepository.update(area);
     }
 
-    public void deleteArea(Long id) {
-        IAreaRepository.delete(id);
+    public boolean deleteArea(int id) {
+        return IAreaRepository.delete(id);
     }
 
-    public Optional<Area> findAreaById(Long id) {
+    public Area findAreaById(int id) {
         return IAreaRepository.findById(id);
     }
 

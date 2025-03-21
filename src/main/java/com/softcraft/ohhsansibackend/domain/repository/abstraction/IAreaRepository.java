@@ -3,12 +3,12 @@ package com.softcraft.ohhsansibackend.domain.repository.abstraction;
 import com.softcraft.ohhsansibackend.domain.models.Area;
 
 import java.util.List;
-import java.util.Optional;
+
 
 public interface IAreaRepository {
-    void save(Area area);
-    void update(Area area);
-    void delete(Long idArea);
-    Optional<Area> findById(Long idArea);
+    Area save(Area area);
+    boolean update(Area area);
+    boolean delete(int idArea);
+    Area findById(int idArea);
     List<Area> findAll();
 }

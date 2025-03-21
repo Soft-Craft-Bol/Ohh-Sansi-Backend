@@ -1,32 +1,41 @@
 package com.softcraft.ohhsansibackend.domain.models;
 
 public class Category {
-    private Long idCategory;
-    private String codCategory;
+    private int idCategoria;
+    private String codigoCategoria;
+    private int idArea;
 
     public Category() {
 
     }
 
-    public Category(Long idCategory, String codCategory) {
-        this.idCategory = idCategory;
-        this.codCategory = codCategory;
+    public Category(int idArea, int idCategoria, String codigoCategoria) {
+        this.idCategoria = idCategoria;
+        this.codigoCategoria = codigoCategoria;
+        this.idArea = idArea;
     }
 
-    public Long getIdCategory() {
-        return idCategory;
+    public int getIdCategoria() {
+        return idCategoria;
     }
 
-    public void setIdCategory(Long idCategory) {
-        this.idCategory = idCategory;
+    public void setIdCategoria(int idCategoria) {
+        this.idCategoria = idCategoria;
     }
 
-    public String getCodCategory() {
-        return codCategory;
+    public String getCodigoCategoria() {
+        return codigoCategoria;
     }
 
-    public void setCodCategory(String codCategory) {
-        this.codCategory = codCategory;
+    public void setCodigoCategoria(String codigoCategoria) {
+        this.codigoCategoria = codigoCategoria;
     }
 
+    public int getIdArea() {
+        return idArea;
+    }
+
+    public void setIdArea(int idArea) {
+        this.idArea = idArea;
+    }
 }

@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class AreaAdapter {
@@ -17,19 +16,19 @@ public class AreaAdapter {
         this.areaDomainService = areaDomainService;
     }
 
-    public void saveArea(Area area) {
-        areaDomainService.createArea(area);
+    public Area saveArea(Area area) {
+        return areaDomainService.createArea(area);
     }
 
-    public void updateArea(Area area) {
-        areaDomainService.updateArea(area);
+    public boolean updateArea(Area area) {
+        return areaDomainService.updateArea(area);
     }
 
-    public void deleteArea(Long id) {
-        areaDomainService.deleteArea(id);
+    public boolean deleteArea(int id) {
+        return areaDomainService.deleteArea(id);
     }
 
-    public Optional<Area> findAreaById(Long id) {
+    public Area findAreaById(int id) {
         return areaDomainService.findAreaById(id);
     }
 
