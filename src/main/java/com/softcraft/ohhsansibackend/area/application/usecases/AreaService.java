@@ -1,5 +1,6 @@
 package com.softcraft.ohhsansibackend.area.application.usecases;
 
+import com.softcraft.ohhsansibackend.exception.DuplicateResourceException;
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.area.application.ports.AreaAdapter;
 import com.softcraft.ohhsansibackend.area.domain.models.Area;
