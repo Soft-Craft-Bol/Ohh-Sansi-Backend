@@ -1,12 +1,12 @@
 select * from area;
 -----------------------------------------------------------------------------------------------------------------------
-create or replace function insertarea(nombrearea varchar, precioarea decimal, nombrecortoarea varchar)
+create or replace function insertarea(nombreArea varchar, precioArea decimal, nombreCortoArea varchar)
     returns boolean as $$
 declare
     newid integer;
 begin
     insert into area (nombre_area, precio_area, nombre_corto_area)
-    values (nombrearea, precioarea, nombrecortoarea)
+    values (nombreArea, precioArea, nombreCortoArea)
     returning id_area into newid;
     if newid is not null then
         return true;
@@ -18,7 +18,7 @@ exception
         return false;
 end;
 $$ language plpgsql;
-select insertarea('humanidades',20.0,'hum');
+select insertarea('humanidades',20.5,'hum');
 -----------------------------------------------------------------------------------------------------------------------
 create or replace function updatearea(idarea integer, nombrearea varchar, precioarea decimal, nombrecortoarea varchar)
     returns boolean as $$
