@@ -19,8 +19,8 @@ public class AreaDomainRepository implements IAreaRepository {
 
     @Override
     public Area save(Area area) {
-        String sql = "SELECT InsertArea(?, ?, ?)";
-        return jdbcTemplate.queryForObject(sql, new Object[]{area.getNombreArea(), area.getPrecioArea(),area.getNombreCortoArea()
+        String sql = "SELECT insertarea(?, ? , ?)";
+        return jdbcTemplate.queryForObject(sql, new Object[]{area.getNombreArea(),area.getPrecioArea(), area.getNombreCortoArea()
         }, new BeanPropertyRowMapper<>(Area.class));
     }
 

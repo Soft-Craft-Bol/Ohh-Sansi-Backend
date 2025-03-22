@@ -29,8 +29,6 @@ public class InscripcionAreaDomainRepository implements com.softcraft.ohhsansiba
         }
     }
 
-
-
     @Override
     public List<InscripcionArea> findAllInscripcionAreas() {
         String sql = "SELECT * FROM selectAllInscripcionAreas()";

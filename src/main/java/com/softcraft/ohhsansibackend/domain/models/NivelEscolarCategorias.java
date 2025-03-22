@@ -1,8 +1,14 @@
 package com.softcraft.ohhsansibackend.domain.models;
 
+import jakarta.validation.constraints.NotNull;
+
 public class NivelEscolarCategorias {
     private int idNivelEscolarCategorias;
+
+    @NotNull(message = "El id del nivel no puede ser nulo")
     private int idNivel;
+
+    @NotNull(message = "El id de la categoria no puede ser nulo")
     private int idCategoria;
 
     public NivelEscolarCategorias() {

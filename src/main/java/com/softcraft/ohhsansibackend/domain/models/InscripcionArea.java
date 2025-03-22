@@ -1,8 +1,14 @@
 package com.softcraft.ohhsansibackend.domain.models;
 
+import jakarta.validation.constraints.*;
+
 public class InscripcionArea {
     private int idInscripcionArea;
+
+    @NotNull(message="El id de inscripción es requerido")
     private int idInscripcion;
+
+    @NotNull(message="El id de área es requerido")
     private int idArea;
 
     public InscripcionArea() {

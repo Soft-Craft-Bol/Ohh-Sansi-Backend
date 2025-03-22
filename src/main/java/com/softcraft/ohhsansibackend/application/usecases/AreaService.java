@@ -1,13 +1,21 @@
 package com.softcraft.ohhsansibackend.application.usecases;
 
+<<<<<<< Updated upstream:src/main/java/com/softcraft/ohhsansibackend/application/usecases/AreaService.java
 import com.softcraft.ohhsansibackend.application.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.application.ports.AreaAdapter;
 import com.softcraft.ohhsansibackend.domain.models.Area;
+=======
+import com.softcraft.ohhsansibackend.exception.DuplicateResourceException;
+import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
+import com.softcraft.ohhsansibackend.area.application.ports.AreaAdapter;
+import com.softcraft.ohhsansibackend.area.domain.models.Area;
+>>>>>>> Stashed changes:src/main/java/com/softcraft/ohhsansibackend/area/application/usecases/AreaService.java
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.HashMap;
+
 import java.util.Map;
 
 @Service
@@ -23,38 +31,55 @@ public class AreaService {
     public Map<String, Object> saveArea(Area area) {
         try {
             areaAdapter.saveArea(area);
-        }catch (DuplicateKeyException e){
-            throw new DuplicateKeyException(e.getMessage());
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateResourceException("Area ya registrada");
         }
-        return Map.of("success", true, "message", "Area creado exitosamente");
-
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Area registrada exitosamente");
+        return response;
     }
 
     public Map<String, Object> updateArea(Area area) {
-        if (areaAdapter.findAreaById(area.getIdArea()) == null) {
-            throw new ResourceNotFoundException("Área con ID " + area.getIdArea() + " no encontrada");
+        Map<String, Object> response = new HashMap<>();
+        try {
+            areaAdapter.updateArea(area);
+            response.put("message", "Area actualizada exitosamente");
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Area no encontrada");
         }
-        areaAdapter.updateArea(area);
-        return Map.of("success", true, "message", "Área actualizada exitosamente");
+        return response;
     }
 
     public Map<String, Object> deleteArea(int id) {
-        if (areaAdapter.findAreaById(id) == null) {
-            throw new ResourceNotFoundException("Área con ID " + id + " no encontrada");
+        Map<String, Object> response = new HashMap<>();
+        try {
+            areaAdapter.deleteArea(id);
+            response.put("message", "Area eliminada exitosamente");
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Area no encontrada");
         }
-        areaAdapter.deleteArea(id);
-        return Map.of("success", true, "message", "Área eliminada exitosamente");
+        return response;
     }
 
-    public Area findAreaById(int id) {
+    public Map<String, Object> findAreaById(int id) {
+        Map<String, Object> response = new HashMap<>();
         Area area = areaAdapter.findAreaById(id);
-        if(area == null) {
-            throw new ResourceNotFoundException("Area con ID" + id + " no encontrado");
+        if (area == null) {
+            throw new ResourceNotFoundException("Area no encontrada");
         }
-        return area;
+        response.put("area", area);
+        return response;
     }
 
-    public List<Area> getAreas() { return areaAdapter.getAreas(); }
+    public Map<String, Object> getAreas() {
+        try {
+            Map<String, Object> response = new HashMap<>();
+            response.put("areas", areaAdapter.getAreas());
+            return response;
+        } catch (Exception e) {
+        throw new RuntimeException("Error al obtener la lista de areas");
+        }
+    }
 
 }
 

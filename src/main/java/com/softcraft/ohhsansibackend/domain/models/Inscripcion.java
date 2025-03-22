@@ -1,11 +1,19 @@
 package com.softcraft.ohhsansibackend.domain.models;
 
+import jakarta.validation.constraints.*;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.sql.Date;
 import java.sql.Time;
 
 public class Inscripcion {
     private int idInscripcion;
+
+    @NotNull(message = "La fecha de inscripción no puede ser nula")
+    @PastOrPresent(message = "La fecha de inscripción no puede ser en el futuro")
     private Date fechaInscripcion;
+
+    @NotNull(message = "La hora de inscripción no puede ser nula")
     private Time horaInscripcion;
 
     public Inscripcion() {

@@ -1,8 +1,15 @@
 package com.softcraft.ohhsansibackend.domain.models;
 
+import jakarta.validation.constraints.*;
+
 public class Category {
     private int idCategoria;
+
+    @NotBlank(message = "El código de la categoría no puede estar vacío")
+    @Size(max = 10,  message = "El código de la categoría no puede tener más de 10 caracteres")
     private String codigoCategoria;
+
+    @NotNull(message = "El id del área es requerido")
     private int idArea;
 
     public Category() {
