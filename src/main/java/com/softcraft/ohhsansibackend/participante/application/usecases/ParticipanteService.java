@@ -49,22 +49,23 @@ public class ParticipanteService {
         }
     }
 
-    public Map<String, Object> findByEmail(String email){
-        try{
-            Map<String, Object> response = new HashMap<>();
-            response.put("participante", participanteAdapter.findByEmail(email));
-            return response;
-        }catch (Exception e){
-            throw new RuntimeException("Error al obtener el participante");
+    public Map<String, Object> findByEmail(String email) {
+        Participante participante = participanteAdapter.findByEmail(email);
+        if (participante == null) {
+            throw new ResourceNotFoundException("Participante no encontrado");
         }
+        Map<String, Object> response = new HashMap<>();
+        response.put("participante", participante);
+        return response;
     }
-    public Map<String, Object> findByCarnetIdentidad(int carnetIdentidad){
-        try{
-            Map<String, Object> response = new HashMap<>();
-            response.put("participante", participanteAdapter.findByCarnetIdentidad(carnetIdentidad));
-            return response;
-        }catch (Exception e){
-            throw new RuntimeException("Error al obtener el participante");
+
+    public Map<String, Object> findByCarnetIdentidad(int carnetIdentidad) {
+        Participante participante = participanteAdapter.findByCarnetIdentidad(carnetIdentidad);
+        if (participante == null) {
+            throw new ResourceNotFoundException("Participante no encontrado");
         }
+        Map<String, Object> response = new HashMap<>();
+        response.put("participante", participante);
+        return response;
     }
 }

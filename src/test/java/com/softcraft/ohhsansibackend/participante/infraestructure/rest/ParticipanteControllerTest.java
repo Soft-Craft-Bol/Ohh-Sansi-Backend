@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -57,8 +58,7 @@ class ParticipanteControllerTest {
         participante.setCorreoElectronicoParticipante("alf@gmail.com");
         participante.setCarnetIdentidadParticipante(1234561);
         response = new HashMap<>();
-        response.put("status", "success");
-        response.put("data", participante);
+        response.put("participante", participante);
     }
 
     @Test
@@ -133,7 +133,66 @@ class ParticipanteControllerTest {
                 .andExpect(jsonPath("$.message").value("Recurso no econtrado"));
     }
 
+    @Test
+    void findAll_Positive() throws Exception {
+        Map<String, Object> response = new HashMap<>();
+        response.put("participantes", List.of(participante));
+        when(participanteService.findAll()).thenReturn(response);
 
+        mockMvc.perform(get("/participante")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.participantes").isArray())
+                .andExpect(jsonPath("$.participantes[0].correoElectronicoParticipante").value("alf@gmail.com"));
+    }
 
+    @Test
+    void findAll_Empty() throws Exception {
+        Map<String, Object> response = new HashMap<>();
+        when(participanteService.findAll()).thenReturn(response);
 
+        mockMvc.perform(get("/participante")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void findByEmail_Positive() throws Exception {
+        when(participanteService.findByEmail("alf@gmail.com")).thenReturn(response);
+
+        mockMvc.perform(get("/participante/email/{email}", "alf@gmail.com")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.participante.correoElectronicoParticipante").value("alf@gmail.com"));
+    }
+
+    @Test
+    void findByEmail_Negative() throws Exception {
+        when(participanteService.findByEmail("nonexistent@gmail.com")).thenThrow(new ResourceNotFoundException("Participante no encontrado"));
+
+        mockMvc.perform(get("/participante/email/{email}", "nonexistent@gmail.com")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Recurso no econtrado"));
+    }
+
+    @Test
+    void findByCarnetIdentidad_Positive() throws Exception {
+        when(participanteService.findByCarnetIdentidad(1234561)).thenReturn(response);
+
+        mockMvc.perform(get("/participante/carnet/{carnetIdentidad}", 1234561)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.participante.carnetIdentidadParticipante").value(1234561));
+    }
+
+    @Test
+    void findByCarnetIdentidad_Negative() throws Exception {
+        when(participanteService.findByCarnetIdentidad(9999999)).thenThrow(new ResourceNotFoundException("Participante no encontrado"));
+
+        mockMvc.perform(get("/participante/carnet/{carnetIdentidad}", 9999999)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Recurso no econtrado"));
+    }
 }

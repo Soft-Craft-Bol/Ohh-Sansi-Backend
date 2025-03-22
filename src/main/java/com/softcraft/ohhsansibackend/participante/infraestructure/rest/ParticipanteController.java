@@ -34,6 +34,9 @@ public class ParticipanteController {
     @GetMapping
     public ResponseEntity<Map<String, Object>> findAll() {
         Map<String, Object> response = participanteService.findAll();
+        if (response.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
