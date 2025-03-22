@@ -1,6 +1,7 @@
 package com.softcraft.ohhsansibackend.participante.application.usecases;
 
 import com.softcraft.ohhsansibackend.exception.DuplicateResourceException;
+import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.participante.application.ports.ParticipanteAdapter;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +31,11 @@ public class ParticipanteService {
     }
     public Map<String, Object> findById(Long id) {
         Map<String, Object> response = new HashMap<>();
-        try {
-            Participante participante = participanteAdapter.findById(id);
-            response.put("participante", participante);
-        } catch (Exception e) {
-            response.put("status", "error");
-            response.put("message", "Error al obtener el participante");
+        Participante participante = participanteAdapter.findById(id);
+        if (participante == null) {
+            throw new ResourceNotFoundException("Participante no encontrado");
         }
+        response.put("participante", participante);
         return response;
     }
 

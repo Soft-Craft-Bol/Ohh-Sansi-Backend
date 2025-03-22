@@ -2,6 +2,7 @@ package com.softcraft.ohhsansibackend.participante.infraestructure.rest;
 
 import com.softcraft.ohhsansibackend.config.TestSecurityConfig;
 import com.softcraft.ohhsansibackend.exception.DuplicateResourceException;
+import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -53,7 +55,7 @@ class ParticipanteControllerTest {
         participante.setNombreParticipante("Ernesto");
         participante.setFechaNacimiento(new Date());
         participante.setCorreoElectronicoParticipante("alf@gmail.com");
-        participante.setCarnetIdentidadParticipante(123456);
+        participante.setCarnetIdentidadParticipante(1234561);
         response = new HashMap<>();
         response.put("status", "success");
         response.put("data", participante);
@@ -111,6 +113,27 @@ class ParticipanteControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Email o carnet de identidad ya registrados"));
     }
+
+    @Test
+    void findById_Positive() throws Exception {
+        when(participanteService.findById(anyLong())).thenReturn(response);
+
+        mockMvc.perform(get("/participante/{id}", 8L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void findById_Negative() throws Exception {
+        when(participanteService.findById(anyLong())).thenThrow(new ResourceNotFoundException("Participante no encontrado"));
+
+        mockMvc.perform(get("/participante/{id}", 28L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Recurso no econtrado"));
+    }
+
+
 
 
 }
