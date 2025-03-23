@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -27,6 +28,7 @@ public class TutorService {
         }
         return Map.of("message", "Tutor registrado exitosamente");
     }
+
     public Map<String, Object> findByIdTutor(int idTutor) {
         try {
             Tutor tutor = tutorAdapter.findByIdTutor(idTutor);
@@ -35,11 +37,12 @@ public class TutorService {
             throw new ResourceNotFoundException("Error al buscar el tutor");
         }
     }
+
     public Map<String, Object> findAllTutor() {
-        try {
-            return Map.of("tutores", tutorAdapter.findAllTutor());
-        } catch (Exception e) {
-            throw new RuntimeException("Error al buscar los tutores", e);
+        List<Tutor> tutores = tutorAdapter.findAllTutor();
+        if (tutores.isEmpty()) {
+            throw new ResourceNotFoundException("No se encontraron tutores");
         }
+        return Map.of("tutores", tutores);
     }
 }
