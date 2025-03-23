@@ -1,12 +1,19 @@
 package com.softcraft.ohhsansibackend.inscripcion.infraestructure.rest;
 
+import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.application.usecases.InscripcionService;
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
+import com.softcraft.ohhsansibackend.inscripcion.infraestructure.dto.FechaRangeRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Date;
+import java.sql.Time;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +28,7 @@ public class InscripcionController {
     }
 
     @PostMapping("/register-inscripcion")
-    public ResponseEntity<Map<String, Object>> createInscripcion(@RequestBody Inscripcion inscripcion) {
+    public ResponseEntity<Map<String, Object>> createInscripcion(@Valid @RequestBody Inscripcion inscripcion) {
         Map<String, Object> response = inscripcionService.saveInscripcion(inscripcion);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -29,11 +36,7 @@ public class InscripcionController {
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getInscripcion(@PathVariable int id) {
         Inscripcion inscripcion = inscripcionService.findInscripcionById(id);
-        if(inscripcion != null) {
-            return ResponseEntity.ok(Map.of( "data", inscripcion));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("success", false, "message", "Inscripcion not found"));
-        }
+        return ResponseEntity.ok(Map.of("data", inscripcion));
     }
 
     @GetMapping
@@ -42,17 +45,18 @@ public class InscripcionController {
     }
 
     @GetMapping("/by-date-time")
-    public ResponseEntity<List<Inscripcion>> findByDateAndTime(@RequestParam String date, @RequestParam String time) {
+    public ResponseEntity<List<Inscripcion>> findByDateAndTime(@RequestParam Date date, @RequestParam Time time) {
         return ResponseEntity.ok(inscripcionService.findByDateAndTime(date, time));
     }
 
     @GetMapping("/by-range-date")
-    public ResponseEntity<List<Inscripcion>> findByRangeDate(@RequestParam String date) {
-        return ResponseEntity.ok(inscripcionService.findByRangeDate(date));
+    public ResponseEntity<Map<String, Object>> getInscripcionesByDateRange(@RequestBody FechaRangeRequest fechaRange) {
+        List<Inscripcion> inscripciones = inscripcionService.findByRangeDate(fechaRange.getFechaInicio(), fechaRange.getFechaFin());
+        return ResponseEntity.ok(Map.of("data", inscripciones));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateInscripcion(@PathVariable int id, @RequestBody Inscripcion inscripcion) {
+    public ResponseEntity<Map<String, Object>> updateInscripcion(@PathVariable int id, @Valid @RequestBody Inscripcion inscripcion) {
         inscripcion.setIdInscripcion(id);
         Map<String, Object> response = inscripcionService.updateInscripcion(inscripcion);
         return ResponseEntity.ok(response);
