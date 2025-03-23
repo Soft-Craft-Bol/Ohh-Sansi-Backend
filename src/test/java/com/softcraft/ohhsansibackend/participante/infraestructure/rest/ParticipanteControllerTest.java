@@ -63,7 +63,7 @@ class ParticipanteControllerTest {
 
     @Test
     void registerParticipant() throws Exception {
-        when(participanteService.save(any(Participante.class))).thenReturn(response);
+        when(participanteService.save(any(Participante.class))).thenReturn(Map.of("message", "Participante registrado exitosamente"));
 
         mockMvc.perform(post("/participante/register-participant")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -85,8 +85,7 @@ class ParticipanteControllerTest {
                                 """
                         ))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.status").value("success"))
-                .andExpect(jsonPath("$.data.correoElectronicoParticipante").value("alf@gmail.com"));
+                .andExpect(jsonPath("$.message").value("Participante registrado exitosamente"));
     }
 
     @Test
@@ -112,6 +111,35 @@ class ParticipanteControllerTest {
                         ))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Email o carnet de identidad ya registrados"));
+    }
+
+    @Test
+    void registerParticipantWithMultipleNullFields() throws Exception {
+        mockMvc.perform(post("/participante/register-participant")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(
+                                """
+                                    {
+                                      "idInscripcion": 1,
+                                      "idDepartamento": 1,
+                                      "idMunicipio": 1,
+                                      "idColegio": null,
+                                      "participanteHash": "hash123131",
+                                      "apellidoPaterno": null,
+                                      "apellidoMaterno": "Peredo",
+                                      "nombreParticipante": "Dylan Amin",
+                                      "fechaNacimiento": "2003-10-02",
+                                      "correoElectronicoParticipante": "dyklanamin@gmail.com",
+                                      "carnetIdentidadParticipante": 121212312
+                                    }
+                                """
+                        ))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.statusCode").value(400))
+                .andExpect(jsonPath("$.message").value("Validation failed"))
+                .andExpect(jsonPath("$.errors.apellidoPaterno").value("apellidoPaterno es requerido"))
+                .andExpect(jsonPath("$.errors.idColegio").value("idColegio es requerido"))
+                .andExpect(jsonPath("$.details").value("uri=/participante/register-participant"));
     }
 
     @Test

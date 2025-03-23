@@ -21,7 +21,7 @@ public class TutorController {
         return ResponseEntity.ok(tutorService.save(tutor));
     }
     @GetMapping("/{idTutor}")
-    public ResponseEntity<Map<String,Object>> findByIdTutor(int idTutor) {
+    public ResponseEntity<Map<String,Object>> findByIdTutor(@PathVariable Integer idTutor) {
         return ResponseEntity.ok(tutorService.findByIdTutor(idTutor));
     }
     @GetMapping
