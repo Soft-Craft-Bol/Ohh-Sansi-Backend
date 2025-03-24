@@ -25,7 +25,6 @@ public class InscripcionDomainRepository implements IInscripcionRepository {
         return jdbcTemplate.queryForObject(sql, new Object[]{inscripcion.getFechaInscripcion(), inscripcion.getHoraInscripcion()},
                 new BeanPropertyRowMapper<>(Inscripcion.class));
     }
-
     @Override
     public boolean updateInscription(Inscripcion inscripcion) {
         String sql = "SELECT updateInscription(?, ?, ?)";
@@ -67,4 +66,7 @@ public class InscripcionDomainRepository implements IInscripcionRepository {
         return jdbcTemplate.query(sql, new Object[]{date},
                 new BeanPropertyRowMapper<>(Inscripcion.class));
     }
+
+
+
 }

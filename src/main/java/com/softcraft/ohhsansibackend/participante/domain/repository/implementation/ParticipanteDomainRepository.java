@@ -22,7 +22,7 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
 
     @Override
     public Participante save(Participante participante) {
-        String sql = "INSERT INTO participante (id_inscripcion, id_departamento, id_municipio, id_colegio, participante_hash, apellido_paterno, apellido_materno, nombre_participante, fecha_nacimiento, correo_electronico_participante, carnet_identidad_participante) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id_inscripcion, id_participante";
+        String sql = "INSERT INTO participante (id_inscripcion, id_departamento, id_municipio, id_colegio, participante_hash, apellido_paterno, apellido_materno, nombre_participante, fecha_nacimiento, correo_electronico_participante, carnet_identidad_participante, id_nivel) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id_inscripcion, id_participante";
         return jdbcTemplate.queryForObject(sql, new Object[]{
                 participante.getIdInscripcion(),
                 participante.getIdDepartamento(),
@@ -34,7 +34,8 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
                 participante.getNombreParticipante(),
                 participante.getFechaNacimiento(),
                 participante.getCorreoElectronicoParticipante(),
-                participante.getCarnetIdentidadParticipante()
+                participante.getCarnetIdentidadParticipante(),
+                participante.getIdNivel()
         }, new BeanPropertyRowMapper<>(Participante.class));
     }
 
@@ -64,7 +65,7 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
 
     @Override
     public boolean update(Participante participante) {
-        String sql = "UPDATE participante SET id_departamento = ?, id_municipio = ?, id_colegio = ?, participante_hash = ?, apellido_paterno = ?, apellido_materno = ?, nombre_participante = ?, fecha_nacimiento = ?, correo_electronico_participante = ?, carnet_identidad_participante = ? WHERE id_inscripcion = ? AND id_participante = ?";
+        String sql = "UPDATE participante SET id_departamento = ?, id_municipio = ?, id_colegio = ?, participante_hash = ?, apellido_paterno = ?, apellido_materno = ?, nombre_participante = ?, fecha_nacimiento = ?, correo_electronico_participante = ?, carnet_identidad_participante = ?, id_nivel = ? WHERE id_inscripcion = ? AND id_participante = ?";
         int rowsAffected = jdbcTemplate.update(sql,
                 participante.getIdDepartamento(),
                 participante.getIdMunicipio(),
@@ -76,6 +77,7 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
                 participante.getFechaNacimiento(),
                 participante.getCorreoElectronicoParticipante(),
                 participante.getCarnetIdentidadParticipante(),
+                participante.getIdNivel(),
                 participante.getIdInscripcion(),
                 participante.getIdParticipante()
         );
