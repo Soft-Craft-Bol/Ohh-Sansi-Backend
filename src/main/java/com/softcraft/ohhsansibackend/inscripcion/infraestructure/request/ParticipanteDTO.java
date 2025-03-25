@@ -14,6 +14,22 @@ public class ParticipanteDTO {
     private String correoElectronicoParticipante;
     private int carnetIdentidadParticipante;
 
+    public ParticipanteDTO(int idDepartamento, int idMunicipio, int idColegio, int idNivelGradoEscolar, String apellidoPaterno, String apellidoMaterno, String nombreParticipante, Date fechaNacimiento, String correoElectronicoParticipante, int carnetIdentidadParticipante) {
+        this.idDepartamento = idDepartamento;
+        this.idMunicipio = idMunicipio;
+        this.idColegio = idColegio;
+        this.idNivelGradoEscolar = idNivelGradoEscolar;
+        this.apellidoPaterno = apellidoPaterno;
+        this.apellidoMaterno = apellidoMaterno;
+        this.nombreParticipante = nombreParticipante;
+        this.fechaNacimiento = fechaNacimiento;
+        this.correoElectronicoParticipante = correoElectronicoParticipante;
+        this.carnetIdentidadParticipante = carnetIdentidadParticipante;
+    }
+
+    public ParticipanteDTO() {
+    }
+
     public int getIdDepartamento() {
         return idDepartamento;
     }
