@@ -57,7 +57,12 @@ public class InscripcionLargaService {
         participante.setApellidoPaterno(inscripcionDTO.getParticipante().getApellidoPaterno());
         participante.setApellidoMaterno(inscripcionDTO.getParticipante().getApellidoMaterno());
         participante.setNombreParticipante(inscripcionDTO.getParticipante().getNombreParticipante());
+
+        if (inscripcionDTO.getParticipante().getFechaNacimiento() == null) {
+            throw new IllegalArgumentException("Fecha de nacimiento no puede ser null");
+        }
         participante.setFechaNacimiento(inscripcionDTO.getParticipante().getFechaNacimiento());
+
         participante.setCorreoElectronicoParticipante(inscripcionDTO.getParticipante().getCorreoElectronicoParticipante());
         participante.setCarnetIdentidadParticipante(inscripcionDTO.getParticipante().getCarnetIdentidadParticipante());
         participanteService.save(participante);
@@ -85,6 +90,10 @@ public class InscripcionLargaService {
             participanteTutor.setIdInscripcion(inscripcionId);
             participanteTutor.setIdParticipante(participante.getIdParticipante());
             participanteTutorService.createParticipanteTutor(participanteTutor.getIdTutor(), participanteTutor.getIdInscripcion(), participanteTutor.getIdParticipante());
+            for (Map.Entry<String, Integer> areaEntry : inscripcionDTO.getTutorAreaDecompetencia().entrySet()) {
+                int idArea = areaEntry.getValue();
+                tutorAreaService.createTutorArea(idArea, tutor.getIdTutor().intValue());
+            }
         }
         for (Map.Entry<String, Integer> entry : inscripcionDTO.getTutorAreaDecompetencia().entrySet()) {
             int idArea = entry.getValue();
