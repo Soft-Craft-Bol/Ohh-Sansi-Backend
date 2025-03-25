@@ -5,9 +5,14 @@ import com.softcraft.ohhsansibackend.inscripcion.domain.repository.abstraction.I
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class InscripcionAreaDomainRepository implements IInscripcionAreaDomainRepository {
@@ -20,14 +25,18 @@ public class InscripcionAreaDomainRepository implements IInscripcionAreaDomainRe
 
     @Override
     public InscripcionArea insertInscripcionArea(int idInscripcion, int idArea) {
-        String sql = "SELECT insertInscripcionArea(?, ?) AS id";
-        Integer idInscripcionArea = jdbcTemplate.queryForObject(sql, Integer.class, idInscripcion, idArea);
+        String sql = "INSERT INTO inscripcion_area (id_inscripcion, id_area) VALUES (?, ?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setInt(1, idInscripcion);
+            ps.setInt(2, idArea);
+            return ps;
+        }, keyHolder);
+        Map<String, Object> keys = keyHolder.getKeys();
+        Integer idInscripcionArea = (Integer) keys.get("id_inscripcion_area");
 
-        if (idInscripcionArea != null) {
-            return new InscripcionArea(idInscripcionArea, idInscripcion, idArea);
-        } else {
-            throw new RuntimeException("Error al insertar InscripcionArea");
-        }
+        return new InscripcionArea(idInscripcionArea, idInscripcion, idArea);
     }
 
     @Override

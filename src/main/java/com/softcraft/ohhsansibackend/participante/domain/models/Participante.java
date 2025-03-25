@@ -30,6 +30,21 @@ public class Participante {
     private String correoElectronicoParticipante;
     @NotNull(message = "carnetIdentidadParticipante es requerido")
     private Integer carnetIdentidadParticipante;
+    @NotNull(message = "el idNivel es requerido")
+    private int idNivel;
+
+    public int getIdNivel() {
+        return idNivel;
+    }
+
+    public void setIdNivel(int idNivel) {
+        this.idNivel = idNivel;
+    }
+
+    public void setCarnetIdentidadParticipante(Integer carnetIdentidadParticipante) {
+        this.carnetIdentidadParticipante = carnetIdentidadParticipante;
+    }
+
     public Participante() {
 
     }

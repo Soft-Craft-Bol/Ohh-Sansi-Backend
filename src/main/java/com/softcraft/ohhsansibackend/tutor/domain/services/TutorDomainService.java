@@ -28,4 +28,11 @@ public class TutorDomainService {
     public List<Tutor> findAllTutor() {
         return tutorDomainRepository.findAllTutor();
     }
+
+    public Tutor findByEmail(String email) {
+        return tutorDomainRepository.findByEmail(email);
+    }
+    public Tutor findByCarnetIdentidad(int carnetIdentidad) {
+        return tutorDomainRepository.findByCarnetIdentidad(carnetIdentidad);
+    }
 }
