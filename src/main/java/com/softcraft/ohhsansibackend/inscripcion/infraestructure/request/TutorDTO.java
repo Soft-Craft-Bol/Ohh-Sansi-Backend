@@ -7,7 +7,15 @@ public class TutorDTO {
     private String apellidosTutor;
     private int telefono;
     private int carnetIdentidadTutor;
+    private Integer areaCompetencia;
 
+    public Integer getAreaCompetencia() {
+        return areaCompetencia;
+    }
+
+    public void setAreaCompetencia(Integer areaCompetencia) {
+        this.areaCompetencia = areaCompetencia;
+    }
 
     public int getIdTipoTutor() {
         return idTipoTutor;

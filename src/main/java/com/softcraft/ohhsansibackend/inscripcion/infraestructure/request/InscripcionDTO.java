@@ -1,11 +1,12 @@
 package com.softcraft.ohhsansibackend.inscripcion.infraestructure.request;
 
+import java.util.List;
 import java.util.Map;
 
 public class InscripcionDTO {
     private ParticipanteDTO participante;
-    private Map<String, AreaCompetenciaDTO> areasCompetenciaEstudiante;
-    private Map<String, TutorDTO> tutores;
+    private List<AreaCompetenciaDTO> areasCompetenciaEstudiante;
+    private List<TutorDTO> tutores;
 
     public ParticipanteDTO getParticipante() {
         return participante;
@@ -15,29 +16,19 @@ public class InscripcionDTO {
         this.participante = participante;
     }
 
-    public Map<String, AreaCompetenciaDTO> getAreasCompetenciaEstudiante() {
+    public List<AreaCompetenciaDTO> getAreasCompetenciaEstudiante() {
         return areasCompetenciaEstudiante;
     }
 
-    public void setAreasCompetenciaEstudiante(Map<String, AreaCompetenciaDTO> areasCompetenciaEstudiante) {
+    public void setAreasCompetenciaEstudiante(List<AreaCompetenciaDTO> areasCompetenciaEstudiante) {
         this.areasCompetenciaEstudiante = areasCompetenciaEstudiante;
     }
 
-    public Map<String, TutorDTO> getTutores() {
+    public List<TutorDTO> getTutores() {
         return tutores;
     }
 
-    public void setTutores(Map<String, TutorDTO> tutores) {
+    public void setTutores(List<TutorDTO> tutores) {
         this.tutores = tutores;
     }
-
-    public Map<String, Integer> getTutorAreaDecompetencia() {
-        return tutorAreaDecompetencia;
-    }
-
-    public void setTutorAreaDecompetencia(Map<String, Integer> tutorAreaDecompetencia) {
-        this.tutorAreaDecompetencia = tutorAreaDecompetencia;
-    }
-
-    private Map<String, Integer> tutorAreaDecompetencia;
 }
