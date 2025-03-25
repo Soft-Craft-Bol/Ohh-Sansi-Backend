@@ -29,17 +29,20 @@ public class InscripcionLargaService {
     private final TutorService tutorService;
     private final TutorAreaService tutorAreaService;
     private final AreaService areaService;
+    private final InscripcionAreaService inscripcionAreaService;
 
     @Autowired
     public InscripcionLargaService(InscripcionService inscripcionService, ParticipanteService participanteService,
                                    ParticipanteTutorService participanteTutorService, TutorService tutorService,
-                                   TutorAreaService tutorAreaService, AreaService areaService) {
+                                   TutorAreaService tutorAreaService, AreaService areaService,
+                                   InscripcionAreaService inscripcionAreaService) {
         this.inscripcionService = inscripcionService;
         this.participanteService = participanteService;
         this.participanteTutorService = participanteTutorService;
         this.tutorService = tutorService;
         this.tutorAreaService = tutorAreaService;
         this.areaService = areaService;
+        this.inscripcionAreaService = inscripcionAreaService;
     }
 
     public Map<String, Object> registerInscripcion(InscripcionDTO inscripcionDTO) {
@@ -59,20 +62,23 @@ public class InscripcionLargaService {
         participante.setCarnetIdentidadParticipante(inscripcionDTO.getParticipante().getCarnetIdentidadParticipante());
         participanteService.save(participante);
         if (participante.getIdParticipante() == 0) {
-            throw new IllegalStateException("Failed to save Participante and retrieve ID");
+            throw new IllegalStateException("participante no añadido, falta id");
         }
         for (Map.Entry<String, TutorDTO> entry : inscripcionDTO.getTutores().entrySet()) {
             TutorDTO tutorDTO = entry.getValue();
-            Tutor tutor = new Tutor();
-            tutor.setIdTipoTutor(tutorDTO.getIdTipoTutor());
-            tutor.setEmailTutor(tutorDTO.getEmailTutor());
-            tutor.setNombresTutor(tutorDTO.getNombresTutor());
-            tutor.setApellidosTutor(tutorDTO.getApellidosTutor());
-            tutor.setTelefono(tutorDTO.getTelefono());
-            tutor.setCarnetIdentidadTutor(tutorDTO.getCarnetIdentidadTutor());
-            tutorService.save(tutor);
-            if (tutor.getIdTutor() == null) {
-                throw new IllegalStateException("Failed to save Tutor and retrieve ID");
+            Tutor tutor = tutorService.findByEmailOrCarnet(tutorDTO.getEmailTutor(), tutorDTO.getCarnetIdentidadTutor());
+            if (tutor == null) {
+                tutor = new Tutor();
+                tutor.setIdTipoTutor(tutorDTO.getIdTipoTutor());
+                tutor.setEmailTutor(tutorDTO.getEmailTutor());
+                tutor.setNombresTutor(tutorDTO.getNombresTutor());
+                tutor.setApellidosTutor(tutorDTO.getApellidosTutor());
+                tutor.setTelefono(tutorDTO.getTelefono());
+                tutor.setCarnetIdentidadTutor(tutorDTO.getCarnetIdentidadTutor());
+                tutorService.save(tutor);
+                if (tutor.getIdTutor() == null) {
+                    throw new IllegalStateException("tutor no añadido, falta id");
+                }
             }
             ParticipanteTutor participanteTutor = new ParticipanteTutor();
             participanteTutor.setIdTutor(tutor.getIdTutor().intValue());
@@ -81,24 +87,8 @@ public class InscripcionLargaService {
             participanteTutorService.createParticipanteTutor(participanteTutor.getIdTutor(), participanteTutor.getIdInscripcion(), participanteTutor.getIdParticipante());
         }
         for (Map.Entry<String, Integer> entry : inscripcionDTO.getTutorAreaDecompetencia().entrySet()) {
-            String tutorKey = entry.getKey();
             int idArea = entry.getValue();
-            TutorDTO tutorDTO = inscripcionDTO.getTutores().get(tutorKey);
-            Tutor tutor = new Tutor();
-            tutor.setIdTipoTutor(tutorDTO.getIdTipoTutor());
-            tutor.setEmailTutor(tutorDTO.getEmailTutor());
-            tutor.setNombresTutor(tutorDTO.getNombresTutor());
-            tutor.setApellidosTutor(tutorDTO.getApellidosTutor());
-            tutor.setTelefono(tutorDTO.getTelefono());
-            tutor.setCarnetIdentidadTutor(tutorDTO.getCarnetIdentidadTutor());
-            tutorService.save(tutor);
-            if (tutor.getIdTutor() == null) {
-                throw new IllegalStateException("Failed to save Tutor and retrieve ID");
-            }
-            TutorArea tutorArea = new TutorArea();
-            tutorArea.setIdTutor(tutor.getIdTutor().intValue());
-            tutorArea.setIdArea(idArea);
-            tutorAreaService.createTutorArea(tutorArea.getIdArea(), tutorArea.getIdTutor());
+            inscripcionAreaService.createInscripcionArea(inscripcionId, idArea);
         }
 
         return Map.of("success", true, "message", "Inscripcion larga registrada exitosamente", "inscripcionId", inscripcionId);

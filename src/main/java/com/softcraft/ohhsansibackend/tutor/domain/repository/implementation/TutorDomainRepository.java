@@ -51,5 +51,16 @@ public class TutorDomainRepository implements ITutorRepository {
         String sql = "SELECT * FROM tutor";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Tutor.class));
     }
+    public Tutor findByEmail(String email) {
+        String sql = "SELECT * FROM tutor WHERE email_tutor = ?";
+        List<Tutor> tutors = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Tutor.class), email);
+        return tutors.isEmpty() ? null : tutors.get(0);
+    }
+
+    public Tutor findByCarnetIdentidad(int carnetIdentidad) {
+        String sql = "SELECT * FROM tutor WHERE carnet_identidad_tutor = ?";
+        List<Tutor> tutors = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Tutor.class), carnetIdentidad);
+        return tutors.isEmpty() ? null : tutors.get(0);
+    }
 
 }
