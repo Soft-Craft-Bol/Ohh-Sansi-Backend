@@ -1,14 +1,13 @@
 package com.softcraft.ohhsansibackend.area.domain.models;
 
 import jakarta.validation.constraints.*;
-import org.hibernate.validator.constraints.UniqueElements;
+
 
 import java.math.BigDecimal;
 
 public class Area {
     private int idArea;
 
-    @UniqueElements(message = "El nombre del área ya existe")
     @NotBlank(message = "El nombre del área no puede estar vacío")
     @Size(max = 100, message = "El nombre del área no puede tener más de 100 caracteres")
     private String nombreArea;

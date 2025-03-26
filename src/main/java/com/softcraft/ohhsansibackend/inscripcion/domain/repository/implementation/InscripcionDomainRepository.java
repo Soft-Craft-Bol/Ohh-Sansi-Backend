@@ -1,14 +1,18 @@
 package com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementation;
 
+import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
 import com.softcraft.ohhsansibackend.inscripcion.domain.repository.abstraction.IInscripcionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-
+import java.sql.Date;
+import java.sql.Time;
+import java.time.LocalDate;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
@@ -48,7 +52,7 @@ public class InscripcionDomainRepository implements IInscripcionRepository {
     }
     @Override
     public boolean updateInscription(Inscripcion inscripcion) {
-        String sql = "SELECT updateInscription(?, ?, ?)";
+        String sql = "SELECT updateInscripcion(?, ?, ?)";
         Boolean result = jdbcTemplate.queryForObject(sql, Boolean.class, inscripcion.getIdInscripcion(), inscripcion.getFechaInscripcion(), inscripcion.getHoraInscripcion());
         return result;
 
@@ -56,16 +60,20 @@ public class InscripcionDomainRepository implements IInscripcionRepository {
 
     @Override
     public boolean deleteInscripcion(int idInscripcion) {
-        String sql = "SELECT deleteInscription(?)";
-        Boolean result = jdbcTemplate.queryForObject(sql, Boolean.class);
-        return result;
+        String sql = "SELECT deleteInscripcion(?)";
+        Boolean result = jdbcTemplate.queryForObject(sql, Boolean.class, idInscripcion);
+        return result != null && result;
     }
 
     @Override
     public Inscripcion findByIdInscripcion(int idInscripcion) {
         String sql = "SELECT * FROM selectInscripcionById(?)";
-        List<Inscripcion> inscripciones = jdbcTemplate.query(sql, new Object[]{idInscripcion}, new BeanPropertyRowMapper<>(Inscripcion.class));
-        return inscripciones.isEmpty() ? null : inscripciones.get(0);
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{idInscripcion},
+                    new BeanPropertyRowMapper<>(Inscripcion.class));
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResourceNotFoundException("Inscripcion con ID " + idInscripcion + " no encontrada");
+        }
     }
 
     @Override
@@ -75,17 +83,19 @@ public class InscripcionDomainRepository implements IInscripcionRepository {
     }
 
     @Override
-    public List<Inscripcion> findByDateAndTime(String date, String time) {
+    public List<Inscripcion> findByDateAndTime(Date date, Time time) {
         String sql = "SELECT * FROM selectInscripcionByDateAndTime(?, ?)";
         return jdbcTemplate.query(sql, new Object[]{date, time},
                 new BeanPropertyRowMapper<>(Inscripcion.class));
     }
 
     @Override
-    public List<Inscripcion> findByDate(String date) {
-        String sql = "SELECT * FROM selectInscripcionesByDateRange(?)";
-        return jdbcTemplate.query(sql, new Object[]{date},
-                new BeanPropertyRowMapper<>(Inscripcion.class));
+    public List<Inscripcion> findByRangeDate(LocalDate fechaInicio, LocalDate fechaFin) {
+        String sql = "SELECT * FROM selectInscripcionesByDateRange(?, ?)";
+        return jdbcTemplate.query(sql, new Object[]{
+                Date.valueOf(fechaInicio),
+                Date.valueOf(fechaFin)
+        }, new BeanPropertyRowMapper<>(Inscripcion.class));
     }
 
 

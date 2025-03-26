@@ -1,62 +1,57 @@
 select * from area;
 -----------------------------------------------------------------------------------------------------------------------
-create or replace function insertarea(nombreArea varchar, precioArea decimal, nombreCortoArea varchar)
-    returns boolean as $$
-declare
-    newid integer;
-begin
-    insert into area (nombre_area, precio_area, nombre_corto_area)
-    values (nombreArea, precioArea, nombreCortoArea)
-    returning id_area into newid;
-    if newid is not null then
-        return true;
-    else
-        return false;
-    end if;
-exception
-    when others then
-        return false;
-end;
-$$ language plpgsql;
+CREATE OR REPLACE FUNCTION insertarea(
+    nombreArea VARCHAR,
+    precioArea DECIMAL,
+    nombreCortoArea VARCHAR
+)
+    RETURNS TABLE (id_area INT, nombre_area VARCHAR, precio_area DECIMAL, nombre_corto_area VARCHAR) AS $$
+BEGIN
+    RETURN QUERY
+        INSERT INTO area (nombre_area, precio_area, nombre_corto_area)
+            VALUES (nombreArea, precioArea, nombreCortoArea)
+            RETURNING *;
+END;
+$$ LANGUAGE plpgsql;
+
 select insertarea('humanidades',20.5,'hum');
 -----------------------------------------------------------------------------------------------------------------------
-create or replace function updatearea(idarea integer, nombrearea varchar, precioarea decimal, nombrecortoarea varchar)
-    returns boolean as $$
-begin
-    update area
-    set nombre_area = nombrearea, precio_area = precioarea, nombre_corto_area = nombrecortoarea
-    where id_area = idarea;
-    if found then
-        return true;
-    else
-        return false;
-    end if;
-exception
-    when others then
-        return false;
-end;
-$$ language plpgsql;
+CREATE OR REPLACE FUNCTION updatearea(
+    idArea INTEGER,
+    nombreArea VARCHAR,
+    precioArea DECIMAL,
+    nombreCortoArea VARCHAR
+) RETURNS BOOLEAN AS $$
+DECLARE
+    rows_updated INT;
+BEGIN
+    UPDATE area
+    SET nombre_area = nombreArea,
+        precio_area = precioArea,
+        nombre_corto_area = nombreCortoArea
+    WHERE id_area = idArea;
+
+    GET DIAGNOSTICS rows_updated = ROW_COUNT;
+
+    RETURN rows_updated > 0;
+END;
+$$ LANGUAGE plpgsql;
+
 
 select * from area;
 select updatearea(1,'ciencias',20.0,'cie');
 -----------------------------------------------------------------------------------------------------------------------
---se recibe como parametro
 create or replace function deletearea(idarea integer)
-    returns boolean as $$
+returns int as $$
+declare
+    affected_rows int;
 begin
-    delete from area where id_area = idarea;
-    if found then
-        return true;
-    else
-        return false;
-    end if;
-exception
-    when others then
-        return false;
+    delete from area where id_area = idarea returning 1 into affected_rows;
+    return affected_rows;
 end;
 $$ language plpgsql;
 
-select deletearea(2);
+select deletearea(11);
 select * from area;
 -----------------------------------------------------------------------------------------------------------------------
 create or replace function selectareabyid(idarea integer)
