@@ -1,62 +1,24 @@
-package com.softcraft.ohhsansibackend.participante.domain.models;
+package com.softcraft.ohhsansibackend.inscripcion.infraestructure.request;
 
+import java.sql.Date;
 
-import jakarta.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.Email;
-
-import java.util.Date;
-
-public class Participante {
-    @NotNull(message = "idInscripcion es requerido")
-    private int idInscripcion;
-    private int idParticipante;
-    @NotNull(message = "idDepartamento es requerido")
+public class ParticipanteDTO {
     private int idDepartamento;
-    @NotNull(message = "idMunicipio es requerido")
     private int idMunicipio;
-    @NotNull(message = "idColegio es requerido")
     private int idColegio;
-    private String participanteHash;
-    @NotNull(message = "apellidoPaterno es requerido")
+    private int idNivelGradoEscolar;
     private String apellidoPaterno;
-    @NotNull(message = "apellidoMaterno es requerido")
     private String apellidoMaterno;
-    @NotNull(message = "nombreParticipante es requerido")
     private String nombreParticipante;
-    @NotNull(message = "fechaNacimiento es requerido")
     private Date fechaNacimiento;
-    @NotNull(message = "correoElectronicoParticipante es requerido")
-    @Email(message = "correoElectronicoParticipante debe ser un email")
     private String correoElectronicoParticipante;
-    @NotNull(message = "carnetIdentidadParticipante es requerido")
-    private Integer carnetIdentidadParticipante;
-    @NotNull(message = "el idNivel es requerido")
-    private int idNivel;
+    private int carnetIdentidadParticipante;
 
-    public int getIdNivel() {
-        return idNivel;
-    }
-
-    public void setIdNivel(int idNivel) {
-        this.idNivel = idNivel;
-    }
-
-    public void setCarnetIdentidadParticipante(Integer carnetIdentidadParticipante) {
-        this.carnetIdentidadParticipante = carnetIdentidadParticipante;
-    }
-
-    public Participante() {
-
-    }
-
-    public Participante(int idInscripcion, int idParticipante, int idDepartamento, int idMunicipio, int idColegio, String participanteHash, String apellidoPaterno, String apellidoMaterno, String nombreParticipante, Date fechaNacimiento, String correoElectronicoParticipante, int carnetIdentidadParticipante) {
-        this.idInscripcion = idInscripcion;
-        this.idParticipante = idParticipante;
+    public ParticipanteDTO(int idDepartamento, int idMunicipio, int idColegio, int idNivelGradoEscolar, String apellidoPaterno, String apellidoMaterno, String nombreParticipante, Date fechaNacimiento, String correoElectronicoParticipante, int carnetIdentidadParticipante) {
         this.idDepartamento = idDepartamento;
         this.idMunicipio = idMunicipio;
         this.idColegio = idColegio;
-
-        this.participanteHash = participanteHash;
+        this.idNivelGradoEscolar = idNivelGradoEscolar;
         this.apellidoPaterno = apellidoPaterno;
         this.apellidoMaterno = apellidoMaterno;
         this.nombreParticipante = nombreParticipante;
@@ -65,20 +27,7 @@ public class Participante {
         this.carnetIdentidadParticipante = carnetIdentidadParticipante;
     }
 
-    public int getIdInscripcion() {
-        return idInscripcion;
-    }
-
-    public void setIdInscripcion(int idInscripcion) {
-        this.idInscripcion = idInscripcion;
-    }
-
-    public int getIdParticipante() {
-        return idParticipante;
-    }
-
-    public void setIdParticipante(int idParticipante) {
-        this.idParticipante = idParticipante;
+    public ParticipanteDTO() {
     }
 
     public int getIdDepartamento() {
@@ -105,14 +54,12 @@ public class Participante {
         this.idColegio = idColegio;
     }
 
-
-
-    public String getParticipanteHash() {
-        return participanteHash;
+    public int getIdNivelGradoEscolar() {
+        return idNivelGradoEscolar;
     }
 
-    public void setParticipanteHash(String participanteHash) {
-        this.participanteHash = participanteHash;
+    public void setIdNivelGradoEscolar(int idNivelGradoEscolar) {
+        this.idNivelGradoEscolar = idNivelGradoEscolar;
     }
 
     public String getApellidoPaterno() {

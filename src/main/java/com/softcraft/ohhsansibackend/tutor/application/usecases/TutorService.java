@@ -4,6 +4,7 @@ import com.softcraft.ohhsansibackend.exception.DuplicateResourceException;
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.tutor.domain.models.Tutor;
 import com.softcraft.ohhsansibackend.tutor.application.ports.TutorAdapter;
+import com.softcraft.ohhsansibackend.tutor.domain.repository.implementation.TutorDomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,13 @@ public class TutorService {
         } catch (Exception e) {
             throw new ResourceNotFoundException("Error al buscar el tutor");
         }
+    }
+    public Tutor findByEmailOrCarnet(String email, int carnetIdentidad) {
+        Tutor tutor = tutorAdapter.findByEmail(email);
+        if (tutor == null) {
+            tutor = tutorAdapter.findByCarnetIdentidad(carnetIdentidad);
+        }
+        return tutor;
     }
 
     public Map<String, Object> findAllTutor() {

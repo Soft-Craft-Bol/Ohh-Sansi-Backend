@@ -3,3 +3,6 @@ alter table tutor
 
 alter table tutor
     add constraint unique_correo_tutor unique (email_tutor);
+
+select * from departamento;
+select * from municipio;

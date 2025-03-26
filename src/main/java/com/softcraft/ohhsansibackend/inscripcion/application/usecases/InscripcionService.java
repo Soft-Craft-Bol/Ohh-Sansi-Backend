@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -72,4 +73,11 @@ public class InscripcionService {
         return Map.of("success", true, "message", "Inscripción eliminada exitosamente");
     }
 
+    //devolucion
+    public int createInscripcionAndReturnId(Inscripcion inscripcion) {
+        inscripcion.setFechaInscripcion(Date.valueOf(LocalDate.now()));
+        inscripcion.setHoraInscripcion(Time.valueOf(LocalTime.now()));
+        Inscripcion savedInscripcion = inscripcionAdapter.saveInscripcion(inscripcion);
+        return savedInscripcion.getIdInscripcion();
+    }
 }
