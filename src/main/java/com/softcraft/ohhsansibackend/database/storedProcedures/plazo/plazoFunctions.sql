@@ -59,8 +59,8 @@ BEGIN
     SET
         fecha_inicio_inscripcion = COALESCE(fechaInicio, plazo_inscripcion.fecha_inicio_inscripcion),
         fecha_fin_inscripcion = COALESCE(fechaFin, plazo_inscripcion.fecha_fin_inscripcion),
-        fecha_resultados = COALESCE(fechaResultados, plazo_inscripcion.fecha_resultados),
-        fecha_premiacion = COALESCE(fechaPremiacion, plazo_inscripcion.fecha_premiacion),
+        fecha_resultados = CASE WHEN fechaResultados IS NOT NULL THEN fechaResultados ELSE plazo_inscripcion.fecha_resultados END,
+        fecha_premiacion = CASE WHEN fechaPremiacion IS NOT NULL THEN fechaPremiacion ELSE plazo_inscripcion.fecha_premiacion END,
         fecha_plazo_inscripcion_activo = COALESCE(fechaPlazoActivo, plazo_inscripcion.fecha_plazo_inscripcion_activo)
     WHERE plazo_inscripcion.id_plazo_inscripcion = idPlazo
     RETURNING
@@ -73,7 +73,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT updatePlazoInscripcion(18, '2025-01-01', '2025-02-01', '2025-02-10', NULL, TRUE);
+SELECT updatePlazoInscripcion(24 ,NULL,NULL,'2025-02-10', '2025-04-14', TRUE);
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION deletePlazoInscripcion(idPlazo INTEGER)
     RETURNS BOOLEAN AS $$
@@ -171,8 +171,8 @@ BEGIN
         UPDATE plazo_inscripcion
         SET fecha_inicio_inscripcion = p_fecha_inicio,
             fecha_fin_inscripcion = p_fecha_fin,
-            fecha_resultados = COALESCE(p_fecha_resultados, plazo_inscripcion.fecha_resultados),
-            fecha_premiacion = COALESCE(p_fecha_premiacion, plazo_inscripcion.fecha_premiacion)
+            fecha_resultados = CASE WHEN p_fecha_resultados IS NOT NULL THEN p_fecha_resultados ELSE plazo_inscripcion.fecha_resultados END,
+            fecha_premiacion = CASE WHEN p_fecha_premiacion IS NOT NULL THEN p_fecha_premiacion ELSE plazo_inscripcion.fecha_premiacion END
         WHERE EXTRACT(YEAR FROM plazo_inscripcion.fecha_inicio_inscripcion) = EXTRACT(YEAR FROM p_fecha_inicio)
         RETURNING plazo_inscripcion.id_plazo_inscripcion INTO ultimo_id;
     ELSE
@@ -190,7 +190,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM upsertPlazoInscripcion('2025-01-01', '2025-08-01', '2025-02-10', NULL);
+SELECT * FROM upsertPlazoInscripcion(NULL,NULL, NULL, '2025-04-01');
 
 SELECT * FROM upsertPlazoInscripcion('2025-01-01', '2025-04-01', '2026-02-10', NULL);
 -------------------------------------------------------------------------------------------------------------------------------------------------------------

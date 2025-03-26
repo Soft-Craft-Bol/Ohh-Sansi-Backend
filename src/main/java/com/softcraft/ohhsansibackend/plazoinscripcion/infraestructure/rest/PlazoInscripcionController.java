@@ -21,15 +21,9 @@ public class PlazoInscripcionController {
         this.plazoInscripcionService = plazoInscripcionService;
     }
 
-    @PostMapping("/ingresar")
-    public ResponseEntity<Map<String, Object>> ingresar(@RequestBody PlazoInscripcion plazoInscripcion) {
+    @PostMapping
+    public ResponseEntity<Map<String, Object>> crearOActualizar(@RequestBody PlazoInscripcion plazoInscripcion) {
         Map<String, Object> response = plazoInscripcionService.upsertPlazoInscripcion(plazoInscripcion);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @PostMapping("/registrar")
-    public ResponseEntity<Map<String, Object>> registrar(@RequestBody PlazoInscripcion plazoInscripcion) {
-        Map<String, Object> response = plazoInscripcionService.savePlazoInscripcion(plazoInscripcion);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -37,7 +31,7 @@ public class PlazoInscripcionController {
     public ResponseEntity<Map<String, Object>> actualizar(@PathVariable int id, @RequestBody PlazoInscripcion plazoInscripcion) {
         plazoInscripcion.setIdPlazoInscripcion(id);
         Map<String, Object> response = plazoInscripcionService.updatePlazoInscripcion(plazoInscripcion);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{id}")
@@ -53,15 +47,9 @@ public class PlazoInscripcionController {
     }
 
     @GetMapping("/activo")
-
     public ResponseEntity<Map<String, Object>> buscarActivo() {
         Map<String, Object> response = plazoInscripcionService.getPlazoInscripcionActivo();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @GetMapping("/fecha")
-    public ResponseEntity<Map<String, Object>> buscarPorFecha(@RequestBody FechaRequest request) {
-        Map<String, Object> response = plazoInscripcionService.getPlazoInscripcionByDate(request.getDate());
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
 }
