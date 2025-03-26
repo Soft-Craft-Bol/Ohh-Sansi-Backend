@@ -1,20 +1,14 @@
 package com.softcraft.ohhsansibackend.colegio.application.usecases;
 
-<<<<<<< HEAD
-
 import com.softcraft.ohhsansibackend.colegio.application.ports.ColegioAdapter;
 import com.softcraft.ohhsansibackend.colegio.domain.models.Colegio;
-import com.softcraft.ohhsansibackend.municipio.domain.models.Municipio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 
-=======
-import org.springframework.stereotype.Service;
 
->>>>>>> 2c9907b55c16bb9221a7aee57c45216494ca960d
 @Service
 public class ColegioService {
     private final ColegioAdapter colegioAdapter;
