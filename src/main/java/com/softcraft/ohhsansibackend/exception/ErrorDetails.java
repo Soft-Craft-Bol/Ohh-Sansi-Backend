@@ -1,9 +1,12 @@
 package com.softcraft.ohhsansibackend.exception;
 
+import java.util.Map;
+
 public class ErrorDetails {
     private int statusCode;
     private String message;
     private String details;
+    private Map<String, String> errors;
 
     public ErrorDetails(int statusCode, String message, String details) {
         this.statusCode = statusCode;
@@ -33,5 +36,13 @@ public class ErrorDetails {
 
     public void setDetails(String details) {
         this.details = details;
+    }
+
+    public Map<String, String> getErrors() {
+        return errors;
+    }
+
+    public void setErrors(Map<String, String> errors) {
+        this.errors = errors;
     }
 }
