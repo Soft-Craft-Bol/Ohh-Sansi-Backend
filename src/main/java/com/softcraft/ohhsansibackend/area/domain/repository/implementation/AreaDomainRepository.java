@@ -30,14 +30,14 @@ public class AreaDomainRepository implements IAreaRepository {
     public boolean update(Area area) {
         String sql = "SELECT UpdateArea(?, ?, ?, ?)";
         Boolean rowsAffected = jdbcTemplate.queryForObject(sql, Boolean.class, area.getIdArea(), area.getNombreArea(), area.getPrecioArea(), area.getNombreCortoArea());
-        return rowsAffected;
+        return rowsAffected != null && rowsAffected;
     }
 
     @Override
     public boolean delete(int idArea) {
-        String sql = "SELECT DeleteArea(?)";
-        Boolean rowsAffected = jdbcTemplate.queryForObject(sql, Boolean.class, idArea);
-        return rowsAffected;
+        String sql = "SELECT deleteArea(?)";
+        Integer result = jdbcTemplate.queryForObject(sql, Integer.class, idArea);
+        return result != null && result > 0;
     }
 
     @Override

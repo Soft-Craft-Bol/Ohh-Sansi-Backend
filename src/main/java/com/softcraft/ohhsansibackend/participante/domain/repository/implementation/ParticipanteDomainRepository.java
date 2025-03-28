@@ -1,6 +1,5 @@
 package com.softcraft.ohhsansibackend.participante.domain.repository.implementation;
 
-import com.softcraft.ohhsansibackend.domain.IDatabaseRepository;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.domain.repository.abstraction.IParticipanteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
