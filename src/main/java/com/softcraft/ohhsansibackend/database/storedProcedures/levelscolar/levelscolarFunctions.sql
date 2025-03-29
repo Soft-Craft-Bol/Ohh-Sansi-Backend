@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION insertLevelEscolar(
+CREATE OR REPLACE FUNCTION insertNivelEscolar(
     nombreNivelEscolar VARCHAR
 )
 RETURNS BOOLEAN AS $$
@@ -6,8 +6,10 @@ DECLARE
     newId INTEGER;
     codigoNivel VARCHAR;
 BEGIN
-    codigoNivel :- regexp_replace(nombreNivelEscolar, '[^0-9A-Za-z]', '', 'g';
-    codigoNivel :- left(codigoNivel, 2);
+    codigoNivel := (
+        SELECT STRING_AGG(LEFT(word, 1), '')
+        FROM unnest(string_to_array(nombreNivelEscolar, ' ')) AS word
+    );
 
     INSERT INTO nivel_escolar (codigo_nivel, nombre_nivel_escolar)
     VALUES (codigoNivel, nombreNivelEscolar)
@@ -24,10 +26,10 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT insertLevelEscolar('1ro Secundaria');
-SELECT insertLevelEscolar('3ro Primaria');
+SELECT insertNivelEscolar('1ro Secundaria');
+SELECT insertNivelEscolar('3ro Primaria');
 -----------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION updateLevelEscolar(
+CREATE OR REPLACE FUNCTION updateNivelEscolar(
     idLevel INTEGER,
     nombreNivelEscolar VARCHAR
 )
@@ -35,8 +37,10 @@ RETURNS BOOLEAN AS $$
 DECLARE
     codigoNivel VARCHAR;
 BEGIN
-    codigoNivel :- regexp_replace(nombreNivelEscolar, '[^0-9A-Za-z]', '', 'g';
-    codigoNivel :- left(codigoNivel, 2);
+    codigoNivel := (
+        SELECT STRING_AGG(LEFT(word, 1), '')
+        FROM unnest(string_to_array(nombreNivelEscolar, ' ')) AS word
+    );
 
     UPDATE nivel_escolar
     SET codigo_nivel = codigoNivel,
@@ -54,9 +58,9 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT updateLevelEscolar(1, '2do Secundaria');
+SELECT updateNivelEscolar(1, '2do Secundaria');
 -----------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION deleteLevelEscolar(idLevel INTEGER)
+CREATE OR REPLACE FUNCTION deleteNivelEscolar(idLevel INTEGER)
 RETURNS BOOLEAN AS $$
 BEGIN
     DELETE FROM nivel_escolar WHERE id_nivel = idLevel;
@@ -71,9 +75,9 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT deleteLevelEscolar(2);
+SELECT deleteNivelEscolar(2);
 -----------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION selectLevelEscolarById(idLevel INTEGER)
+CREATE OR REPLACE FUNCTION selectNivelEscolarById(idLevel INTEGER)
 RETURNS TABLE (id_nivel INTEGER, codigo_nivel VARCHAR, nombre_nivel_escolar VARCHAR) AS $$
 BEGIN
     RETURN QUERY
@@ -83,9 +87,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM selectLevelEscolarById(1);
+SELECT * FROM selectNivelEscolarById(1);
 -----------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION selectAllLevelEscolar()
+CREATE OR REPLACE FUNCTION selectAllNivelEscolars()
 RETURNS TABLE (id_nivel INTEGER, codigo_nivel VARCHAR, nombre_nivel_escolar VARCHAR) AS $$
 BEGIN
     RETURN QUERY
@@ -94,6 +98,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM selectAllLevelEscolar();
+SELECT * FROM selectAllNivelEscolars();
 -----------------------------------------------------------------------------------------------------------------------
 
