@@ -12,23 +12,28 @@ public class Area {
     @Size(max = 100, message = "El nombre del área no puede tener más de 100 caracteres")
     private String nombreArea;
 
-    @NotNull(message = "El precio del área no puede ser nulo.")
-    @PositiveOrZero(message = "El precio del área debe ser un numero positivo o cero.")
     private BigDecimal precioArea;
 
-    @NotBlank(message = "El nombre corto del área no puede estar vacío")
-    @Size(max = 10, message = "El nombre corto del área no puede tener más de 10 caracteres")
     private String nombreCortoArea;
 
+    @NotBlank(message = "La descripción del área no puede estar vacía")
+    @Size(max = 255, message = "La descripción del área no puede tener más de 100 caracteres")
+    private String descripcionArea;
+
+    @NotNull(message = "El estado del área no puede ser nulo")
+    @AssertTrue(message = "El estado del área debe ser verdadero o falso")
+    private Boolean areaStatus;
     public Area() {
 
     }
 
-    public Area(int idArea, String nombreArea, BigDecimal precioArea, String nombreCortoArea) {
+    public Area(int idArea, String nombreArea, BigDecimal precioArea, String nombreCortoArea , String descripcionArea, Boolean areaStatus) {
         this.idArea = idArea;
         this.nombreArea = nombreArea;
         this.precioArea = precioArea;
         this.nombreCortoArea = nombreCortoArea;
+        this.descripcionArea = descripcionArea;
+        this.areaStatus = areaStatus;
     }
 
     public int getIdArea() {
@@ -61,6 +66,22 @@ public class Area {
 
     public void setNombreCortoArea(String nombreCortoArea) {
         this.nombreCortoArea = nombreCortoArea;
+    }
+
+    public String getDescripcionArea() {
+        return descripcionArea;
+    }
+
+    public void setDescripcionArea(String descripcionArea) {
+        this.descripcionArea = descripcionArea;
+    }
+
+    public Boolean getAreaStatus() {
+        return areaStatus;
+    }
+
+    public void setAreaStatus(Boolean areaStatus) {
+        this.areaStatus = areaStatus;
     }
 }
 

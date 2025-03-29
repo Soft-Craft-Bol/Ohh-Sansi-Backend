@@ -5,6 +5,7 @@ import com.softcraft.ohhsansibackend.area.domain.services.AreaDomainService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
@@ -36,4 +37,7 @@ public class AreaAdapter {
         return areaDomainService.getAreas();
     }
 
+    public boolean updatePrecioArea(int idArea, BigDecimal precioArea) {
+        return areaDomainService.updatePrecioArea(idArea, precioArea);
+    }
 }
