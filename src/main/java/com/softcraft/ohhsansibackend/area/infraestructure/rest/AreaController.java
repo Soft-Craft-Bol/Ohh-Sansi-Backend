@@ -2,11 +2,14 @@ package com.softcraft.ohhsansibackend.area.infraestructure.rest;
 
 import com.softcraft.ohhsansibackend.area.application.usecases.AreaService;
 import com.softcraft.ohhsansibackend.area.domain.models.Area;
+import com.softcraft.ohhsansibackend.area.infraestructure.DTO.UpdatePrecioAreaDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 import java.util.Map;
 
 
@@ -49,5 +52,12 @@ public class AreaController {
         Map<String, Object> response = areaService.deleteArea(id);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @PutMapping("/update-precio")
+    public ResponseEntity<Map<String, Object>> updatePrecioArea(@RequestBody UpdatePrecioAreaDTO updateDTO) {
+        Map<String, Object> response = areaService.updatePrecioArea(updateDTO.getIdArea(), updateDTO.getPrecioArea());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 }
 

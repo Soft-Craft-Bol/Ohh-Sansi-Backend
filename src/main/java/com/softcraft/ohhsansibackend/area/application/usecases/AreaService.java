@@ -9,6 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 
 import java.util.Map;
@@ -76,6 +77,17 @@ public class AreaService {
         } catch (Exception e) {
         throw new RuntimeException("Error al obtener la lista de areas");
         }
+    }
+
+    public Map<String, Object> updatePrecioArea(int idArea, BigDecimal precioArea) {
+        Map<String, Object> response = new HashMap<>();
+        boolean updated = areaAdapter.updatePrecioArea(idArea, precioArea);
+        if (updated) {
+            response.put("message", "Precio de área actualizado exitosamente");
+        } else {
+            throw new ResourceNotFoundException("Área no encontrada");
+        }
+        return response;
     }
 
 }

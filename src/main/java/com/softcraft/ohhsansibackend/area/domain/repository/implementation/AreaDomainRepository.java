@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
@@ -20,18 +21,26 @@ public class AreaDomainRepository implements IAreaRepository {
 
     @Override
     public Area save(Area area) {
-        String sql = "SELECT insertarea(?, ? , ?)";
-        return jdbcTemplate.queryForObject(sql, new Object[]{area.getNombreArea(),area.getPrecioArea(), area.getNombreCortoArea()
-        }, new BeanPropertyRowMapper<>(Area.class));
-    }
+        String sql = "SELECT * FROM insertarea(?, ?, ?, ?)";
+        List<Area> result = jdbcTemplate.query(
+                sql,
+                new BeanPropertyRowMapper<>(Area.class),
+                area.getNombreArea(),
+                area.getPrecioArea(),
+                area.getDescripcionArea(),
+                area.getAreaStatus()
+        );
 
+        return result.isEmpty() ? null : result.get(0);
+    }
 
     @Override
     public boolean update(Area area) {
-        String sql = "SELECT UpdateArea(?, ?, ?, ?)";
-        Boolean rowsAffected = jdbcTemplate.queryForObject(sql, Boolean.class, area.getIdArea(), area.getNombreArea(), area.getPrecioArea(), area.getNombreCortoArea());
-        return rowsAffected != null && rowsAffected;
+        String sql = "SELECT updatearea(?, ?, ?, ?, ?)";
+        int rowsAffected = jdbcTemplate.update(sql, area.getIdArea(), area.getNombreArea(), area.getPrecioArea(), area.getDescripcionArea(), area.getAreaStatus());
+        return rowsAffected > 0;
     }
+
 
     @Override
     public boolean delete(int idArea) {
@@ -51,6 +60,13 @@ public class AreaDomainRepository implements IAreaRepository {
     public List<Area> findAll() {
         String sql = "SELECT * FROM SelectAllAreas()";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Area.class));
+    }
+
+    @Override
+    public boolean updatePrecio(int idArea, BigDecimal precioArea){
+        String sql = "SELECT UpdatePrecioArea(?, ?)";
+        Boolean rowsAffected = jdbcTemplate.queryForObject(sql, Boolean.class, idArea, precioArea);
+        return rowsAffected != null && rowsAffected;
     }
 
 }
