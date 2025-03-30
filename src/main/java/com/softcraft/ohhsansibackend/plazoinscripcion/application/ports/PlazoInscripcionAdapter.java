@@ -1,0 +1,45 @@
+package com.softcraft.ohhsansibackend.plazoinscripcion.application.ports;
+
+import com.softcraft.ohhsansibackend.plazoinscripcion.domain.models.PlazoInscripcion;
+import com.softcraft.ohhsansibackend.plazoinscripcion.domain.services.PlazoInscripcionDomainService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import java.time.LocalDate;
+
+@Repository
+public class PlazoInscripcionAdapter {
+    private final PlazoInscripcionDomainService plazoInscripcionDomainService;
+
+    @Autowired
+    public PlazoInscripcionAdapter(PlazoInscripcionDomainService plazoInscripcionDomainService) {
+        this.plazoInscripcionDomainService = plazoInscripcionDomainService;
+    }
+
+    public PlazoInscripcion upsertPlazoInscripcion(PlazoInscripcion plazoInscripcion) {
+        return plazoInscripcionDomainService.upsertPlazoInscripcion(plazoInscripcion);
+    }
+
+    public PlazoInscripcion savePlazoInscripcion(PlazoInscripcion plazoInscripcion) {
+        return plazoInscripcionDomainService.createPlazoInscripcion(plazoInscripcion);
+    }
+
+    public PlazoInscripcion updatePlazoInscripcion(PlazoInscripcion plazoInscripcion) {
+        return plazoInscripcionDomainService.updatePlazoInscripcion(plazoInscripcion);
+    }
+
+    public boolean deletePlazoInscripcion(int id) {
+        return plazoInscripcionDomainService.deletePlazoInscripcion(id);
+    }
+
+    public PlazoInscripcion getPlazoInscripcionById(int idPlazoInscripcion) {
+        return plazoInscripcionDomainService.getPlazoInscripcion(idPlazoInscripcion);
+    }
+
+    public PlazoInscripcion getPlazoInscripcionActivo() {
+        return plazoInscripcionDomainService.getPlazoInscripcionActivo();
+    }
+
+    public PlazoInscripcion getPlazoInscripcionByDate(LocalDate date) {
+        return plazoInscripcionDomainService.getPlazoInscripcionByDate(date);
+    }
+}

@@ -38,16 +38,16 @@ public class AreaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateArea(@PathVariable int id, @RequestBody Area area) {
+    public ResponseEntity<Map<String, Object>> updateArea(@Valid @PathVariable int id, @RequestBody Area area) {
         area.setIdArea(id);
         Map<String, Object> response = areaService.updateArea(area);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteArea(@PathVariable int id) {
         Map<String, Object> response = areaService.deleteArea(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
 

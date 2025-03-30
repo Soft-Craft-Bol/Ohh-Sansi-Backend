@@ -5,6 +5,9 @@ import com.softcraft.ohhsansibackend.inscripcion.domain.repository.abstraction.I
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
+import java.sql.Time;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -36,11 +39,11 @@ public class InscripcionDomainService {
         return inscripcionRepository.deleteInscripcion(id);
     }
 
-    public List<Inscripcion> findByDateAndTime(String date, String time) {
+    public List<Inscripcion> findByDateAndTime(Date date, Time time) {
         return inscripcionRepository.findByDateAndTime(date, time);
     }
 
-    public List<Inscripcion> findByRangeDate(String date) {
-        return inscripcionRepository.findByDate(date);
+    public List<Inscripcion> findByRangeDate(LocalDate fechaInicio, LocalDate fechaFin) {
+        return inscripcionRepository.findByRangeDate(fechaInicio, fechaFin);
     }
 }

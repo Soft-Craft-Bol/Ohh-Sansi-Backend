@@ -5,10 +5,9 @@ import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionArea
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public class InscripcionAreaAdapter {
+
     private final InscripcionAreaDomainService inscripcionAreaDomainService;
 
     @Autowired
@@ -16,8 +15,7 @@ public class InscripcionAreaAdapter {
         this.inscripcionAreaDomainService = inscripcionAreaDomainService;
     }
 
-    public List<InscripcionArea> getInscripcionAreas() {
-        return inscripcionAreaDomainService.listInscripcionArea();
+    public InscripcionArea saveInscripcionArea(int idInscripcion, int idArea) {
+        return inscripcionAreaDomainService.createInscripcionArea(idInscripcion, idArea);
     }
-
 }

@@ -5,6 +5,9 @@ import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionDoma
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Date;
+import java.sql.Time;
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -37,11 +40,11 @@ public class InscripcionAdapter {
         return inscripcionDomainService.listInscripcion();
     }
 
-    public List<Inscripcion> findByDateAndTime(String date, String time) {
+    public List<Inscripcion> findByDateAndTime(Date date, Time time) {
         return inscripcionDomainService.findByDateAndTime(date, time);
     }
 
-    public List<Inscripcion> findByRangeDate(String date) {
-        return inscripcionDomainService.findByRangeDate(date);
+    public List<Inscripcion> findByRangeDate(LocalDate fechaInicio, LocalDate fechaFin) {
+        return inscripcionDomainService.findByRangeDate(fechaInicio, fechaFin);
     }
 }

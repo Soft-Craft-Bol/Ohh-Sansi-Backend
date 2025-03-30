@@ -28,4 +28,11 @@ public class TutorAdapter {
     public List<Tutor> findAllTutor() {
         return tutorDomainService.findAllTutor();
     }
+
+    public Tutor findByEmail(String email) {
+        return tutorDomainService.findByEmail(email);
+    }
+    public Tutor findByCarnetIdentidad(int carnetIdentidad) {
+        return tutorDomainService.findByCarnetIdentidad(carnetIdentidad);
+    }
 }

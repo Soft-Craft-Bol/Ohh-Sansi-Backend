@@ -5,6 +5,7 @@ import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.area.application.ports.AreaAdapter;
 import com.softcraft.ohhsansibackend.area.domain.models.Area;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
@@ -23,22 +24,24 @@ public class AreaService {
     }
 
     public Map<String, Object> saveArea(Area area) {
+        Map<String, Object> response = new HashMap<>();
         try {
             areaAdapter.saveArea(area);
-        } catch (DuplicateKeyException e) {
-            throw new DuplicateResourceException("Area ya registrada");
+            response.put("message", "Área registrada exitosamente");
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicateResourceException("Área ya registrada");
         }
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "Area registrada exitosamente");
         return response;
     }
 
+
     public Map<String, Object> updateArea(Area area) {
         Map<String, Object> response = new HashMap<>();
-        try {
-            areaAdapter.updateArea(area);
-            response.put("message", "Area actualizada exitosamente");
-        } catch (Exception e) {
+        boolean updated = areaAdapter.updateArea(area);
+
+        if (updated) {
+            response.put("message", "Área actualizada exitosamente");
+        } else {
             throw new ResourceNotFoundException("Area no encontrada");
         }
         return response;
@@ -46,10 +49,10 @@ public class AreaService {
 
     public Map<String, Object> deleteArea(int id) {
         Map<String, Object> response = new HashMap<>();
-        try {
-            areaAdapter.deleteArea(id);
-            response.put("message", "Area eliminada exitosamente");
-        } catch (Exception e) {
+        boolean deleted = areaAdapter.deleteArea(id);
+        if (deleted) {
+            response.put("message","Area eliminada exitosamente");
+        }else {
             throw new ResourceNotFoundException("Area no encontrada");
         }
         return response;
