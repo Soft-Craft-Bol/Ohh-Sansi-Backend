@@ -3,6 +3,7 @@ package com.softcraft.ohhsansibackend.categoria.domain.services;
 
 import com.softcraft.ohhsansibackend.categoria.domain.models.Category;
 import com.softcraft.ohhsansibackend.categoria.domain.repository.abstraction.ICategoryRepository;
+import com.softcraft.ohhsansibackend.categoria.domain.repository.implementation.CategoryDomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,30 +11,30 @@ import java.util.List;
 
 @Service
 public class CategoryDomainService {
-    private final ICategoryRepository ICategoryRepository;
+    private final CategoryDomainRepository categoryDomainRepository;
 
     @Autowired
-    public CategoryDomainService(ICategoryRepository ICategoryRepository) {
-        this.ICategoryRepository = ICategoryRepository;
+    public CategoryDomainService(CategoryDomainRepository categoryDomainRepository) {
+        this.categoryDomainRepository = categoryDomainRepository;
     }
 
     public Category createCategory(Category category) {
-        return ICategoryRepository.save(category);
+        return categoryDomainRepository.save(category);
     }
 
     public Category getCategory(int id) {
-        return ICategoryRepository.findById(id);
+        return categoryDomainRepository.findById(id);
     }
 
     public List<Category> listCategory() {
-        return ICategoryRepository.findAll();
+        return categoryDomainRepository.findAll();
     }
 
     public boolean updateCategory(Category category) {
-        return ICategoryRepository.update(category);
+        return categoryDomainRepository.update(category);
     }
 
     public boolean deleteCategory(int id) {
-        return ICategoryRepository.delete(id);
+        return categoryDomainRepository.delete(id);
     }
 }

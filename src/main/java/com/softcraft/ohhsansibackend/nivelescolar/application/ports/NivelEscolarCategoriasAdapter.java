@@ -20,20 +20,5 @@ public class NivelEscolarCategoriasAdapter {
         return nivelEscolarCategoriasDomainService.createNivelEscolarCategorias(nivelEscolarCategorias);
     }
 
-    public boolean updateNivelEscolarCategorias(NivelEscolarCategorias nivelEscolarCategorias) {
-        return nivelEscolarCategoriasDomainService.updateNivelEscolarCategorias(nivelEscolarCategorias);
-    }
-
-    public boolean deleteNivelEscolarCategorias(int id) {
-        return nivelEscolarCategoriasDomainService.deleteNivelEscolarCategorias(id);
-    }
-
-    public NivelEscolarCategorias findNivelEscolarCategoriasById(int id) {
-        return nivelEscolarCategoriasDomainService.findNivelEscolarCategoriasById(id);
-    }
-
-    public List<NivelEscolarCategorias> getNivelEscolarCategoriass() {
-        return nivelEscolarCategoriasDomainService.getNivelEscolarCategoriass();
-    }
 
 }
