@@ -1,6 +1,7 @@
 package com.softcraft.ohhsansibackend.mail.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,9 @@ public class MailService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Value("${spring.mail.username}")
+    private String fromEmail;
+
     public void sendEmail(String to, String subject, String content) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -21,9 +25,11 @@ public class MailService {
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(content, true);
-        helper.setFrom("amercer732@gmail.com"); // Remitente del correo
+        helper.setFrom(fromEmail);
 
         mailSender.send(message);
+
     }
+
 }
 

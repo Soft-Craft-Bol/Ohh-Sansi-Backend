@@ -1,5 +1,6 @@
 package com.softcraft.ohhsansibackend.mail.controller;
 
+import com.softcraft.ohhsansibackend.mail.dto.MailRequest;
 import com.softcraft.ohhsansibackend.mail.service.MailService;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,16 +11,19 @@ import org.springframework.web.bind.annotation.*;
 public class MailController {
 
     @Autowired
-    private MailService emailService;
+    private MailService mailService;
 
     @PostMapping("/send")
-    public String sendEmail(@RequestParam String to, @RequestParam String subject, @RequestParam String content) {
+    public String sendEmail(@RequestBody MailRequest emailRequest) {
         try {
-            emailService.sendEmail(to, subject, content);
+            mailService.sendEmail(
+                    emailRequest.getTo(),
+                    emailRequest.getSubject(),
+                    emailRequest.getContent()
+            );
             return "Correo enviado con éxito";
         } catch (MessagingException e) {
             return "Error al enviar el correo: " + e.getMessage();
         }
     }
 }
-
