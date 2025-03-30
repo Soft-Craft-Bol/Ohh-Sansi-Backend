@@ -48,7 +48,6 @@ public class NivelEscolarController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("success", false, "message", "Nivel Escolar not found"));
         }
     }
-
     @GetMapping
     public ResponseEntity<List<NivelEscolar>> getNivelEscolar() {
         return ResponseEntity.ok(nivelEscolarService.getNivelEscolars());
