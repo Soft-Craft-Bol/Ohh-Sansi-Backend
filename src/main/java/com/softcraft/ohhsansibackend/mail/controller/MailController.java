@@ -17,9 +17,7 @@ public class MailController {
     public String sendEmail(@RequestBody MailRequest emailRequest) {
         try {
             mailService.sendEmail(
-                    emailRequest.getTo(),
-                    emailRequest.getSubject(),
-                    emailRequest.getContent()
+                    emailRequest.getTo()
             );
             return "Correo enviado con éxito";
         } catch (MessagingException e) {
