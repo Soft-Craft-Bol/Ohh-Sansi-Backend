@@ -33,5 +33,14 @@ public class CategoryService {
         return Map.of("success", true, "message", "Categoria creada exitosamente");
     }
 
+<<<<<<< HEAD
 
+=======
+    public Map<String, Object> deleteCategory(int id) {
+        if (!categoryDomainRepository.delete(id)) {
+            throw new ResourceNotFoundException("Categoria no encontrada");
+        }
+        return Map.of("success", true, "message", "Categoria eliminada exitosamente");
+    }
+>>>>>>> 3acbd87 (delete category)
 }

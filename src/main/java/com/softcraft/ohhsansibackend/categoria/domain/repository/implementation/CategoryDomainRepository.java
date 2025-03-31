@@ -82,4 +82,6 @@ public class CategoryDomainRepository implements ICategoryRepository {
         Boolean result = jdbcTemplate.queryForObject(sql, Boolean.class, idCategoria);
         return result;
     }
+
+
 }

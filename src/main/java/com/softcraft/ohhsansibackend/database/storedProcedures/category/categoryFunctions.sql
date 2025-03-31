@@ -57,7 +57,10 @@ EXCEPTION
         RETURN FALSE;
 END;
 $$ LANGUAGE plpgsql;
-SELECT deleteCategory(2);
+SELECT deleteCategory(16);
+
+select * from categorias;
+select * from nivel_escolar_categorias;
 -----------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION selectCategoryById(idCategoria INTEGER)
 RETURNS TABLE (id_categoria INTEGER, codigo_categoria VARCHAR, id_area INTEGER) AS $$
