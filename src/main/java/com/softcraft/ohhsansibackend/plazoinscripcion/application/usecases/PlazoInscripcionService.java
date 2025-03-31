@@ -63,6 +63,17 @@ public class PlazoInscripcionService {
         return response;
     }
 
+    public Map<String, Object> getPlazosInscripcion() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            response.put("message", "Lista de plazos de inscripción obtenida exitosamente");
+            response.put("data", plazoInscripcionAdapter.getPlazosInscripcion());
+        } catch (Exception e) {
+            response.put("message", "Error al obtener la lista de plazos de inscripción");
+        }
+        return response;
+    }
+
     public Map<String, Object> getPlazoInscripcionById(int id) {
         Map<String, Object> response = new HashMap<>();
         try {

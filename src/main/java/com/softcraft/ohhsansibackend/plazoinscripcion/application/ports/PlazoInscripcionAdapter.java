@@ -5,6 +5,7 @@ import com.softcraft.ohhsansibackend.plazoinscripcion.domain.services.PlazoInscr
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public class PlazoInscripcionAdapter {
@@ -29,6 +30,10 @@ public class PlazoInscripcionAdapter {
 
     public boolean deletePlazoInscripcion(int id) {
         return plazoInscripcionDomainService.deletePlazoInscripcion(id);
+    }
+
+    public List<PlazoInscripcion> getPlazosInscripcion() {
+        return plazoInscripcionDomainService.getPlazosInscripcion();
     }
 
     public PlazoInscripcion getPlazoInscripcionById(int idPlazoInscripcion) {
