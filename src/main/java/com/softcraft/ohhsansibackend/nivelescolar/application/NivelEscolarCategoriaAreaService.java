@@ -1,7 +1,9 @@
 package com.softcraft.ohhsansibackend.nivelescolar.application;
 
+import com.softcraft.ohhsansibackend.area.domain.models.AreaNivelEscolar;
 import com.softcraft.ohhsansibackend.categoria.application.usecases.CategoryService;
 import com.softcraft.ohhsansibackend.categoria.domain.models.Category;
+import com.softcraft.ohhsansibackend.nivelescolar.application.usecases.AreaNivelEscolarService;
 import com.softcraft.ohhsansibackend.nivelescolar.application.usecases.NivelEscolarCategoriaService;
 import com.softcraft.ohhsansibackend.nivelescolar.domain.models.NivelEscolarCategorias;
 import com.softcraft.ohhsansibackend.nivelescolar.infraestructure.request.NivelEscolarCategoriaAreaDTO;
@@ -15,11 +17,14 @@ public class NivelEscolarCategoriaAreaService {
 
     private final NivelEscolarCategoriaService nivelEscolarCategoriaService;
     private final CategoryService categoryService;
+    private final AreaNivelEscolarService areaNivelEscolarService;
+
 
     @Autowired
-    public NivelEscolarCategoriaAreaService(NivelEscolarCategoriaService nivelEscolarCategoriaService, CategoryService categoryService) {
+    public NivelEscolarCategoriaAreaService(NivelEscolarCategoriaService nivelEscolarCategoriaService, CategoryService categoryService, AreaNivelEscolarService areaNivelEscolarService) {
         this.nivelEscolarCategoriaService = nivelEscolarCategoriaService;
         this.categoryService = categoryService;
+        this.areaNivelEscolarService = areaNivelEscolarService;
     }
 
     public void proccessNivelEscolarCategoriaArea(NivelEscolarCategoriaAreaDTO dto) {
@@ -51,6 +56,13 @@ public class NivelEscolarCategoriaAreaService {
     }
 
     private void processAreasNiveles(NivelEscolarCategoriaAreaDTO dto) {
-        System.out.println("Processing Areas and Levels");
+        for (Integer idArea : dto.getIdArea()) {
+            for (Integer idNivel : dto.getNivelesEscolares()) {
+                AreaNivelEscolar areaNivelEscolar = new AreaNivelEscolar();
+                areaNivelEscolar.setIdArea(idArea);
+                areaNivelEscolar.setIdNivel(idNivel);
+                areaNivelEscolarService.saveAreaNivelEscolar(areaNivelEscolar);
+            }
+        }
     }
 }
