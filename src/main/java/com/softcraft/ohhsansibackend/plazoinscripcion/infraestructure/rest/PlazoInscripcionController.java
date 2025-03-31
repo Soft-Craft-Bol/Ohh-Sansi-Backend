@@ -40,6 +40,12 @@ public class PlazoInscripcionController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> buscarTodos() {
+        Map<String, Object> response = plazoInscripcionService.getPlazosInscripcion();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> buscarPorId(@PathVariable int id) {
         Map<String, Object> response = plazoInscripcionService.getPlazoInscripcionById(id);

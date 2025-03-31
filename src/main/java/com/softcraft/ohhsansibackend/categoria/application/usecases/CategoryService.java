@@ -16,18 +16,22 @@ import java.util.Map;
 public class CategoryService {
 
     private final CategoryDomainRepository categoryDomainRepository;
+    private final CategoryAdapter categoryAdapter;
 
     @Autowired
-    public CategoryService(CategoryDomainRepository categoryDomainRepository) {
+    public CategoryService(CategoryDomainRepository categoryDomainRepository, CategoryAdapter categoryAdapter) {
         this.categoryDomainRepository = categoryDomainRepository;
+        this.categoryAdapter = categoryAdapter;
     }
 
     public Map<String, Object> saveCategory(Category category) {
         try {
-            categoryDomainRepository.save(category);
+            categoryAdapter.saveCategory(category);
         } catch (DuplicateKeyException e) {
             throw new DuplicateKeyException(e.getMessage());
         }
         return Map.of("success", true, "message", "Categoria creada exitosamente");
     }
+
+
 }

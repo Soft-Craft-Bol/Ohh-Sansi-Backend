@@ -52,6 +52,12 @@ public class PlazoInscripcionDomainRepository implements com.softcraft.ohhsansib
     }
 
     @Override
+    public List<PlazoInscripcion> getPlazosInscripcion() {
+        String sql = "SELECT * FROM selectAllPlazoInscripcion()";
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(PlazoInscripcion.class));
+    }
+
+    @Override
     public PlazoInscripcion getPlazoInscripcion(int id) {
         String sql = "SELECT * FROM selectPlazoInscripcionById(?)";
         return jdbcTemplate.queryForObject(sql, new Object[]{id},
