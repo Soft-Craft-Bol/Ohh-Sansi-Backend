@@ -8,16 +8,27 @@ public class NivelEscolarCategorias {
     @NotNull(message = "El id del nivel no puede ser nulo")
     private int idNivel;
 
+    private int idArea;
+
     @NotNull(message = "El id de la categoria no puede ser nulo")
     private int idCategoria;
+
+    public NivelEscolarCategorias(int idNivelEscolarCategorias, int idNivel, int idArea, int idCategoria) {
+        this.idNivelEscolarCategorias = idNivelEscolarCategorias;
+        this.idNivel = idNivel;
+        this.idArea = idArea;
+        this.idCategoria = idCategoria;
+    }
 
     public NivelEscolarCategorias() {
     }
 
-    public NivelEscolarCategorias(int idNivelEscolarCategorias, int idNivel, int idCategoria) {
-        this.idNivelEscolarCategorias = idNivelEscolarCategorias;
-        this.idNivel = idNivel;
-        this.idCategoria = idCategoria;
+    public int getIdArea() {
+        return idArea;
+    }
+
+    public void setIdArea(int idArea) {
+        this.idArea = idArea;
     }
 
     public int getIdNivelEscolarCategorias() {

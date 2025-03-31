@@ -5,8 +5,12 @@ import com.softcraft.ohhsansibackend.categoria.domain.repository.abstraction.ICa
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 
 
@@ -19,12 +23,37 @@ public class CategoryDomainRepository implements ICategoryRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+//    @Override
+//    public Category save(Category category) {
+//        String sql = "INSERT INTO categorias(codigo_categoria, id_area) VALUES (?, ?)";
+//        KeyHolder keyHolder = new GeneratedKeyHolder();
+//
+//        jdbcTemplate.update(connection -> {
+//            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+//            ps.setString(1, category.getCodigoCategoria());
+//            ps.setInt(2, category.getIdArea());
+//            return ps;
+//        }, keyHolder);
+//
+//        int newCategoryId = keyHolder.getKey().intValue();
+//        category.setIdCategoria(newCategoryId);
+//        return category;
+//    }
     @Override
     public Category save(Category category) {
-        String sql = "SELECT insertCategory(?,?)";
-        return jdbcTemplate.queryForObject(sql, new Object[] {category.getCodigoCategoria(), category.getIdArea()}
-        , new BeanPropertyRowMapper<>(Category.class));
+        String sql = "INSERT INTO categorias(codigo_categoria, id_area) VALUES (?, ?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, category.getCodigoCategoria());
+            ps.setInt(2, category.getIdArea());
+            return ps;
+        }, keyHolder);
+
+        category.setIdCategoria(((Number) keyHolder.getKeyList().get(0).get("id_categoria")).intValue());
+        category.setIdArea(((Number) keyHolder.getKeyList().get(0).get("id_area")).intValue());
+        return category;
     }
 
     @Override
