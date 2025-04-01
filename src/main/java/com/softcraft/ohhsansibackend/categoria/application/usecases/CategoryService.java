@@ -40,4 +40,9 @@ public class CategoryService {
         }
         return Map.of("success", true, "message", "Categoria eliminada exitosamente");
     }
+
+    public Map<String, Object> findAll(Category category) {
+        List<Category> categories = categoryAdapter.findAll();
+        return Map.of("success", true, "message", "Categorias encontradas", "data", categories);
+    }
 }

@@ -33,6 +33,12 @@ public class CategoryController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> getCategories(Category category) {
+        Map<String, Object> response = categoryService.findAll(category);
+        return ResponseEntity.ok(response);
+    }
+
 
 
 
