@@ -4,12 +4,16 @@ import com.softcraft.ohhsansibackend.categoria.domain.repository.implementation.
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.categoria.application.ports.CategoryAdapter;
 import com.softcraft.ohhsansibackend.categoria.domain.models.Category;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 @Service
@@ -17,20 +21,29 @@ public class CategoryService {
 
     private final CategoryDomainRepository categoryDomainRepository;
     private final CategoryAdapter categoryAdapter;
+    private final Validator validator;
 
     @Autowired
-    public CategoryService(CategoryDomainRepository categoryDomainRepository, CategoryAdapter categoryAdapter) {
+    public CategoryService(CategoryDomainRepository categoryDomainRepository, CategoryAdapter categoryAdapter, Validator validator) {
         this.categoryDomainRepository = categoryDomainRepository;
         this.categoryAdapter = categoryAdapter;
+        this.validator = validator;
     }
 
     public Map<String, Object> saveCategory(Category category) {
+        validateCategory(category);
         try {
-            categoryAdapter.saveCategory(category);
+            categoryDomainRepository.save(category);
         } catch (DuplicateKeyException e) {
             throw new DuplicateKeyException(e.getMessage());
         }
         return Map.of("success", true, "message", "Categoria creada exitosamente");
+    }
+    private void validateCategory(Category category) {
+        Set<ConstraintViolation<Category>> violations = validator.validate(category);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
     }
 
 
