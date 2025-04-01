@@ -4,6 +4,8 @@ import com.softcraft.ohhsansibackend.categoria.domain.repository.implementation.
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.categoria.application.ports.CategoryAdapter;
 import com.softcraft.ohhsansibackend.categoria.domain.models.Category;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
@@ -15,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
+@Tag(name = "Category Service", description = "Service for managing categories")
 @Service
 public class CategoryService {
 
@@ -29,7 +31,7 @@ public class CategoryService {
         this.categoryAdapter = categoryAdapter;
         this.validator = validator;
     }
-
+    @Operation(summary = "Save a new category", description = "Validates and saves a new category")
     public Map<String, Object> saveCategory(Category category) {
         validateCategory(category);
         try {
