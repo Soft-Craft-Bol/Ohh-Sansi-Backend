@@ -65,7 +65,7 @@ public class CategoryDomainRepository implements ICategoryRepository {
 
     @Override
     public List<Category> findAll() {
-        String sql = "SELECT * FROM selectAllCategories()";
+        String sql = "SELECT * FROM categorias";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Category.class));
     }
 
@@ -82,4 +82,6 @@ public class CategoryDomainRepository implements ICategoryRepository {
         Boolean result = jdbcTemplate.queryForObject(sql, Boolean.class, idCategoria);
         return result;
     }
+
+
 }
