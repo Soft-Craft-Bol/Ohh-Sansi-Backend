@@ -46,7 +46,7 @@ class TutorControllerTest {
         tutor = new Tutor();
         tutor.setIdTutor(1L);
         tutor.setIdTipoTutor(1);
-        tutor.setEmailTutor("asd@asd.com");
+        tutor.setEmailTutor("gaspararmando44@gmail.com");
         tutor.setNombresTutor("Juan");
         tutor.setApellidosTutor("Perez");
         tutor.setTelefono(123456789);
@@ -65,7 +65,7 @@ class TutorControllerTest {
                                 """
                                 {
                                   "idTipoTutor": 1,
-                                  "emailTutor": "asd@asd.com",
+                                  "emailTutor": "gaspararmando44@gmail.com",
                                   "nombresTutor": "Juan",
                                   "apellidosTutor": "Perez",
                                   "telefono": 123456789,
@@ -87,10 +87,10 @@ class TutorControllerTest {
                                 """
                                 {
                                   "idTipoTutor": 1,
-                                  "emailTutor": "asd@asd.com",
+                                  "emailTutor": "gaspararmando44@gmail.com",
                                   "nombresTutor": "Juan",
                                   "apellidosTutor": "Perez",
-                                  "telefono": 123456789,
+                                  "telefono": 10546588,
                                   "carnetIdentidadTutor": 987654321
                                 }
                                 """
@@ -106,7 +106,7 @@ class TutorControllerTest {
         mockMvc.perform(get("/tutor/{idTutor}", 1)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tutor.emailTutor").value("tutor@example.com"));
+                .andExpect(jsonPath("$.tutor.emailTutor").value("gaspararmando44@gmail.com"));
     }
 
     @Test
@@ -127,7 +127,7 @@ class TutorControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tutores").isArray())
-                .andExpect(jsonPath("$.tutores[0].emailTutor").value("tutor@example.com"));
+                .andExpect(jsonPath("$.tutores[0].emailTutor").value("gaspararmando44@gmail.com"));
     }
 
     @Test
