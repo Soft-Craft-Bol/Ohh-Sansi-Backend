@@ -1,0 +1,6 @@
+com\softcraft\ohhsansibackend\inscripcion\infraestructure\rest\InscripcionLargaControllerTest.class
+com\softcraft\ohhsansibackend\area\infraestructure\rest\AreaControllerTest.class
+com\softcraft\ohhsansibackend\tutor\infraestructure\rest\TutorControllerTest.class
+com\softcraft\ohhsansibackend\participante\infraestructure\rest\ParticipanteControllerTest.class
+com\softcraft\ohhsansibackend\categoria\application\usecases\CategoryServiceTest.class
+com\softcraft\ohhsansibackend\inscripcion\application\usecases\InscripcionLargaServiceTest.class
