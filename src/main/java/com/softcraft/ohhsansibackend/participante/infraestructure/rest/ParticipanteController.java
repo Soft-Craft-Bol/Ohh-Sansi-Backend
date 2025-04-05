@@ -25,6 +25,7 @@ public class ParticipanteController {
         Map<String, Object> response = participanteService.save(participante);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> findById(@PathVariable Long id) {
         Map<String, Object> response = participanteService.findById(id);
