@@ -12,22 +12,22 @@ public class Area {
     @Size(max = 100, message = "El nombre del área no puede tener más de 100 caracteres")
     private String nombreArea;
 
-    @NotNull(message = "El precio del área no puede ser nulo.")
-    @PositiveOrZero(message = "El precio del área debe ser un numero positivo o cero.")
-    private BigDecimal precioArea;
-
     @NotBlank(message = "El nombre corto del área no puede estar vacío")
     @Size(max = 10, message = "El nombre corto del área no puede tener más de 10 caracteres")
     private String nombreCortoArea;
+
+    @Size(max=500, message = "La descripción del área no puede tener más de 500 caracteres")
+    @NotNull(message = "La descripción del área no puede estar vacía")
+    private String descripcionArea;
 
     public Area() {
 
     }
 
-    public Area(int idArea, String nombreArea, BigDecimal precioArea, String nombreCortoArea) {
+    public Area(int idArea, String nombreArea, String descripcionArea, String nombreCortoArea) {
         this.idArea = idArea;
         this.nombreArea = nombreArea;
-        this.precioArea = precioArea;
+        this.descripcionArea = descripcionArea;
         this.nombreCortoArea = nombreCortoArea;
     }
 
@@ -47,12 +47,12 @@ public class Area {
         this.nombreArea = nombreArea;
     }
 
-    public BigDecimal getPrecioArea() {
-        return precioArea;
+    public String getDescripcionArea() {
+        return descripcionArea;
     }
 
-    public void setPrecioArea(BigDecimal precioArea) {
-        this.precioArea = precioArea;
+    public void setDescripcionArea(String descripcionArea) {
+        this.descripcionArea = descripcionArea;
     }
 
     public String getNombreCortoArea() {
