@@ -20,5 +20,4 @@ public class NivelEscolarCategoriasAdapter {
         return nivelEscolarCategoriasDomainService.createNivelEscolarCategorias(nivelEscolarCategorias);
     }
 
-
 }
