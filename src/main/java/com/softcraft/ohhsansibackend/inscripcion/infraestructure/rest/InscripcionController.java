@@ -67,5 +67,10 @@ public class InscripcionController {
         Map<String, Object> response = inscripcionService.deleteInscripcion(id);
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/details/{codigoUnico}")
+    public ResponseEntity<Map<String, Object>> getInscripcionDetails(@PathVariable String codigoUnico) {
+        Map<String, Object> details = inscripcionService.getInscripcionDetails(codigoUnico);
+        return ResponseEntity.ok(details);
+    }
 
 }

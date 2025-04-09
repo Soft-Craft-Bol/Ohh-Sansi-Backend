@@ -98,6 +98,38 @@ public class InscripcionDomainRepository implements IInscripcionRepository {
         }, new BeanPropertyRowMapper<>(Inscripcion.class));
     }
 
+    public Long findIdByCodigoUnico(String codigoUnicoInscripcion) {
+        String sql = "SELECT id_inscripcion FROM inscripcion WHERE codigo_unico_inscripcion = ?";
+        return jdbcTemplate.queryForObject(sql, new Object[]{codigoUnicoInscripcion}, Long.class);
+    }
+    public List<Map<String, Object>> findInscripcionById(int idInscripcion) {
+        String sql = "SELECT * FROM inscripcion WHERE id_inscripcion = ?";
+        return jdbcTemplate.queryForList(sql, idInscripcion);
+    }
 
+    public List<Map<String, Object>> findParticipantesByInscripcionId(int idInscripcion) {
+        String sql = "SELECT * FROM participante WHERE id_inscripcion = ?";
+        return jdbcTemplate.queryForList(sql, idInscripcion);
+    }
 
+    public List<Map<String, Object>> findInscripcionAreasByInscripcionId(int idInscripcion) {
+        String sql = "SELECT * FROM inscripcion_area WHERE id_inscripcion = ?";
+        return jdbcTemplate.queryForList(sql, idInscripcion);
+    }
+
+    public List<Map<String, Object>> findAreasByInscripcionId(int idInscripcion) {
+        String sql = "SELECT a.nombre_area, a.nombre_corto_area, a.descripcion_area " +
+                "FROM area a, inscripcion_area ia " +
+                "WHERE ia.id_inscripcion = ? AND a.id_area = ia.id_area";
+        return jdbcTemplate.queryForList(sql, idInscripcion);
+    }
+
+    public List<Map<String, Object>> findTutoresByInscripcionId(int idInscripcion) {
+        String sql = "SELECT t.email_tutor, t.nombres_tutor, t.apellidos_tutor, t.telefono, " +
+                "t.carnet_identidad_tutor, tt.nombre_tipo_tutor " +
+                "FROM tutor t, participante_tutor pt, participante p, tipo_tutor tt " +
+                "WHERE t.id_tutor = pt.id_tutor AND p.id_participante = pt.id_participante " +
+                "AND pt.id_inscripcion = ? AND tt.id_tipo_tutor = t.id_tipo_tutor";
+        return jdbcTemplate.queryForList(sql, idInscripcion);
+    }
 }

@@ -2,6 +2,7 @@ package com.softcraft.ohhsansibackend.inscripcion.domain.services;
 
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
 import com.softcraft.ohhsansibackend.inscripcion.domain.repository.abstraction.IInscripcionRepository;
+import com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementation.InscripcionDomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,14 +10,16 @@ import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class InscripcionDomainService {
     private final IInscripcionRepository inscripcionRepository;
-
+    private final InscripcionDomainRepository inscripcionDomainRepository;
     @Autowired
-    public InscripcionDomainService(IInscripcionRepository inscripcionRepository) {
+    public InscripcionDomainService(IInscripcionRepository inscripcionRepository, InscripcionDomainRepository inscripcionDomainRepository) {
         this.inscripcionRepository = inscripcionRepository;
+        this.inscripcionDomainRepository = inscripcionDomainRepository;
     }
 
     public Inscripcion createInscripcion(Inscripcion inscripcion) {
@@ -46,4 +49,31 @@ public class InscripcionDomainService {
     public List<Inscripcion> findByRangeDate(LocalDate fechaInicio, LocalDate fechaFin) {
         return inscripcionRepository.findByRangeDate(fechaInicio, fechaFin);
     }
+
+    public Long findIdByCodigoUnico(String codigoUnico) {
+        return inscripcionDomainRepository.findIdByCodigoUnico(codigoUnico);
+    }
+
+    //askldjakls
+    public List<Map<String, Object>> getInscripcionById(int idInscripcion) {
+        return inscripcionDomainRepository.findInscripcionById(idInscripcion);
+    }
+
+    public List<Map<String, Object>> getParticipantesByInscripcionId(int idInscripcion) {
+        return inscripcionDomainRepository.findParticipantesByInscripcionId(idInscripcion);
+    }
+
+    public List<Map<String, Object>> getInscripcionAreasByInscripcionId(int idInscripcion) {
+        return inscripcionDomainRepository.findInscripcionAreasByInscripcionId(idInscripcion);
+    }
+
+    public List<Map<String, Object>> getAreasByInscripcionId(int idInscripcion) {
+        return inscripcionDomainRepository.findAreasByInscripcionId(idInscripcion);
+    }
+
+    public List<Map<String, Object>> getTutoresByInscripcionId(int idInscripcion) {
+        return inscripcionDomainRepository.findTutoresByInscripcionId(idInscripcion);
+    }
+
+
 }
