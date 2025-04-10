@@ -41,7 +41,8 @@ public class AreaNivelEscolarDomainRepository {
         return areaNivelEscolar;
     }
     public List<AreaNivelDTO> findAreasByNivel(int idNivel) {
-        String sql = "SELECT an.id_area, a.nombre_area, a.precio_area, a.nombre_corto_area, a.descripcion_area AS area, ne.codigo_nivel AS nivel " +
+        String sql = "SELECT an.id_area, a.nombre_area, a.nombre_corto_area, " +
+                "a.descripcion_area AS descripcion_area, ne.codigo_nivel AS nivel " +
                 "FROM area_nivel_escolar an " +
                 "JOIN area a ON an.id_area = a.id_area " +
                 "JOIN nivel_escolar ne ON an.id_nivel = ne.id_nivel " +
@@ -53,16 +54,15 @@ public class AreaNivelEscolarDomainRepository {
                 AreaNivelDTO dto = new AreaNivelDTO();
                 dto.setIdArea(rs.getInt("id_area"));
                 dto.setNombreArea(rs.getString("nombre_area"));
-                dto.setPrecioArea(rs.getDouble("precio_area"));
                 dto.setNombreCortoArea(rs.getString("nombre_corto_area"));
-                dto.setDescripcionArea(rs.getString("area"));
+                dto.setDescripcionArea(rs.getString("descripcion_area"));
                 dto.setCodigoNivel(rs.getString("nivel"));
                 return dto;
             }
         });
     }
     public List<AreaCategoriaNivelDTO> findAreasCategoriasByNivel(int idNivel) {
-        String sql = "SELECT a.id_area, a.nombre_area, a.precio_area, a.nombre_corto_area, a.descripcion_area, " +
+        String sql = "SELECT a.id_area, a.nombre_area, a.nombre_corto_area, a.descripcion_area, " +
                 "c.id_categoria, c.codigo_categoria, ne.id_nivel, ne.codigo_nivel, ne.nombre_nivel_escolar " +
                 "FROM categorias c " +
                 "JOIN nivel_escolar_categorias nc ON nc.id_categoria = c.id_categoria " +
@@ -76,7 +76,6 @@ public class AreaNivelEscolarDomainRepository {
                 AreaCategoriaNivelDTO dto = new AreaCategoriaNivelDTO();
                 dto.setIdArea(rs.getInt("id_area"));
                 dto.setNombreArea(rs.getString("nombre_area"));
-                dto.setPrecioArea(rs.getDouble("precio_area"));
                 dto.setNombreCortoArea(rs.getString("nombre_corto_area"));
                 dto.setDescripcionArea(rs.getString("descripcion_area"));
                 dto.setIdCategoria(rs.getInt("id_categoria"));
