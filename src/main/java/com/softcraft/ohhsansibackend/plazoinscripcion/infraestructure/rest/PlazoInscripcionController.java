@@ -21,17 +21,10 @@ public class PlazoInscripcionController {
         this.plazoInscripcionService = plazoInscripcionService;
     }
 
-    @PostMapping
+    @PostMapping("register")
     public ResponseEntity<Map<String, Object>> crearOActualizar(@RequestBody PlazoInscripcion plazoInscripcion) {
         Map<String, Object> response = plazoInscripcionService.upsertPlazoInscripcion(plazoInscripcion);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> actualizar(@PathVariable int id, @RequestBody PlazoInscripcion plazoInscripcion) {
-        plazoInscripcion.setIdPlazoInscripcion(id);
-        Map<String, Object> response = plazoInscripcionService.updatePlazoInscripcion(plazoInscripcion);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{id}")
@@ -55,6 +48,13 @@ public class PlazoInscripcionController {
     @GetMapping("/activo")
     public ResponseEntity<Map<String, Object>> buscarActivo() {
         Map<String, Object> response = plazoInscripcionService.getPlazoInscripcionActivo();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PutMapping("/{id}/precio")
+    public ResponseEntity<Map<String, Object>> actualizarPrecio(@PathVariable int id, @RequestBody PlazoInscripcion plazoInscripcion) {
+        plazoInscripcion.setIdPeriodoInscripcion(id);
+        Map<String, Object> response = plazoInscripcionService.insertPrecioPeriodo(plazoInscripcion);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
