@@ -1,22 +1,18 @@
 package com.softcraft.ohhsansibackend.fechasolimpiada.domain.repository.abstraction;
 
+import com.softcraft.ohhsansibackend.fechasolimpiada.domain.models.FechaOlimpiada;
+
 import java.time.LocalDate;
 import java.util.List;
 
-public interface IPlazoInscripcionRepository {
-    PlazoInscripcion upsertPlazoInscripcion(PlazoInscripcion plazoInscripcion);
+public interface IFechaOlimpiadaRepository {
+    FechaOlimpiada upsertFechaOlimpiada(FechaOlimpiada fechaOlimpiada);
 
+    boolean deleteFechaOlimpiada(int idFechaOlimpiada);
 
+    List<FechaOlimpiada> getFechaOlimpiada();
 
-    boolean deletePlazoInscripcion(int idPeriodoInscripcion);
+    FechaOlimpiada getFechaOlimpiada(int idFechaOlimpiada);
 
-    List<PlazoInscripcion> getPlazosInscripcion();
-
-    PlazoInscripcion getPlazoInscripcion(int idPeriodoInscripcion);
-
-    PlazoInscripcion getPlazoInscripcionActivo();
-
-    PlazoInscripcion getPlazoInscripcionByDate(LocalDate date);
-
-    PlazoInscripcion insertPrecioPeriodo(PlazoInscripcion plazoInscripcion);
+    FechaOlimpiada getFechaOlimpiadaPublic();
 }

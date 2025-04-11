@@ -8,32 +8,32 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class NivelEscolarAdapter {
+public class GradoAdapter {
     private final GradoDomainService gradoDomainService;
 
     @Autowired
-    public NivelEscolarAdapter(GradoDomainService gradoDomainService) {
+    public GradoAdapter(GradoDomainService gradoDomainService) {
         this.gradoDomainService = gradoDomainService;
     }
 
-    public Grade saveNivelEscolar(Grade grade) {
-        return gradoDomainService.createNivelEscolar(grade);
+    public Grade saveGrade(Grade grade) {
+        return gradoDomainService.createGrade(grade);
     }
 
-    public boolean updateNivelEscolar(Grade grade) {
-        return gradoDomainService.updateNivelEscolar(grade);
+    public boolean updateGrade(Grade grade) {
+        return gradoDomainService.updateGrade(grade);
     }
 
-    public boolean deleteNivelEscolar(int id) {
-        return gradoDomainService.deleteNivelEscolar(id);
+    public boolean deleteGrade(int id) {
+        return gradoDomainService.deleteGrade(id);
     }
 
-    public Grade findNivelEscolarById(int id) {
-        return gradoDomainService.findNivelEscolarById(id);
+    public Grade findGradeById(int id) {
+        return gradoDomainService.findGradeById(id);
     }
 
-    public List<Grade> getNivelEscolars() {
-        return gradoDomainService.getNivelEscolars();
+    public List<Grade> getGrades() {
+        return gradoDomainService.getGrades();
     }
 
 }

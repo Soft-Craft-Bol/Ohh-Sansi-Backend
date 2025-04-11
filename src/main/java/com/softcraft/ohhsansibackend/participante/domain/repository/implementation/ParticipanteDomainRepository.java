@@ -13,12 +13,9 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
-
 @Repository
 public class ParticipanteDomainRepository implements IParticipanteRepository {
-
     private final JdbcTemplate jdbcTemplate;
-
     @Autowired
     public ParticipanteDomainRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -26,7 +23,18 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
 
     @Override
     public Participante save(Participante participante) {
-        String sql = "INSERT INTO participante (id_inscripcion, id_departamento, id_municipio, id_colegio, participante_hash, apellido_paterno, apellido_materno, nombre_participante, fecha_nacimiento, correo_electronico_participante, carnet_identidad_participante, id_nivel) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO participante (id_inscripcion, " +
+                "id_departamento," +
+                " id_municipio," +
+                " id_colegio," +
+                " participante_hash," +
+                " apellido_paterno," +
+                " apellido_materno," +
+                " nombre_participante," +
+                " fecha_nacimiento," +
+                " correo_electronico_participante," +
+                " carnet_identidad_participante," +
+                " id_nivel) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);

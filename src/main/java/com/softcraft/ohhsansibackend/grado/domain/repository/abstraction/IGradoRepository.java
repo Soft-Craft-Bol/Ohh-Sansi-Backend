@@ -4,7 +4,7 @@ import com.softcraft.ohhsansibackend.grado.domain.models.Grade;
 
 import java.util.List;
 
-public interface INivelEscolarRepository {
+public interface IGradoRepository {
     Grade save(Grade grade);
 
     boolean update(Grade grado);

@@ -23,36 +23,18 @@ public class CategoryDomainRepository implements ICategoryRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-//    @Override
-//    public Category save(Category category) {
-//        String sql = "INSERT INTO categorias(codigo_categoria, id_area) VALUES (?, ?)";
-//        KeyHolder keyHolder = new GeneratedKeyHolder();
-//
-//        jdbcTemplate.update(connection -> {
-//            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-//            ps.setString(1, category.getCodigoCategoria());
-//            ps.setInt(2, category.getIdArea());
-//            return ps;
-//        }, keyHolder);
-//
-//        int newCategoryId = keyHolder.getKey().intValue();
-//        category.setIdCategoria(newCategoryId);
-//        return category;
-//    }
     @Override
     public Category save(Category category) {
-        String sql = "INSERT INTO categorias(codigo_categoria, id_area) VALUES (?, ?)";
+        String sql = "INSERT INTO categorias(nombre_categoria) VALUES (?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, category.getCodigoCategoria());
-            ps.setInt(2, category.getIdArea());
+            ps.setString(1, category.getNombreCategoria());
             return ps;
         }, keyHolder);
 
         category.setIdCategoria(((Number) keyHolder.getKeyList().get(0).get("id_categoria")).intValue());
-        category.setIdArea(((Number) keyHolder.getKeyList().get(0).get("id_area")).intValue());
         return category;
     }
 
@@ -72,7 +54,7 @@ public class CategoryDomainRepository implements ICategoryRepository {
     @Override
     public boolean update(Category category) {
         String sql = "SELECT updateCategory(?, ?, ?)";
-        Boolean result = jdbcTemplate.queryForObject(sql, Boolean.class, category.getIdCategoria(), category.getCodigoCategoria(), category.getIdArea());
+        Boolean result = jdbcTemplate.queryForObject(sql, Boolean.class, category.getIdCategoria(), category.getNombreCategoria());
         return result;
     }
 

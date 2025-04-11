@@ -1,67 +1,54 @@
 package com.softcraft.ohhsansibackend.grado.application;
 
+import com.softcraft.ohhsansibackend.area.application.usecases.AreaService;
 import com.softcraft.ohhsansibackend.area.domain.models.AreaNivelEscolar;
 import com.softcraft.ohhsansibackend.categoria.application.usecases.CategoryService;
 import com.softcraft.ohhsansibackend.categoria.domain.models.Category;
-import com.softcraft.ohhsansibackend.grado.application.usecases.AreaNivelEscolarService;
-import com.softcraft.ohhsansibackend.grado.application.usecases.NivelEscolarCategoriaService;
-import com.softcraft.ohhsansibackend.grado.domain.models.NivelEscolarCategorias;
-import com.softcraft.ohhsansibackend.grado.infraestructure.request.NivelEscolarCategoriaAreaDTO;
+import com.softcraft.ohhsansibackend.grado.application.usecases.GradoCategoriaService;
+import com.softcraft.ohhsansibackend.grado.domain.models.GradoCategoria;
+import com.softcraft.ohhsansibackend.grado.infraestructure.request.GradoCategoriaAreaDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 @Service
-public class NivelEscolarCategoriaAreaService {
+public class GradoCategoriaAreaService {
 
-    private final NivelEscolarCategoriaService nivelEscolarCategoriaService;
+    private final GradoCategoriaService gradoCategoriaService;
     private final CategoryService categoryService;
-    private final AreaNivelEscolarService areaNivelEscolarService;
+    private final AreaService areaService;
 
 
     @Autowired
-    public NivelEscolarCategoriaAreaService(NivelEscolarCategoriaService nivelEscolarCategoriaService, CategoryService categoryService, AreaNivelEscolarService areaNivelEscolarService) {
-        this.nivelEscolarCategoriaService = nivelEscolarCategoriaService;
+    public GradoCategoriaAreaService(GradoCategoriaService gradoCategoriaService, CategoryService categoryService, AreaService areaService) {
+        this.gradoCategoriaService = gradoCategoriaService;
         this.categoryService = categoryService;
-        this.areaNivelEscolarService = areaNivelEscolarService;
+        this.areaService = areaService;
     }
 
-    public void proccessNivelEscolarCategoriaArea(NivelEscolarCategoriaAreaDTO dto) {
+    public void proccessGradoCategoriaArea(GradoCategoriaAreaDTO dto) {
         if(dto.getFlag() == 1) {
             processCategoriasNiveles(dto);
-        } else {
-            processAreasNiveles(dto);
         }
     }
 
-    private void processCategoriasNiveles(NivelEscolarCategoriaAreaDTO dto) {
+    private void processCategoriasNiveles(GradoCategoriaAreaDTO dto) {
         Category category = new Category();
-        category.setNombreCategoria(dto.getCodCategory());
+        category.setNombreCategoria(dto.getNombreCategoria());
         Map<String, Object> response = categoryService.saveCategory(category);
 
         if (response.containsKey("success") && (boolean) response.get("success")) {
             int savedCategoryId = category.getIdCategoria();
-            for (Integer nivelEscolarId : dto.getNivelesEscolares()) {
-                NivelEscolarCategorias nivelEscolarCategorias = new NivelEscolarCategorias();
-                nivelEscolarCategorias.setIdNivel(nivelEscolarId);
-                nivelEscolarCategorias.setIdArea(dto.getIdArea().get(0));
-                nivelEscolarCategorias.setIdCategoria(savedCategoryId);
-                nivelEscolarCategoriaService.saveNivelEscolarCategorias(nivelEscolarCategorias);
+            for (Integer gradoId : dto.getGrados()) {
+                GradoCategoria gradoCategoria = new GradoCategoria();
+                gradoCategoria.setIdGrado(gradoId);
+                gradoCategoria.setIdCategoria(savedCategoryId);
+                gradoCategoriaService.saveGradoCategoria(gradoCategoria);
             }
         } else {
             throw new RuntimeException("Error saving category: " + response.get("message"));
         }
     }
 
-    private void processAreasNiveles(NivelEscolarCategoriaAreaDTO dto) {
-        for (Integer idArea : dto.getIdArea()) {
-            for (Integer idNivel : dto.getNivelesEscolares()) {
-                AreaNivelEscolar areaNivelEscolar = new AreaNivelEscolar();
-                areaNivelEscolar.setIdArea(idArea);
-                areaNivelEscolar.setIdNivel(idNivel);
-                areaNivelEscolarService.saveAreaNivelEscolar(areaNivelEscolar);
-            }
-        }
-    }
 }

@@ -1,5 +1,6 @@
 package com.softcraft.ohhsansibackend.fechasolimpiada.application.ports;
 
+import com.softcraft.ohhsansibackend.fechasolimpiada.domain.models.FechaOlimpiada;
 import com.softcraft.ohhsansibackend.fechasolimpiada.domain.services.FechaOlimpiadaDomainService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -7,39 +8,31 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public class PlazoInscripcionAdapter {
+public class FechaOlimpiadaAdapter {
     private final FechaOlimpiadaDomainService fechaOlimpiadaDomainService;
 
     @Autowired
-    public PlazoInscripcionAdapter(FechaOlimpiadaDomainService fechaOlimpiadaDomainService) {
+    public FechaOlimpiadaAdapter(FechaOlimpiadaDomainService fechaOlimpiadaDomainService) {
         this.fechaOlimpiadaDomainService = fechaOlimpiadaDomainService;
     }
 
-    public PlazoInscripcion upsertPlazoInscripcion(PlazoInscripcion plazoInscripcion) {
-        return fechaOlimpiadaDomainService.upsertPlazoInscripcion(plazoInscripcion);
+    public FechaOlimpiada upsertFechaOlimpiada(FechaOlimpiada fechaOlimpiada) {
+        return fechaOlimpiadaDomainService.upsertFechaOlimpiada(fechaOlimpiada);
     }
 
-    public boolean deletePlazoInscripcion(int id) {
-        return fechaOlimpiadaDomainService.deletePlazoInscripcion(id);
+    public boolean deleteFechaOlimpiada(int id) {
+        return fechaOlimpiadaDomainService.deleteFechaOlimpiada(id);
     }
 
-    public List<PlazoInscripcion> getPlazosInscripcion() {
-        return fechaOlimpiadaDomainService.getPlazosInscripcion();
+    public List<FechaOlimpiada> getFechaOlimpiada() {
+        return fechaOlimpiadaDomainService.getFechaOlimpiada();
     }
 
-    public PlazoInscripcion getPlazoInscripcionById(int idPlazoInscripcion) {
-        return fechaOlimpiadaDomainService.getPlazoInscripcion(idPlazoInscripcion);
+    public FechaOlimpiada getFechaOlimpiadaById(int idFechaOlimpiada) {
+        return fechaOlimpiadaDomainService.getFechaOlimpiadaById(idFechaOlimpiada);
     }
 
-    public PlazoInscripcion getPlazoInscripcionActivo() {
-        return fechaOlimpiadaDomainService.getPlazoInscripcionActivo();
-    }
-
-    public PlazoInscripcion getPlazoInscripcionByDate(LocalDate date) {
-        return fechaOlimpiadaDomainService.getPlazoInscripcionByDate(date);
-    }
-
-    public PlazoInscripcion insertPrecioPeriodo(PlazoInscripcion plazoInscripcion) {
-        return fechaOlimpiadaDomainService.insertPrecioPeriodo(plazoInscripcion);
+    public FechaOlimpiada getFechaOlimpiadaPublic() {
+        return fechaOlimpiadaDomainService.getFechaOlimpiadaPublic();
     }
 }

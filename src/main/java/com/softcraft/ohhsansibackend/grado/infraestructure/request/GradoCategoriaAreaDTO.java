@@ -2,22 +2,20 @@ package com.softcraft.ohhsansibackend.grado.infraestructure.request;
 
 import java.util.List;
 
-public class NivelEscolarCategoriaAreaDTO {
+public class GradoCategoriaAreaDTO {
     private int flag;
-    private String codCategory;
+    private String nombreCategoria;
     private List<Integer> idArea;
-    private List<Integer> nivelesEscolares;
+    private List<Integer> grados;
 
-    public NivelEscolarCategoriaAreaDTO(int flag, String codCategory, List<Integer> idArea, List<Integer> nivelesEscolares) {
+    public GradoCategoriaAreaDTO(int flag, String nombreCategoria, List<Integer> idArea, List<Integer> grados) {
         this.flag = flag;
-        this.codCategory = codCategory;
+        this.nombreCategoria = nombreCategoria;
         this.idArea = idArea;
-        this.nivelesEscolares = nivelesEscolares;
+        this.grados = grados;
     }
 
-    public NivelEscolarCategoriaAreaDTO() {
-
-    }
+    public GradoCategoriaAreaDTO() {}
 
     public int getFlag() {
         return flag;
@@ -27,14 +25,13 @@ public class NivelEscolarCategoriaAreaDTO {
         this.flag = flag;
     }
 
-    public String getCodCategory() {
-        return codCategory;
+    public String getNombreCategoria() {
+        return nombreCategoria;
     }
 
-    public void setCodCategory(String codCategory) {
-        this.codCategory = codCategory;
+    public void setNombreCategoria(String nombreCategoria) {
+        this.nombreCategoria = nombreCategoria;
     }
-
 
     public List<Integer> getIdArea() {
         return idArea;
@@ -44,12 +41,12 @@ public class NivelEscolarCategoriaAreaDTO {
         this.idArea = idArea;
     }
 
-    public List<Integer> getNivelesEscolares() {
-        return nivelesEscolares;
+    public List<Integer> getGrados() {
+        return grados;
     }
 
-    public void setNivelesEscolares(List<Integer> nivelesEscolares) {
-        this.nivelesEscolares = nivelesEscolares;
+    public void setGrados(List<Integer> grados) {
+        this.grados = grados;
     }
 
 }

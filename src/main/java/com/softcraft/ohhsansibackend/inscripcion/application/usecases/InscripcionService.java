@@ -3,6 +3,8 @@ package com.softcraft.ohhsansibackend.inscripcion.application.usecases;
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.application.ports.InscripcionAdapter;
+import com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementation.InscripcionDomainRepository;
+import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionDomainService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +18,12 @@ import java.util.Map;
 @Service
 public class InscripcionService {
     private final InscripcionAdapter inscripcionAdapter;
+    private final InscripcionDomainService inscripcionDomainService;
 
     @Autowired
-    public InscripcionService(InscripcionAdapter inscripcionAdapter) {
+    public InscripcionService(InscripcionAdapter inscripcionAdapter, InscripcionDomainService inscripcionDomainService) {
         this.inscripcionAdapter = inscripcionAdapter;
+        this.inscripcionDomainService = inscripcionDomainService;
     }
 
     public Map<String, Object> saveInscripcion(Inscripcion inscripcion) {
@@ -73,11 +77,45 @@ public class InscripcionService {
         return Map.of("success", true, "message", "Inscripción eliminada exitosamente");
     }
 
-    //devolucion
     public int createInscripcionAndReturnId(Inscripcion inscripcion) {
         inscripcion.setFechaInscripcion(Date.valueOf(LocalDate.now()));
         inscripcion.setHoraInscripcion(Time.valueOf(LocalTime.now()));
         Inscripcion savedInscripcion = inscripcionAdapter.saveInscripcion(inscripcion);
         return savedInscripcion.getIdInscripcion();
     }
+    //codigo
+    public Long findIdByCodigoUnico(String codigoUnico) {
+        return inscripcionAdapter.findIdByCodigoUnico(codigoUnico);
+    }
+    //nuevos sql
+    public List<Map<String, Object>> getInscripcionById(int idInscripcion) {
+        return inscripcionDomainService.getInscripcionById(idInscripcion);
+    }
+
+    public List<Map<String, Object>> getParticipantesByInscripcionId(int idInscripcion) {
+        return inscripcionDomainService.getParticipantesByInscripcionId(idInscripcion);
+    }
+
+    public List<Map<String, Object>> getInscripcionAreasByInscripcionId(int idInscripcion) {
+        return inscripcionDomainService.getInscripcionAreasByInscripcionId(idInscripcion);
+    }
+
+    public List<Map<String, Object>> getAreasByInscripcionId(int idInscripcion) {
+        return inscripcionDomainService.getAreasByInscripcionId(idInscripcion);
+    }
+
+    public List<Map<String, Object>> getTutoresByInscripcionId(int idInscripcion) {
+        return inscripcionDomainService.getTutoresByInscripcionId(idInscripcion);
+    }
+    public Map<String, Object> getInscripcionDetails(String codigoUnico) {
+        int id = findIdByCodigoUnico(codigoUnico).intValue();
+        return Map.of(
+                "inscripcion", getInscripcionById(id),
+                "participantes", getParticipantesByInscripcionId(id),
+                "areas", getAreasByInscripcionId(id),
+                "tutores", getTutoresByInscripcionId(id)
+        );
+    }
+
+
 }

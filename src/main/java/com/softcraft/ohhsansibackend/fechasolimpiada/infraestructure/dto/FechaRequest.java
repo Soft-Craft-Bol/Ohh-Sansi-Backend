@@ -1,4 +1,4 @@
-package com.softcraft.ohhsansibackend.plazoinscripcion.infraestructure.dto;
+package com.softcraft.ohhsansibackend.fechasolimpiada.infraestructure.dto;
 
 import java.time.LocalDate;
 

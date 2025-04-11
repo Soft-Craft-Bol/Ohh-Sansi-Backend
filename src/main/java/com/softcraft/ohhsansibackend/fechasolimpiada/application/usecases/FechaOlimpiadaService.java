@@ -2,6 +2,7 @@ package com.softcraft.ohhsansibackend.fechasolimpiada.application.usecases;
 
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.fechasolimpiada.application.ports.FechaOlimpiadaAdapter;
+import com.softcraft.ohhsansibackend.fechasolimpiada.domain.models.FechaOlimpiada;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -10,94 +11,67 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class PlazoInscripcionService {
+public class FechaOlimpiadaService {
     private final FechaOlimpiadaAdapter fechaOlimpiadaAdapter;
 
     @Autowired
-    public PlazoInscripcionService(FechaOlimpiadaAdapter fechaOlimpiadaAdapter) {
+    public FechaOlimpiadaService(FechaOlimpiadaAdapter fechaOlimpiadaAdapter) {
         this.fechaOlimpiadaAdapter = fechaOlimpiadaAdapter;
     }
 
-    public Map<String, Object> upsertPlazoInscripcion(PlazoInscripcion plazoInscripcion) {
+    public Map<String, Object> upsertFechaOlimpiada(FechaOlimpiada fechaOlimpiada) {
         Map<String, Object> response = new HashMap<>();
         try {
-            fechaOlimpiadaAdapter.upsertPlazoInscripcion(plazoInscripcion);
-            response.put("message", "Plazo de inscripción registrado exitosamente");
+            fechaOlimpiadaAdapter.upsertFechaOlimpiada(fechaOlimpiada);
+            response.put("message", "Fecha registrada exitosamente");
         } catch (Exception e) {
-            response.put("message", "Error al registrar el plazo de inscripción: " + e.getMessage());
+            response.put("message", "Error al registrar la fecha: " + e.getMessage());
         }
         return response;
     }
 
-    public Map<String, Object> deletePlazoInscripcion(int id) {
+    public Map<String, Object> deleteFechaOlimpiada(int id) {
         Map<String, Object> response = new HashMap<>();
-        boolean deleted = fechaOlimpiadaAdapter.deletePlazoInscripcion(id);
+        boolean deleted = fechaOlimpiadaAdapter.deleteFechaOlimpiada(id);
         if (deleted) {
-            response.put("message","Area eliminada exitosamente");
+            response.put("message","Fecha eliminada exitosamente");
         }else {
-            throw new ResourceNotFoundException("Area no encontrada");
+            throw new ResourceNotFoundException("Fecha no encontrada");
         }
         return response;
     }
 
-    public Map<String, Object> getPlazosInscripcion() {
+    public Map<String, Object> getFechaOlimpiada() {
         Map<String, Object> response = new HashMap<>();
         try {
-            response.put("message", "Lista de plazos de inscripción obtenida exitosamente");
-            response.put("data", fechaOlimpiadaAdapter.getPlazosInscripcion());
+            response.put("message", "Lista de fechas de olimpiadas obtenida exitosamente");
+            response.put("data", fechaOlimpiadaAdapter.getFechaOlimpiada());
         } catch (Exception e) {
-            response.put("message", "Error al obtener la lista de plazos de inscripción");
+            response.put("message", "Error al obtener la lista de fechas de olimpiadas");
         }
         return response;
     }
 
-    public Map<String, Object> getPlazoInscripcionById(int id) {
+    public Map<String, Object> getFechaOlimpiadaById(int id) {
         Map<String, Object> response = new HashMap<>();
         try {
-            PlazoInscripcion plazoInscripcion = fechaOlimpiadaAdapter.getPlazoInscripcionById(id);
-            response.put("message", "Plazo de inscripción encontrado exitosamente");
-            response.put("data", plazoInscripcion);
+            FechaOlimpiada fechaOlimpiada = fechaOlimpiadaAdapter.getFechaOlimpiadaById(id);
+            response.put("message", "Fecha de olimpiada encontrada exitosamente");
+            response.put("data", fechaOlimpiada);
         } catch (Exception e) {
-            response.put("message", "Error al buscar el plazo de inscripción");
+            response.put("message", "Error al buscar la fecha de olimpiada");
         }
         return response;
     }
 
-    public Map<String, Object> getPlazoInscripcionActivo() {
+    public Map<String, Object> getFechaOlimpiadaPublic() {
         Map<String, Object> response = new HashMap<>();
         try {
-            PlazoInscripcion plazoInscripcion = fechaOlimpiadaAdapter.getPlazoInscripcionActivo();
-            response.put("message", "Plazo de inscripción activo encontrado exitosamente");
-            response.put("data", plazoInscripcion);
+            FechaOlimpiada fechaOlimpiada = fechaOlimpiadaAdapter.getFechaOlimpiadaPublic();
+            response.put("message", "Fecha de olimpiada publica encontrada exitosamente");
+            response.put("data", fechaOlimpiada);
         } catch (Exception e) {
-            response.put("message", "Error al buscar el plazo de inscripción activo");
-        }
-        return response;
-    }
-
-    public Map<String, Object> getPlazoInscripcionByDate(LocalDate date) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            PlazoInscripcion plazoInscripcion = fechaOlimpiadaAdapter.getPlazoInscripcionByDate(date);
-            response.put("message", "Plazo de inscripción encontrado exitosamente");
-            response.put("data", plazoInscripcion);
-        } catch (EmptyResultDataAccessException e) {
-            response.put("message", "No se encontró un plazo de inscripción para la fecha especificada");
-        } catch (Exception e) {
-            response.put("message", "Error interno al buscar el plazo de inscripción");
-            response.put("error", e.getMessage());
-        }
-        return response;
-    }
-
-    public Map<String, Object> insertPrecioPeriodo(PlazoInscripcion plazoInscripcion) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            PlazoInscripcion result = fechaOlimpiadaAdapter.insertPrecioPeriodo(plazoInscripcion);
-            response.put("message", "Precio del periodo registrado exitosamente");
-            response.put("data", result);
-        } catch (Exception e) {
-            response.put("message", "Error al registrar el precio del periodo: " + e.getMessage());
+            response.put("message", "Error al buscar la fecha de olimpiada publica");
         }
         return response;
     }

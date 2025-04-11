@@ -27,3 +27,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 SELECT * FROM selectDepartamentoById(1);
+
+alter table departamento
+    add constraint unique_nombre_departamento unique (nombre_departamento);

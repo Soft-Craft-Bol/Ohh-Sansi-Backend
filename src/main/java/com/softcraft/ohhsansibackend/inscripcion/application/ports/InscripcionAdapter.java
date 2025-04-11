@@ -47,4 +47,8 @@ public class InscripcionAdapter {
     public List<Inscripcion> findByRangeDate(LocalDate fechaInicio, LocalDate fechaFin) {
         return inscripcionDomainService.findByRangeDate(fechaInicio, fechaFin);
     }
+
+    public Long findIdByCodigoUnico(String codigoUnico) {
+        return inscripcionDomainService.findIdByCodigoUnico(codigoUnico);
+    }
 }

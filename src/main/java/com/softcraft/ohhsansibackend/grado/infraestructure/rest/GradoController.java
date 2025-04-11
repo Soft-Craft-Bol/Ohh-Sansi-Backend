@@ -12,45 +12,40 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/nivelescolar")
-public class NivelEscolarController {
+public class GradoController {
     private final GradoService gradoService;
 
     @Autowired
-    public NivelEscolarController(GradoService gradoService) {
+    public GradoController(GradoService gradoService) {
         this.gradoService = gradoService;
     }
 
     @PostMapping("/register-nivel")
-    public ResponseEntity<Map<String, Object>> addNivelEscolar(@RequestBody Grade grade) {
-        Map<String, Object> response = gradoService.saveNivelEscolar(grade);
+    public ResponseEntity<Map<String, Object>> addGrado(@RequestBody Grade grade) {
+        Map<String, Object> response = gradoService.saveGrade(grade);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateNivelEscolar(@PathVariable int id, @RequestBody Grade grade) {
-        grade.setIdNivel(id);
-        Map<String, Object> response = gradoService.updateNivelEscolar(grade);
+    public ResponseEntity<Map<String, Object>> updateGrado(@PathVariable int id, @RequestBody Grade grade) {
+        grade.setIdGrado(id);
+        Map<String, Object> response = gradoService.updateGrade(grade);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteNivelEscolar(@PathVariable int id) {
-        Map<String, Object> response = gradoService.deleteNivelEscolar(id);
+        Map<String, Object> response = gradoService.deleteGrade(id);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getNivelEscolarById(@PathVariable int id) {
-        Grade grade = gradoService.findNivelEscolarById(id);
+        Grade grade = gradoService.findGradeById(id);
         if(grade != null) {
             return ResponseEntity.ok(Map.of( "data", grade));
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("success", false, "message", "Nivel Escolar not found"));
         }
     }
-    @GetMapping
-    public ResponseEntity<List<Grade>> getNivelEscolar() {
-        return ResponseEntity.ok(gradoService.getNivelEscolars());
-    }
-
 }

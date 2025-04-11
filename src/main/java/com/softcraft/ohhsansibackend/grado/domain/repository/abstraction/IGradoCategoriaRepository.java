@@ -1,17 +1,17 @@
 package com.softcraft.ohhsansibackend.grado.domain.repository.abstraction;
 
-import com.softcraft.ohhsansibackend.grado.domain.models.NivelEscolarCategorias;
+import com.softcraft.ohhsansibackend.grado.domain.models.GradoCategoria;
 
 import java.util.List;
 
-public interface INivelEscolarCategoriasRepository {
-    NivelEscolarCategorias save(NivelEscolarCategorias nivelEscolarCategorias);
+public interface IGradoCategoriaRepository {
+    GradoCategoria save(GradoCategoria gradoCategoria);
 
-    boolean update(NivelEscolarCategorias nivelEscolarCategorias);
+    boolean update(GradoCategoria gradoCategoria);
 
-    boolean delete(int idNivelEscolarCategorias);
+    boolean delete(int idGradoCategoria);
 
-    NivelEscolarCategorias findById(int idNivelEscolarCategorias);
+    GradoCategoria findById(int idGradoCategoria);
 
-    List<NivelEscolarCategorias> findAll();
+    List<GradoCategoria> findAll();
 }
