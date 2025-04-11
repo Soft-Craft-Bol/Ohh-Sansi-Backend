@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.AccessType;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class NivelEscolarCategoriaService {
 
@@ -22,5 +25,6 @@ public class NivelEscolarCategoriaService {
     public NivelEscolarCategorias saveNivelEscolarCategorias(NivelEscolarCategorias nivelEscolarCategorias) {
         return nivelEscolarCategoriasDomainRepository.save(nivelEscolarCategorias);
     }
+
 
 }

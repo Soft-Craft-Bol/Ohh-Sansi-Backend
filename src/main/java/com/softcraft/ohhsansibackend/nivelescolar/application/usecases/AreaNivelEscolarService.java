@@ -37,6 +37,21 @@ public class AreaNivelEscolarService {
         return result;
     }
 
+    public Map<String, Object> getAreasGrados(){
+        List<AreaNivelDTO> areas = areaNivelEscolarDomainRepository.findAllAreasWithNivelesGrouped();
 
+        Map<String, Object> result = new HashMap<>();
+        result.put("areasgrades",areas);
+
+        return result;
+    }
+
+    public Map<String, Object> getAreasAndCategorias() {
+        List<AreaCategoriaNivelDTO> areasCategorias = areaNivelEscolarDomainRepository.findAllCategoriasWithNivelesGrouped();
+        Map<String, Object> result = new HashMap<>();
+        result.put("areasCategorias", areasCategorias);
+
+        return result;
+    }
 
 }

@@ -21,12 +21,6 @@ public class NivelEscolarCategoriasDomainRepository implements INivelEscolarCate
         this.jdbcTemplate = jdbcTemplate;
     }
 
-//    @Override
-//    public NivelEscolarCategorias save(NivelEscolarCategorias nivelEscolarCategorias) {
-//        String sql = "SELECT InsertNivelEscolarCategorias(?, ?)";
-//        return jdbcTemplate.queryForObject(sql, new Object[]{nivelEscolarCategorias.getIdNivel(), nivelEscolarCategorias.getIdCategoria()
-//        }, new BeanPropertyRowMapper<>(NivelEscolarCategorias.class));
-//    }
     @Override
     public NivelEscolarCategorias save(NivelEscolarCategorias nivelEscolarCategorias) {
         String sql = "INSERT INTO nivel_escolar_categorias (id_nivel, id_area, id_categoria) VALUES (?, ?, ?) RETURNING id_nivel_escolar_categorias";

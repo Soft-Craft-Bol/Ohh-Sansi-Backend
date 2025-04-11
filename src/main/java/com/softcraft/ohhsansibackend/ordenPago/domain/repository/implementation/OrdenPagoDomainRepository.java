@@ -1,5 +1,4 @@
 package com.softcraft.ohhsansibackend.ordenPago.domain.repository.implementation;
-
 import com.softcraft.ohhsansibackend.ordenPago.domain.models.OrdenDePago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;

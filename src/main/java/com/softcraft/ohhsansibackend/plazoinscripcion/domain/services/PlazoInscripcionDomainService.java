@@ -21,14 +21,6 @@ public class PlazoInscripcionDomainService {
         return plazoInscripcionRepository.upsertPlazoInscripcion(plazoInscripcion);
     }
 
-    public PlazoInscripcion createPlazoInscripcion(PlazoInscripcion plazoInscripcion) {
-        return plazoInscripcionRepository.insertPlazoInscripcion( plazoInscripcion);
-    }
-
-    public PlazoInscripcion updatePlazoInscripcion(PlazoInscripcion plazoInscripcion) {
-        return plazoInscripcionRepository.updatePlazoInscripcion(plazoInscripcion);
-    }
-
     public boolean deletePlazoInscripcion(int id) {
         return plazoInscripcionRepository.deletePlazoInscripcion(id);
     }
@@ -47,5 +39,9 @@ public class PlazoInscripcionDomainService {
 
     public PlazoInscripcion getPlazoInscripcionByDate(LocalDate date) {
         return plazoInscripcionRepository.getPlazoInscripcionByDate(date);
+    }
+
+    public PlazoInscripcion insertPrecioPeriodo(PlazoInscripcion plazoInscripcion) {
+        return plazoInscripcionRepository.insertPrecioPeriodo(plazoInscripcion);
     }
 }

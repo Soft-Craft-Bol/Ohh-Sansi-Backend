@@ -1,6 +1,7 @@
 package com.softcraft.ohhsansibackend.plazoinscripcion.domain.repository.implementation;
 
 import com.softcraft.ohhsansibackend.plazoinscripcion.domain.models.PlazoInscripcion;
+import com.softcraft.ohhsansibackend.plazoinscripcion.domain.repository.abstraction.IPlazoInscripcionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -9,7 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public class PlazoInscripcionDomainRepository implements com.softcraft.ohhsansibackend.plazoinscripcion.domain.repository.abstraction.IPlazoInscripcionRepository {
+public class PlazoInscripcionDomainRepository implements IPlazoInscripcionRepository {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -19,29 +20,17 @@ public class PlazoInscripcionDomainRepository implements com.softcraft.ohhsansib
 
     @Override
     public PlazoInscripcion upsertPlazoInscripcion(PlazoInscripcion plazoInscripcion) {
-        String sql = "SELECT * FROM upsertPlazoInscripcion(?, ?, ?, ?)";
+        String sql = "SELECT * FROM upsertPlazoInscripcion(?, ?, ?, ?, ?, ?, ?)";
 
         return jdbcTemplate.queryForObject(sql, new Object[]{
+                plazoInscripcion.getNombrePeriodoInscripcion(),
                 plazoInscripcion.getFechaInicioInscripcion(),
                 plazoInscripcion.getFechaFinInscripcion(),
+                plazoInscripcion.getFechaInicioOlimpiadas(),
+                plazoInscripcion.getFechaFinOlimpiadas(),
                 plazoInscripcion.getFechaResultados(),
                 plazoInscripcion.getFechaPremiacion()
         }, new BeanPropertyRowMapper<>(PlazoInscripcion.class));
-    }
-
-    @Override
-    public PlazoInscripcion insertPlazoInscripcion(PlazoInscripcion plazoInscripcion) {
-        String sql = "SELECT savePlazoInscripcion( ?, ?, ?, ?, ?)";
-        List<PlazoInscripcion> result = jdbcTemplate.query(sql, new Object[]{plazoInscripcion.getFechaInicioInscripcion(), plazoInscripcion.getFechaFinInscripcion(), plazoInscripcion.getFechaResultados(),plazoInscripcion.getFechaPremiacion(), plazoInscripcion.getFechaPlazoInscripcionActivo()},
-                new BeanPropertyRowMapper<>(PlazoInscripcion.class));
-        return result.isEmpty() ? null : result.get(0);
-    }
-
-    @Override
-    public PlazoInscripcion updatePlazoInscripcion(PlazoInscripcion plazoInscripcion) {
-        String sql = "SELECT updatePlazoInscripcion(?, ?, ?, ?, ?, ?)";
-        return jdbcTemplate.queryForObject(sql, new Object[]{plazoInscripcion.getIdPlazoInscripcion(), plazoInscripcion.getFechaInicioInscripcion(), plazoInscripcion.getFechaFinInscripcion(), plazoInscripcion.getFechaResultados(), plazoInscripcion.getFechaPremiacion(), plazoInscripcion.getFechaPlazoInscripcionActivo()},
-                new BeanPropertyRowMapper<>(PlazoInscripcion.class));
     }
 
     @Override
@@ -75,6 +64,13 @@ public class PlazoInscripcionDomainRepository implements com.softcraft.ohhsansib
     public PlazoInscripcion getPlazoInscripcionByDate(LocalDate date) {
         String sql = "SELECT * FROM selectPlazoInscripcionByDate(?)";
         return jdbcTemplate.queryForObject(sql, new Object[]{date},
+                new BeanPropertyRowMapper<>(PlazoInscripcion.class));
+    }
+
+    @Override
+    public PlazoInscripcion insertPrecioPeriodo(PlazoInscripcion plazoInscripcion) {
+        String sql = "SELECT insertPrecioPlazoInscripcion(?, ?)";
+        return jdbcTemplate.queryForObject(sql, new Object[]{plazoInscripcion.getIdPeriodoInscripcion(), plazoInscripcion.getPrecioPeriodo()},
                 new BeanPropertyRowMapper<>(PlazoInscripcion.class));
     }
 }

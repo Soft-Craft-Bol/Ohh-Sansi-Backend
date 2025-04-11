@@ -3,7 +3,9 @@ package com.softcraft.ohhsansibackend.nivelescolar.dto;
 public class AreaNivelDTO {
     private int idArea;
     private String nombreArea;
+
     //private double precioArea;
+
     private String nombreCortoArea;
     private String descripcionArea;
     private String codigoNivel;
@@ -24,6 +26,7 @@ public class AreaNivelDTO {
         this.nombreArea = nombreArea;
     }
 
+
 //    public double getPrecioArea() {
 //        return precioArea;
 //    }
@@ -31,6 +34,7 @@ public class AreaNivelDTO {
 //    public void setPrecioArea(double precioArea) {
 //        this.precioArea = precioArea;
 //    }
+
 
     public String getNombreCortoArea() {
         return nombreCortoArea;

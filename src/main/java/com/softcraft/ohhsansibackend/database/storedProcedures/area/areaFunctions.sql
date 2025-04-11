@@ -2,24 +2,24 @@ select * from area;
 -----------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION insertarea(
     nombreArea VARCHAR,
-    precioArea DECIMAL,
+    descripcionArea VARCHAR,
     nombreCortoArea VARCHAR
 )
-    RETURNS TABLE (id_area INT, nombre_area VARCHAR, precio_area DECIMAL, nombre_corto_area VARCHAR) AS $$
+    RETURNS TABLE (id_area INT, nombre_area VARCHAR, descripcion_area VARCHAR, nombre_corto_area VARCHAR) AS $$
 BEGIN
     RETURN QUERY
-        INSERT INTO area (nombre_area, precio_area, nombre_corto_area)
-            VALUES (nombreArea, precioArea, nombreCortoArea)
+        INSERT INTO area (nombre_area, descripcion_area, nombre_corto_area)
+            VALUES (nombreArea, descripcionArea, nombreCortoArea)
             RETURNING *;
 END;
 $$ LANGUAGE plpgsql;
 
-select insertarea('humanidades',20.5,'hum');
+select insertarea('humanidades','prueba de humanidades','hum');
 -----------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION updatearea(
     idArea INTEGER,
     nombreArea VARCHAR,
-    precioArea DECIMAL,
+    descripcionArea VARCHAR,
     nombreCortoArea VARCHAR
 ) RETURNS BOOLEAN AS $$
 DECLARE
@@ -27,7 +27,7 @@ DECLARE
 BEGIN
     UPDATE area
     SET nombre_area = nombreArea,
-        precio_area = precioArea,
+        descripcion_area = descripcionArea,
         nombre_corto_area = nombreCortoArea
     WHERE id_area = idArea;
 
@@ -55,9 +55,9 @@ select deletearea(11);
 select * from area;
 -----------------------------------------------------------------------------------------------------------------------
 create or replace function selectareabyid(idarea integer)
-    returns table (id_area integer, nombre_area varchar, precio_area decimal, nombre_corto_area varchar) as $$
+    returns table (id_area integer, nombre_area varchar, descripcion_area varchar, nombre_corto_area varchar) as $$
 begin
-    return query select area.id_area, area.nombre_area, area.precio_area, area.nombre_corto_area
+    return query select area.id_area, area.nombre_area, area.descripcion_area, area.nombre_corto_area
                  from area
                  where area.id_area = idarea;
 end;
@@ -66,9 +66,9 @@ select * from selectareabyid(1);
 
 -----------------------------------------------------------------------------------------------------------------------
 create or replace function selectallareas()
-    returns table (id_area integer, nombre_area varchar, precio_area decimal, nombre_corto_area varchar) as $$
+    returns table (id_area integer, nombre_area varchar, descripcion_area varchar, nombre_corto_area varchar) as $$
 begin
-    return query select area.id_area, area.nombre_area, area.precio_area, area.nombre_corto_area
+    return query select area.id_area, area.nombre_area, area.descripcion_area, area.nombre_corto_area
                  from area;
 end;
 $$ language plpgsql;

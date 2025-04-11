@@ -2,6 +2,7 @@ package com.softcraft.ohhsansibackend.nivelescolar.infraestructure.rest;
 
 import com.softcraft.ohhsansibackend.nivelescolar.application.NivelEscolarCategoriaAreaService;
 import com.softcraft.ohhsansibackend.nivelescolar.application.usecases.AreaNivelEscolarService;
+import com.softcraft.ohhsansibackend.nivelescolar.application.usecases.NivelEscolarCategoriaService;
 import com.softcraft.ohhsansibackend.nivelescolar.infraestructure.request.NivelEscolarCategoriaAreaDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +19,12 @@ public class NivelEscolarCategoriaAreaController {
     private final NivelEscolarCategoriaAreaService nivelEscolarCategoriaAreaService;
     private final AreaNivelEscolarService areaNivelEscolarService;
 
+
     @Autowired
     public NivelEscolarCategoriaAreaController(NivelEscolarCategoriaAreaService nivelEscolarCategoriaAreaService, AreaNivelEscolarService areaNivelEscolarService) {
         this.nivelEscolarCategoriaAreaService = nivelEscolarCategoriaAreaService;
         this.areaNivelEscolarService = areaNivelEscolarService;
+
     }
 
     @PostMapping("/register")
@@ -33,6 +36,18 @@ public class NivelEscolarCategoriaAreaController {
     @GetMapping("/areas-categorias/{idNivel}")
     public ResponseEntity<Map<String, Object>> getAreasAndCategoriasByNivel(@PathVariable int idNivel) {
         Map<String, Object> result = areaNivelEscolarService.getAreasAndCategoriasByNivel(idNivel);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/areas-grados")
+    public ResponseEntity<Map<String, Object>> getAreasGrados() {
+        Map<String, Object> result = areaNivelEscolarService.getAreasGrados();
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/areas-categorias")
+    public ResponseEntity<Map<String, Object>> getAreasAndCategorias() {
+        Map<String, Object> result = areaNivelEscolarService.getAreasAndCategorias();
         return ResponseEntity.ok(result);
     }
 }

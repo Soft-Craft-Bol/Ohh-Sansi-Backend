@@ -30,28 +30,6 @@ public class PlazoInscripcionService {
         return response;
     }
 
-    public Map<String, Object> savePlazoInscripcion(PlazoInscripcion plazoInscripcion) {
-        Map<String, Object> response = new HashMap<>();
-        try{
-            plazoInscripcionAdapter.savePlazoInscripcion(plazoInscripcion);
-            response.put("message", "Plazo de inscripción registrado exitosamente");
-        } catch (Exception e) {
-            response.put("message", "Error al registrar el plazo de inscripción: " + e.getMessage());
-        }
-        return response;
-    }
-
-    public Map<String, Object> updatePlazoInscripcion(PlazoInscripcion plazoInscripcion) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            plazoInscripcionAdapter.updatePlazoInscripcion(plazoInscripcion);
-            response.put("message", "Plazo de inscripción actualizado exitosamente");
-        } catch (Exception e) {
-            response.put("message", "Error al actualizar el plazo de inscripción");
-        }
-        return response;
-    }
-
     public Map<String, Object> deletePlazoInscripcion(int id) {
         Map<String, Object> response = new HashMap<>();
         boolean deleted = plazoInscripcionAdapter.deletePlazoInscripcion(id);
@@ -109,6 +87,18 @@ public class PlazoInscripcionService {
         } catch (Exception e) {
             response.put("message", "Error interno al buscar el plazo de inscripción");
             response.put("error", e.getMessage());
+        }
+        return response;
+    }
+
+    public Map<String, Object> insertPrecioPeriodo(PlazoInscripcion plazoInscripcion) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            PlazoInscripcion result = plazoInscripcionAdapter.insertPrecioPeriodo(plazoInscripcion);
+            response.put("message", "Precio del periodo registrado exitosamente");
+            response.put("data", result);
+        } catch (Exception e) {
+            response.put("message", "Error al registrar el precio del periodo: " + e.getMessage());
         }
         return response;
     }
