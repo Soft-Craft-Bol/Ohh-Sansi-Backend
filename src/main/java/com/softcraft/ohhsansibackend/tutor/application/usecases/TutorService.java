@@ -2,6 +2,10 @@ package com.softcraft.ohhsansibackend.tutor.application.usecases;
 
 import com.softcraft.ohhsansibackend.exception.DuplicateResourceException;
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
+import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
+import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteTutorService;
+import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
+import com.softcraft.ohhsansibackend.participante.domain.models.ParticipanteTutor;
 import com.softcraft.ohhsansibackend.tutor.domain.models.Tutor;
 import com.softcraft.ohhsansibackend.tutor.application.ports.TutorAdapter;
 import com.softcraft.ohhsansibackend.tutor.domain.repository.implementation.TutorDomainRepository;
@@ -14,14 +18,26 @@ import java.util.Map;
 
 @Service
 public class TutorService {
+
     private final TutorAdapter tutorAdapter;
+    private final ParticipanteService participanteService;
+    private final ParticipanteTutorService participanteTutorService;
+
     @Autowired
-    public TutorService(TutorAdapter tutorAdapter) {
+    public TutorService(TutorAdapter tutorAdapter, ParticipanteService participanteService, ParticipanteTutorService participanteTutorService) {
         this.tutorAdapter = tutorAdapter;
+        this.participanteService = participanteService;
+        this.participanteTutorService = participanteTutorService;
     }
-    public Map<String, Object> save(Tutor tutor) {
+    public Map<String, Object> save(Tutor tutor, int carnetParticipante) {
         try {
-            tutorAdapter.save(tutor);
+            Tutor tutorCreated = tutorAdapter.save(tutor);
+            Participante searchParticipante = participanteService.findByCarnetIdentidadService(carnetParticipante);
+            participanteTutorService.createParticipanteTutor(
+                    tutorCreated.getIdTutor().intValue(),
+                    searchParticipante.getIdInscripcion(),
+                    searchParticipante.getIdParticipante()
+            );
         } catch (DuplicateKeyException e) {
             throw new DuplicateResourceException("Email o carnet de identidad del tutor ya registrados");
         } catch (Exception e) {

@@ -80,4 +80,12 @@ public class ParticipanteService {
         response.put("participante", participante);
         return response;
     }
+
+    public Participante findByCarnetIdentidadService(int carnetIdentidad){
+        Participante participante = participanteAdapter.findByCarnetIdentidad(carnetIdentidad);
+        if (participante == null) {
+            throw new ResourceNotFoundException("Participante no encontrado");
+        }
+        return participante;
+    }
 }

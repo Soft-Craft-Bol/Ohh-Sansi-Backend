@@ -1,7 +1,9 @@
 package com.softcraft.ohhsansibackend.participante.infraestructure.rest;
 
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
+import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteTutorService;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
+import com.softcraft.ohhsansibackend.participante.domain.models.ParticipanteTutor;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,10 +16,12 @@ import java.util.Map;
 @RequestMapping("/participante")
 public class ParticipanteController {
     private final ParticipanteService participanteService;
+    private final ParticipanteTutorService participanteTutorService;
 
     @Autowired
-    public ParticipanteController(ParticipanteService participanteService) {
+    public ParticipanteController(ParticipanteService participanteService, ParticipanteTutorService participanteTutorService) {
         this.participanteService = participanteService;
+        this.participanteTutorService = participanteTutorService;
     }
 
     @PostMapping("/register-participant")
@@ -47,9 +51,18 @@ public class ParticipanteController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+//    @GetMapping("/carnet/{carnetIdentidad}")
+//    public ResponseEntity<Map<String, Object>> findByCarnetIdentidad(@PathVariable int carnetIdentidad) {
+//        Map<String, Object> response = participanteService.findByCarnetIdentidad(carnetIdentidad);
+//        return ResponseEntity.status(HttpStatus.OK).body(response);
+//    }
     @GetMapping("/carnet/{carnetIdentidad}")
-    public ResponseEntity<Map<String, Object>> findByCarnetIdentidad(@PathVariable int carnetIdentidad) {
-        Map<String, Object> response = participanteService.findByCarnetIdentidad(carnetIdentidad);
+    public ResponseEntity<Participante> findByCarnetIdentidad(@PathVariable int carnetIdentidad) {
+        Participante response = participanteService.findByCarnetIdentidadService(carnetIdentidad);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+
+
+
 }

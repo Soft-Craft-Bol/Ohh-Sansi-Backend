@@ -105,7 +105,7 @@ public class InscripcionLargaService {
             tutor.setApellidosTutor(tutorDTO.getApellidosTutor());
             tutor.setTelefono(tutorDTO.getTelefono());
             tutor.setCarnetIdentidadTutor(tutorDTO.getCarnetIdentidadTutor());
-            tutorService.save(tutor);
+            tutorService.save(tutor,1);
         }
         if (tutor.getIdTutor() == null) {
             throw new IllegalStateException("Error al registrar el tutor");
