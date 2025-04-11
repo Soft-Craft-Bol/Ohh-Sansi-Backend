@@ -24,13 +24,6 @@ public class InscripcionAdapter {
         return inscripcionDomainService.createInscripcion(inscripcion);
     }
 
-    public boolean updateInscripcion(Inscripcion inscripcion) {
-        return inscripcionDomainService.updateInscripcion(inscripcion);
-    }
-
-    public boolean deleteInscripcion(int id) {
-        return inscripcionDomainService.deleteInscripcion(id);
-    }
 
     public Inscripcion findInscripcionById(int id) {
         return inscripcionDomainService.getInscripcion(id);
@@ -40,13 +33,7 @@ public class InscripcionAdapter {
         return inscripcionDomainService.listInscripcion();
     }
 
-    public List<Inscripcion> findByDateAndTime(Date date, Time time) {
-        return inscripcionDomainService.findByDateAndTime(date, time);
-    }
 
-    public List<Inscripcion> findByRangeDate(LocalDate fechaInicio, LocalDate fechaFin) {
-        return inscripcionDomainService.findByRangeDate(fechaInicio, fechaFin);
-    }
 
     public Long findIdByCodigoUnico(String codigoUnico) {
         return inscripcionDomainService.findIdByCodigoUnico(codigoUnico);

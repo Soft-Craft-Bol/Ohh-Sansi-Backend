@@ -5,6 +5,7 @@ import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.application.ports.InscripcionAdapter;
 import com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementation.InscripcionDomainRepository;
 import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionDomainService;
+import com.softcraft.ohhsansibackend.utils.UniqueCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,23 +20,28 @@ import java.util.Map;
 public class InscripcionService {
     private final InscripcionAdapter inscripcionAdapter;
     private final InscripcionDomainService inscripcionDomainService;
+    private final UniqueCodeGenerator uniqueCodeGenerator;
 
     @Autowired
-    public InscripcionService(InscripcionAdapter inscripcionAdapter, InscripcionDomainService inscripcionDomainService) {
+    public InscripcionService(InscripcionAdapter inscripcionAdapter, InscripcionDomainService inscripcionDomainService, UniqueCodeGenerator uniqueCodeGenerator) {
         this.inscripcionAdapter = inscripcionAdapter;
         this.inscripcionDomainService = inscripcionDomainService;
+        this.uniqueCodeGenerator = uniqueCodeGenerator;
     }
 
-    public Map<String, Object> saveInscripcion(Inscripcion inscripcion) {
+    public Inscripcion saveInscripcion() {
         try {
-            Inscripcion nuevaInscripcion = inscripcionAdapter.saveInscripcion(inscripcion);
-            return Map.of("success", true, "message", "Inscripción registrada exitosamente",
-                    "data", nuevaInscripcion
-            );
+            Inscripcion inscripcion = new Inscripcion();
+            inscripcion.setFechaInscripcion(Date.valueOf(LocalDate.now()));
+            inscripcion.setHoraInscripcion(Time.valueOf(LocalTime.now()));
+            String uniqueCode = uniqueCodeGenerator.generate();
+            inscripcion.setCodigoUnicoInscripcion(uniqueCode);
+            return inscripcionAdapter.saveInscripcion(inscripcion);
         } catch (Exception e) {
-            return Map.of("success", false, "message", "Error al registrar la inscripción");
+            throw new RuntimeException("Error al registrar la inscripción: " + e.getMessage());
         }
     }
+
     public Inscripcion findInscripcionById(int id) {
         Inscripcion inscripcion = inscripcionAdapter.findInscripcionById(id);
         if (inscripcion == null) {
@@ -48,34 +54,6 @@ public class InscripcionService {
         return inscripcionAdapter.findAllInscripciones();
     }
 
-    public List<Inscripcion> findByDateAndTime(Date date, Time time) {
-        return inscripcionAdapter.findByDateAndTime(date, time);
-    }
-
-    public List<Inscripcion> findByRangeDate(LocalDate fechaInicio, LocalDate fechaFin) {
-        return inscripcionAdapter.findByRangeDate(fechaInicio, fechaFin);
-    }
-
-    public Map<String, Object> updateInscripcion(Inscripcion inscripcion) {
-        if(inscripcionAdapter.findInscripcionById(inscripcion.getIdInscripcion()) == null) {
-            throw new ResourceNotFoundException("Inscripcion con ID " + inscripcion.getIdInscripcion() + " no encontrada");
-        }
-        inscripcionAdapter.updateInscripcion(inscripcion);
-        return Map.of("success", true, "message", "Inscripcion actualizada exitosamente");
-    }
-
-    public Map<String, Object> deleteInscripcion(int id) {
-        if (inscripcionAdapter.findInscripcionById(id) == null) {
-            throw new ResourceNotFoundException("Inscripcion con ID " + id + " no encontrada");
-        }
-        boolean deleted = inscripcionAdapter.deleteInscripcion(id);
-
-        if (!deleted) {
-            return Map.of("success", false, "message", "Error al eliminar la inscripción");
-        }
-
-        return Map.of("success", true, "message", "Inscripción eliminada exitosamente");
-    }
 
     public int createInscripcionAndReturnId(Inscripcion inscripcion) {
         inscripcion.setFechaInscripcion(Date.valueOf(LocalDate.now()));
@@ -116,6 +94,5 @@ public class InscripcionService {
                 "tutores", getTutoresByInscripcionId(id)
         );
     }
-
 
 }
