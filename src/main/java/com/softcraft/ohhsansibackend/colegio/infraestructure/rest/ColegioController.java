@@ -21,6 +21,11 @@ public class ColegioController {
         this.colegioService = colegioService;
     }
 
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> getAllColegios() {
+        Map<String, Object> response = colegioService.getColegios();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
     @GetMapping("/municipio/{idMunicipio}")
     public ResponseEntity<Map<String, Object>> getColegiosByMunicipio(@PathVariable int idMunicipio) {
         Map<String, Object> response = colegioService.getColegiosByMunicipio(idMunicipio);

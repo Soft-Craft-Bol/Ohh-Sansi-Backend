@@ -16,6 +16,10 @@ public class ColegioDomainService {
         this.colegioDomainRepository = colegioDomainRepository;
     }
 
+    public List<Colegio> getColegios() {
+        return colegioDomainRepository.getColegios();
+    }
+
     public List<Colegio> getColegiosByMunicipio(int idMunicipio) {
         return colegioDomainRepository.getColegiosByMunicipio(idMunicipio);
     }

@@ -18,6 +18,10 @@ public class ColegioService {
         this.colegioAdapter = colegioAdapter;
     }
 
+    public Map<String, Object> getColegios() {
+        List<Colegio> colegios = colegioAdapter.getColegios();
+        return Map.of("colegios", colegios);
+    }
     public Map<String, Object> getColegiosByMunicipio(int idMunicipio) {
         List<Colegio> colegios = colegioAdapter.getColegiosByMunicipio(idMunicipio);
         return Map.of("colegios", colegios);

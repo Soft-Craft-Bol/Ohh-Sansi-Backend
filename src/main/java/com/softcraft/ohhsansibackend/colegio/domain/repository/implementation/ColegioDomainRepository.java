@@ -1,7 +1,6 @@
 package com.softcraft.ohhsansibackend.colegio.domain.repository.implementation;
 
 import com.softcraft.ohhsansibackend.colegio.domain.models.Colegio;
-import com.softcraft.ohhsansibackend.municipio.domain.models.Municipio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,6 +17,11 @@ public class ColegioDomainRepository implements com.softcraft.ohhsansibackend.co
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @Override
+    public List<Colegio> getColegios() {
+        String sql = "SELECT * FROM selectAllColegios()";
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Colegio.class));
+    }
     @Override
     public List<Colegio> getColegiosByMunicipio(int idMunicipio) {
         String sql = "SELECT * FROM selectColegioByMunicipio(?)";

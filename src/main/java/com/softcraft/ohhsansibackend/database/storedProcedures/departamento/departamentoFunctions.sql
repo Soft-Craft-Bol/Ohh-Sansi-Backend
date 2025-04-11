@@ -30,9 +30,23 @@ SELECT * FROM selectDepartamentoById(1);
 
 alter table departamento
     add constraint unique_nombre_departamento unique (nombre_departamento);
-ALTER TABLE colegio ADD CONSTRAINT unique_nombre_colegio UNIQUE (nombre_colegio);
 
-DELETE FROM participante WHERE id_departamento = 2432;
-DELETE FROM departamento WHERE id_departamento = 2432;
-delete from municipio where id_departamento = 2432;
-delete from colegio where nombre_colegio = 'RIO BLANCO';
+ALTER TABLE participante
+DROP CONSTRAINT IF EXISTS fk_participante_departamento,
+ADD CONSTRAINT fk_participante_departamento FOREIGN KEY (id_departamento)
+REFERENCES departamento (id_departamento) ON DELETE CASCADE;
+
+ALTER TABLE municipio
+DROP CONSTRAINT IF EXISTS fk_municipio_departamento,
+ADD CONSTRAINT fk_municipio_departamento FOREIGN KEY (id_departamento)
+REFERENCES departamento (id_departamento) ON DELETE CASCADE;
+
+ALTER TABLE colegio
+DROP CONSTRAINT IF EXISTS fk_colegio_departamento,
+ADD CONSTRAINT fk_colegio_departamento FOREIGN KEY (id_departamento)
+REFERENCES departamento (id_departamento) ON DELETE CASCADE;
+
+ALTER TABLE participante_tutor
+    DROP CONSTRAINT IF EXISTS fk_participante_tutor,
+    ADD CONSTRAINT fk_participante_tutor FOREIGN KEY (id_departamento)
+        REFERENCES departamento (id_departamento) ON DELETE CASCADE;

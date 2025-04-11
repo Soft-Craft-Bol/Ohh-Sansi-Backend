@@ -16,6 +16,10 @@ public class ColegioAdapter {
         this.colegioDomainService = colegioDomainService;
     }
 
+    public List<Colegio> getColegios() {
+        return colegioDomainService.getColegios();
+    }
+
     public List<Colegio> getColegiosByMunicipio(int idDepartamento) {
         return colegioDomainService.getColegiosByMunicipio(idDepartamento);
     }
