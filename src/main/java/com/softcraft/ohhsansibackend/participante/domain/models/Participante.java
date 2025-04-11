@@ -16,53 +16,47 @@ public class Participante {
     private int idMunicipio;
     @NotNull(message = "idColegio es requerido")
     private int idColegio;
+    @NotNull(message = "el idGrado es requerido")
+    private int idGrado;
     private String participanteHash;
+    @NotNull(message = "nombreParticipante es requerido")
+    private String nombreParticipante;
     @NotNull(message = "apellidoPaterno es requerido")
     private String apellidoPaterno;
     @NotNull(message = "apellidoMaterno es requerido")
     private String apellidoMaterno;
-    @NotNull(message = "nombreParticipante es requerido")
-    private String nombreParticipante;
     @NotNull(message = "fechaNacimiento es requerido")
     private Date fechaNacimiento;
-    @NotNull(message = "correoElectronicoParticipante es requerido")
-    @Email(message = "correoElectronicoParticipante debe ser un email")
-    private String correoElectronicoParticipante;
     @NotNull(message = "carnetIdentidadParticipante es requerido")
     private Integer carnetIdentidadParticipante;
-    @NotNull(message = "el idNivel es requerido")
-    private int idNivel;
+    private String complementoCiParticipante;
+    @NotNull(message = "correoElectronicoParticipante es requerido")
+    @Email(message = "correoElectronicoParticipante debe ser un email")
+    private String emailParticipante;
+    private boolean tutorRequerido;
 
-    public int getIdNivel() {
-        return idNivel;
-    }
 
-    public void setIdNivel(int idNivel) {
-        this.idNivel = idNivel;
-    }
-
-    public void setCarnetIdentidadParticipante(Integer carnetIdentidadParticipante) {
-        this.carnetIdentidadParticipante = carnetIdentidadParticipante;
-    }
 
     public Participante() {
 
     }
 
-    public Participante(int idInscripcion, int idParticipante, int idDepartamento, int idMunicipio, int idColegio, String participanteHash, String apellidoPaterno, String apellidoMaterno, String nombreParticipante, Date fechaNacimiento, String correoElectronicoParticipante, int carnetIdentidadParticipante) {
+    public Participante(int idInscripcion, int idParticipante, int idDepartamento, int idMunicipio, int idColegio, int idGrado, String participanteHash, String nombreParticipante, String apellidoPaterno, String apellidoMaterno, Date fechaNacimiento, Integer carnetIdentidadParticipante, String complementoCiParticipante, String emailParticipante, boolean tutorRequerido) {
         this.idInscripcion = idInscripcion;
         this.idParticipante = idParticipante;
         this.idDepartamento = idDepartamento;
         this.idMunicipio = idMunicipio;
         this.idColegio = idColegio;
-
+        this.idGrado = idGrado;
         this.participanteHash = participanteHash;
+        this.nombreParticipante = nombreParticipante;
         this.apellidoPaterno = apellidoPaterno;
         this.apellidoMaterno = apellidoMaterno;
-        this.nombreParticipante = nombreParticipante;
         this.fechaNacimiento = fechaNacimiento;
-        this.correoElectronicoParticipante = correoElectronicoParticipante;
         this.carnetIdentidadParticipante = carnetIdentidadParticipante;
+        this.complementoCiParticipante = complementoCiParticipante;
+        this.emailParticipante = emailParticipante;
+        this.tutorRequerido = tutorRequerido;
     }
 
     public int getIdInscripcion() {
@@ -147,19 +141,46 @@ public class Participante {
         this.fechaNacimiento = fechaNacimiento;
     }
 
-    public String getCorreoElectronicoParticipante() {
-        return correoElectronicoParticipante;
-    }
-
-    public void setCorreoElectronicoParticipante(String correoElectronicoParticipante) {
-        this.correoElectronicoParticipante = correoElectronicoParticipante;
-    }
-
     public int getCarnetIdentidadParticipante() {
         return carnetIdentidadParticipante;
     }
 
     public void setCarnetIdentidadParticipante(int carnetIdentidadParticipante) {
         this.carnetIdentidadParticipante = carnetIdentidadParticipante;
+    }
+    public int getIdGrado() {
+        return idGrado;
+    }
+
+    public void setIdGrado(int idGrado) {
+        this.idGrado = idGrado;
+    }
+
+    public void setCarnetIdentidadParticipante(Integer carnetIdentidadParticipante) {
+        this.carnetIdentidadParticipante = carnetIdentidadParticipante;
+    }
+
+    public String getComplementoCiParticipante() {
+        return complementoCiParticipante;
+    }
+
+    public void setComplementoCiParticipante(String complementoCiParticipante) {
+        this.complementoCiParticipante = complementoCiParticipante;
+    }
+
+    public String getEmailParticipante() {
+        return emailParticipante;
+    }
+
+    public void setEmailParticipante(String emailParticipante) {
+        this.emailParticipante = emailParticipante;
+    }
+
+    public boolean isTutorRequerido() {
+        return tutorRequerido;
+    }
+
+    public void setTutorRequerido(boolean tutorRequerido) {
+        this.tutorRequerido = tutorRequerido;
     }
 }

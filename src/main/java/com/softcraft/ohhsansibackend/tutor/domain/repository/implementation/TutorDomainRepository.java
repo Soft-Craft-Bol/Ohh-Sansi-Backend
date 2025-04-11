@@ -19,18 +19,19 @@ public class TutorDomainRepository implements ITutorRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Override
     public Tutor save(Tutor tutor) {
-        String sql = "INSERT INTO tutor (id_tipo_tutor, email_tutor, nombres_tutor, apellidos_tutor, telefono, carnet_identidad_tutor) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO tutor (id_tipo_tutor, email_tutor, nombres_tutor, apellidos_tutor, telefono, carnet_identidad_tutor, complemento_ci_tutor) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, tutor.getIdTipoTutor());
+            ps.setObject(1, tutor.getIdTipoTutor(), java.sql.Types.INTEGER); // Nullable
             ps.setString(2, tutor.getEmailTutor());
             ps.setString(3, tutor.getNombresTutor());
             ps.setString(4, tutor.getApellidosTutor());
             ps.setInt(5, tutor.getTelefono());
-            ps.setInt(6, tutor.getCarnetIdentidadTutor());
+            ps.setLong(6, tutor.getCarnetIdentidadTutor());
+            ps.setString(7, tutor.getComplementoCiTutor());
             return ps;
         }, keyHolder);
         Map<String, Object> keys = keyHolder.getKeys();
@@ -51,6 +52,7 @@ public class TutorDomainRepository implements ITutorRepository {
         String sql = "SELECT * FROM tutor";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Tutor.class));
     }
+
     public Tutor findByEmail(String email) {
         String sql = "SELECT * FROM tutor WHERE email_tutor = ?";
         List<Tutor> tutors = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Tutor.class), email);

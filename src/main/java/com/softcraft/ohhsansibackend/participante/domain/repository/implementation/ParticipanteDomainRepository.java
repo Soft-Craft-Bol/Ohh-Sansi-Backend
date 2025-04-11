@@ -24,17 +24,20 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
     @Override
     public Participante save(Participante participante) {
         String sql = "INSERT INTO participante (id_inscripcion, " +
-                "id_departamento," +
-                " id_municipio," +
-                " id_colegio," +
-                " participante_hash," +
-                " apellido_paterno," +
-                " apellido_materno," +
-                " nombre_participante," +
-                " fecha_nacimiento," +
-                " correo_electronico_participante," +
-                " carnet_identidad_participante," +
-                " id_nivel) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "id_departamento, " +
+                "id_municipio, " +
+                "id_colegio, " +
+                "id_grado, " +
+                "participante_hash, " +
+                "nombre_participante, " +
+                "apellido_paterno, " +
+                "apellido_materno, " +
+                "fecha_nacimiento, " +
+                "carnet_identidad_participante, " +
+                "complemento_ci_participante, " +
+                "email_participante, " +
+                "tutor_requerido) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -42,14 +45,16 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
             ps.setInt(2, participante.getIdDepartamento());
             ps.setInt(3, participante.getIdMunicipio());
             ps.setInt(4, participante.getIdColegio());
-            ps.setString(5, participante.getParticipanteHash());
-            ps.setString(6, participante.getApellidoPaterno());
-            ps.setString(7, participante.getApellidoMaterno());
-            ps.setString(8, participante.getNombreParticipante());
-            ps.setDate(9, new java.sql.Date(participante.getFechaNacimiento().getTime()));
-            ps.setString(10, participante.getCorreoElectronicoParticipante());
-            ps.setInt(11, participante.getCarnetIdentidadParticipante());
-            ps.setInt(12, participante.getIdNivel());
+            ps.setObject(5, participante.getIdGrado(), java.sql.Types.INTEGER);
+            ps.setString(6, participante.getParticipanteHash());
+            ps.setString(7, participante.getNombreParticipante());
+            ps.setString(8, participante.getApellidoPaterno());
+            ps.setString(9, participante.getApellidoMaterno());
+            ps.setDate(10, new java.sql.Date(participante.getFechaNacimiento().getTime()));
+            ps.setLong(11, participante.getCarnetIdentidadParticipante());
+            ps.setString(12, participante.getComplementoCiParticipante());
+            ps.setString(13, participante.getEmailParticipante());
+            ps.setBoolean(14, participante.isTutorRequerido());
             return ps;
         }, keyHolder);
         Map<String, Object> keys = keyHolder.getKeys();
@@ -73,7 +78,7 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
 
     @Override
     public Participante findByEmail(String email) {
-        String sql = "SELECT * FROM participante WHERE correo_electronico_participante = ?";
+        String sql = "SELECT * FROM participante WHERE email_participante = ?";
         return jdbcTemplate.queryForObject(sql, new Object[]{email}, new BeanPropertyRowMapper<>(Participante.class));
     }
 
@@ -95,9 +100,9 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
                 participante.getApellidoMaterno(),
                 participante.getNombreParticipante(),
                 participante.getFechaNacimiento(),
-                participante.getCorreoElectronicoParticipante(),
+                participante.getEmailParticipante(),
                 participante.getCarnetIdentidadParticipante(),
-                participante.getIdNivel(),
+                participante.getIdGrado(),
                 participante.getIdInscripcion(),
                 participante.getIdParticipante()
         );
@@ -106,7 +111,7 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
 
     @Override
     public boolean deleteParticipant(Long id) {
-        String sql = "DELETE FROM participante WHERE id_inscripcion = ? AND id_participante = ?";
+        String sql = "DELETE FROM participante WHERE id_participante = ?";
         int rowsAffected = jdbcTemplate.update(sql, id);
         return rowsAffected > 0;
     }
