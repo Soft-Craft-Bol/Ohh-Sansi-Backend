@@ -55,7 +55,7 @@ class ParticipanteControllerTest {
         participante.setApellidoMaterno("Torrico");
         participante.setNombreParticipante("Ernesto");
         participante.setFechaNacimiento(new Date());
-        participante.setCorreoElectronicoParticipante("alf@gmail.com");
+        //participante.setCorreoElectronicoParticipante("alf@gmail.com");
         participante.setCarnetIdentidadParticipante(1234561);
         response = new HashMap<>();
         response.put("participante", participante);

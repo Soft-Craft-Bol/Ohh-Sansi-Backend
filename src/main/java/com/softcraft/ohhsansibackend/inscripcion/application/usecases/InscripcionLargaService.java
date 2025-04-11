@@ -1,9 +1,6 @@
 package com.softcraft.ohhsansibackend.inscripcion.application.usecases;
 
 import com.softcraft.ohhsansibackend.area.application.usecases.AreaService;
-import com.softcraft.ohhsansibackend.area.domain.models.Area;
-import com.softcraft.ohhsansibackend.colegio.application.usecases.ColegioService;
-import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
 import com.softcraft.ohhsansibackend.inscripcion.infraestructure.request.AreaCompetenciaDTO;
 import com.softcraft.ohhsansibackend.inscripcion.infraestructure.request.InscripcionDTO;
@@ -16,7 +13,6 @@ import com.softcraft.ohhsansibackend.participante.domain.models.ParticipanteTuto
 import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorAreaService;
 import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorService;
 import com.softcraft.ohhsansibackend.tutor.domain.models.Tutor;
-import com.softcraft.ohhsansibackend.tutor.domain.models.TutorArea;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -88,12 +84,12 @@ public class InscripcionLargaService {
         participante.setIdDepartamento(participanteDTO.getIdDepartamento());
         participante.setIdMunicipio(participanteDTO.getIdMunicipio());
         participante.setIdColegio(participanteDTO.getIdColegio());
-        participante.setIdNivel(participanteDTO.getIdNivelGradoEscolar());
+        participante.setIdGrado(participanteDTO.getIdNivelGradoEscolar());
         participante.setApellidoPaterno(participanteDTO.getApellidoPaterno());
         participante.setApellidoMaterno(participanteDTO.getApellidoMaterno());
         participante.setNombreParticipante(participanteDTO.getNombreParticipante());
         participante.setFechaNacimiento(participanteDTO.getFechaNacimiento());
-        participante.setCorreoElectronicoParticipante(participanteDTO.getCorreoElectronicoParticipante());
+        //participante.setCorreoElectronicoParticipante(participanteDTO.getCorreoElectronicoParticipante());
         participante.setCarnetIdentidadParticipante(participanteDTO.getCarnetIdentidadParticipante());
         return participante;
     }
