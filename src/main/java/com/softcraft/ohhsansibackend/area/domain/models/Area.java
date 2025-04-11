@@ -9,14 +9,14 @@ public class Area {
     private int idArea;
 
     @NotBlank(message = "El nombre del área no puede estar vacío")
-    @Size(max = 100, message = "El nombre del área no puede tener más de 100 caracteres")
+    @Size(max = 30, message = "El nombre del área no puede tener más de 30 caracteres")
     private String nombreArea;
 
     @NotBlank(message = "El nombre corto del área no puede estar vacío")
     @Size(max = 10, message = "El nombre corto del área no puede tener más de 10 caracteres")
     private String nombreCortoArea;
 
-    @Size(max=500, message = "La descripción del área no puede tener más de 500 caracteres")
+    @Size(max=100, message = "La descripción del área no puede tener más de 100 caracteres")
     @NotNull(message = "La descripción del área no puede estar vacía")
     private String descripcionArea;
 

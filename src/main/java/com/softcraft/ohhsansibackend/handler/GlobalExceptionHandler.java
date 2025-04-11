@@ -2,6 +2,7 @@ package com.softcraft.ohhsansibackend.handler;
 
 import com.softcraft.ohhsansibackend.exception.DuplicateResourceException;
 import com.softcraft.ohhsansibackend.exception.ErrorDetails;
+import com.softcraft.ohhsansibackend.exception.ParticipanteNotFoundException;
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -64,14 +65,27 @@ public class GlobalExceptionHandler {
         response.put("statusCode", HttpStatus.NOT_FOUND.value());
         response.put("message", ex.getMessage());
         response.put("details", "uri=" + RequestContextHolder.currentRequestAttributes().getAttribute("javax.servlet.forward.request_uri", RequestAttributes.SCOPE_REQUEST));
-
+        response.put("errors", null);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(ParticipanteNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleParticipanteNotFoundException(ParticipanteNotFoundException ex, WebRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("statusCode", HttpStatus.NOT_FOUND.value());
+        response.put("message", ex.getMessage());
+        response.put("details", request.getDescription(false));
+        response.put("errors", null);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
-    public ResponseEntity<?> handleIncorrectResultSizeDataAccessException(IncorrectResultSizeDataAccessException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(HttpStatus.NOT_FOUND.value(), "Recurso no encontrado", request.getDescription(false));
-        return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
+    public ResponseEntity<Map<String, Object>> handleIncorrectResultSizeDataAccessException(IncorrectResultSizeDataAccessException ex, WebRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("statusCode", HttpStatus.NOT_FOUND.value());
+        response.put("message", "No se encontró el recurso o hay un problema con los datos");
+        response.put("details", request.getDescription(false));
+        response.put("errors", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
@@ -83,7 +97,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
-
+    }
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<Map<String, String>> handleNullPointerException(NullPointerException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Error interno del servidor: " + ex.getMessage()));
     }
 
 

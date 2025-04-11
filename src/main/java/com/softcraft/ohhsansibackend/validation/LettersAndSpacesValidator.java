@@ -15,7 +15,7 @@ public class LettersAndSpacesValidator implements ConstraintValidator<LettersAnd
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null) {
-            return true; // null values are valid, use @NotNull for null checks
+            return true;
         }
         return value.matches(LETTERS_AND_SPACES_PATTERN);
     }

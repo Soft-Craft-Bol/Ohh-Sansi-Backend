@@ -14,6 +14,10 @@ public class MunicipioDomainService {
         this.municipioDomainRepository = municipioDomainRepository;
     }
 
+    public List<Municipio> createMunicipios(List<Municipio> municipios) {
+        return municipioDomainRepository.saveAll(municipios);
+    }
+
     public Municipio getMunicipioById(int id) {
         return municipioDomainRepository.getMunicipioById(id);
     }

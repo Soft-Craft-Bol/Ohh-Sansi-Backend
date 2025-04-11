@@ -6,19 +6,16 @@ import jakarta.validation.constraints.*;
 public class Category {
     private int idCategoria;
 
-    @NotBlank(message = "El código de la categoría no puede estar vacío")
-    @Size(max = 10,  message = "El código de la categoría no puede tener más de 10 caracteres")
+    @NotBlank(message = "El nombre de la categoría no puede estar vacía")
+    @Size(max = 100,  message = "El nombre de la categoría no puede tener más de 100 caracteres")
     @LettersAndSpaces
-    private String codigoCategoria;
-    @NotNull(message = "El id del área es requerido")
-    private int idArea;
+    private String nombreCategoria;
     public Category() {
 
     }
-    public Category(int idArea, int idCategoria, String codigoCategoria) {
+    public Category(int idCategoria, String nombreCategoria) {
         this.idCategoria = idCategoria;
-        this.codigoCategoria = codigoCategoria;
-        this.idArea = idArea;
+        this.nombreCategoria = nombreCategoria;
     }
 
     public int getIdCategoria() {
@@ -29,19 +26,11 @@ public class Category {
         this.idCategoria = idCategoria;
     }
 
-    public String getCodigoCategoria() {
-        return codigoCategoria;
+    public String getNombreCategoria() {
+        return nombreCategoria;
     }
 
-    public void setCodigoCategoria(String codigoCategoria) {
-        this.codigoCategoria = codigoCategoria;
-    }
-
-    public int getIdArea() {
-        return idArea;
-    }
-
-    public void setIdArea(int idArea) {
-        this.idArea = idArea;
+    public void setNombreCategoria(String nombreCategoria) {
+        this.nombreCategoria = nombreCategoria;
     }
 }

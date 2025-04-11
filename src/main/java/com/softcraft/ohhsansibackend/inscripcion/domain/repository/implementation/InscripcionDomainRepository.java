@@ -2,7 +2,6 @@ package com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementati
 
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
-import com.softcraft.ohhsansibackend.inscripcion.domain.repository.abstraction.IInscripcionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -10,9 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import java.sql.Date;
-import java.sql.Time;
-import java.time.LocalDate;
+
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
@@ -20,7 +17,7 @@ import java.util.Map;
 
 
 @Repository
-public class InscripcionDomainRepository implements IInscripcionRepository {
+public class InscripcionDomainRepository {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -28,20 +25,15 @@ public class InscripcionDomainRepository implements IInscripcionRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-//    @Override
-//    public Inscripcion saveInscripcion(Inscripcion inscripcion) {
-//        String sql = "SELECT insertInscripcion(?, ?)";
-//        return jdbcTemplate.queryForObject(sql, new Object[]{inscripcion.getFechaInscripcion(), inscripcion.getHoraInscripcion()},
-//                new BeanPropertyRowMapper<>(Inscripcion.class));
-//    }
-    @Override
+
     public Inscripcion saveInscripcion(Inscripcion inscripcion) {
-        String sql = "INSERT INTO inscripcion (fecha_inscripcion, hora_inscripcion) VALUES (?, ?)";
+        String sql = "INSERT INTO inscripcion (fecha_inscripcion, hora_inscripcion, codigo_unico_inscripcion) VALUES (?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setDate(1, inscripcion.getFechaInscripcion());
             ps.setTime(2, inscripcion.getHoraInscripcion());
+            ps.setString(3, inscripcion.getCodigoUnicoInscripcion());
             return ps;
         }, keyHolder);
         Map<String, Object> keys = keyHolder.getKeys();
@@ -50,24 +42,10 @@ public class InscripcionDomainRepository implements IInscripcionRepository {
         }
         return inscripcion;
     }
-    @Override
-    public boolean updateInscription(Inscripcion inscripcion) {
-        String sql = "SELECT updateInscripcion(?, ?, ?)";
-        Boolean result = jdbcTemplate.queryForObject(sql, Boolean.class, inscripcion.getIdInscripcion(), inscripcion.getFechaInscripcion(), inscripcion.getHoraInscripcion());
-        return result;
 
-    }
 
-    @Override
-    public boolean deleteInscripcion(int idInscripcion) {
-        String sql = "SELECT deleteInscripcion(?)";
-        Boolean result = jdbcTemplate.queryForObject(sql, Boolean.class, idInscripcion);
-        return result != null && result;
-    }
-
-    @Override
     public Inscripcion findByIdInscripcion(int idInscripcion) {
-        String sql = "SELECT * FROM selectInscripcionById(?)";
+        String sql = "SELECT * FROM inscripcion WHERE id_inscripcion = ?";
         try {
             return jdbcTemplate.queryForObject(sql, new Object[]{idInscripcion},
                     new BeanPropertyRowMapper<>(Inscripcion.class));
@@ -76,27 +54,12 @@ public class InscripcionDomainRepository implements IInscripcionRepository {
         }
     }
 
-    @Override
+
     public List <Inscripcion>findAllInscripcion() {
-        String sql = "SELECT * FROM selectAllInscripciones()";
+        String sql = "SELECT * FROM inscripcion";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Inscripcion.class));
     }
 
-    @Override
-    public List<Inscripcion> findByDateAndTime(Date date, Time time) {
-        String sql = "SELECT * FROM selectInscripcionByDateAndTime(?, ?)";
-        return jdbcTemplate.query(sql, new Object[]{date, time},
-                new BeanPropertyRowMapper<>(Inscripcion.class));
-    }
-
-    @Override
-    public List<Inscripcion> findByRangeDate(LocalDate fechaInicio, LocalDate fechaFin) {
-        String sql = "SELECT * FROM selectInscripcionesByDateRange(?, ?)";
-        return jdbcTemplate.query(sql, new Object[]{
-                Date.valueOf(fechaInicio),
-                Date.valueOf(fechaFin)
-        }, new BeanPropertyRowMapper<>(Inscripcion.class));
-    }
 
     public Long findIdByCodigoUnico(String codigoUnicoInscripcion) {
         String sql = "SELECT id_inscripcion FROM inscripcion WHERE codigo_unico_inscripcion = ?";

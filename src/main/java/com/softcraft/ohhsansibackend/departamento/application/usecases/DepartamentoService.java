@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -18,6 +19,14 @@ public class DepartamentoService {
     public DepartamentoService(DepartamentoAdapter departamentoAdapter) {
         this.departamentoAdapter = departamentoAdapter;
     }
+
+    public Map<String, Object> saveDepartamentos(List<Departamento> departamentos) {
+        List<Departamento> savedDepartamentos = departamentoAdapter.saveDepartamentos(departamentos);
+        Map<String, Object> response = new HashMap<>();
+        response.put("departamentos", savedDepartamentos);
+        return response;
+    }
+
 
     public Map<String, Object> getDepartamentoById(int id) {
         Map<String, Object> response = new HashMap<>();

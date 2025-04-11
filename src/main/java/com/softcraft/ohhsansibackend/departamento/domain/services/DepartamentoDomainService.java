@@ -16,6 +16,11 @@ public class DepartamentoDomainService {
         this.departamentoDomainRepository = departamentoDomainRepository;
     }
 
+    public List<Departamento> createDepartamentos(List<Departamento> departamentos) {
+        return departamentoDomainRepository.saveAll(departamentos);
+    }
+
+
     public Departamento getDepartamentoById(int id) {
         return departamentoDomainRepository.getDepartamentoById(id);
     }

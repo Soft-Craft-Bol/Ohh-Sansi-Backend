@@ -1,7 +1,6 @@
 package com.softcraft.ohhsansibackend.inscripcion.domain.services;
 
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
-import com.softcraft.ohhsansibackend.inscripcion.domain.repository.abstraction.IInscripcionRepository;
 import com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementation.InscripcionDomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,40 +13,22 @@ import java.util.Map;
 
 @Service
 public class InscripcionDomainService {
-    private final IInscripcionRepository inscripcionRepository;
     private final InscripcionDomainRepository inscripcionDomainRepository;
     @Autowired
-    public InscripcionDomainService(IInscripcionRepository inscripcionRepository, InscripcionDomainRepository inscripcionDomainRepository) {
-        this.inscripcionRepository = inscripcionRepository;
+    public InscripcionDomainService( InscripcionDomainRepository inscripcionDomainRepository) {
         this.inscripcionDomainRepository = inscripcionDomainRepository;
     }
 
     public Inscripcion createInscripcion(Inscripcion inscripcion) {
-        return inscripcionRepository.saveInscripcion(inscripcion);
+        return inscripcionDomainRepository.saveInscripcion(inscripcion);
     }
 
     public Inscripcion getInscripcion(int id) {
-        return inscripcionRepository.findByIdInscripcion(id);
+        return inscripcionDomainRepository.findByIdInscripcion(id);
     }
 
     public List<Inscripcion> listInscripcion() {
-        return inscripcionRepository.findAllInscripcion();
-    }
-
-    public boolean updateInscripcion(Inscripcion inscripcion) {
-        return inscripcionRepository.updateInscription(inscripcion);
-    }
-
-    public boolean deleteInscripcion(int id) {
-        return inscripcionRepository.deleteInscripcion(id);
-    }
-
-    public List<Inscripcion> findByDateAndTime(Date date, Time time) {
-        return inscripcionRepository.findByDateAndTime(date, time);
-    }
-
-    public List<Inscripcion> findByRangeDate(LocalDate fechaInicio, LocalDate fechaFin) {
-        return inscripcionRepository.findByRangeDate(fechaInicio, fechaFin);
+        return inscripcionDomainRepository.findAllInscripcion();
     }
 
     public Long findIdByCodigoUnico(String codigoUnico) {
