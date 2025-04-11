@@ -6,8 +6,8 @@ import jakarta.validation.constraints.*;
 public class Category {
     private int idCategoria;
 
-    @NotBlank(message = "El código de la categoría no puede estar vacío")
-    @Size(max = 10,  message = "El código de la categoría no puede tener más de 10 caracteres")
+    @NotBlank(message = "El nombre de la categoría no puede estar vacía")
+    @Size(max = 100,  message = "El nombre de la categoría no puede tener más de 100 caracteres")
     @LettersAndSpaces
     private String nombreCategoria;
     public Category() {

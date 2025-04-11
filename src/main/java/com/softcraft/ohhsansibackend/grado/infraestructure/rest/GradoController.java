@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/nivelescolar")
+@RequestMapping("/grados")
 public class GradoController {
     private final GradoService gradoService;
 
@@ -20,7 +20,7 @@ public class GradoController {
         this.gradoService = gradoService;
     }
 
-    @PostMapping("/register-nivel")
+    @PostMapping("/register-grado")
     public ResponseEntity<Map<String, Object>> addGrado(@RequestBody Grade grade) {
         Map<String, Object> response = gradoService.saveGrade(grade);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -47,5 +47,11 @@ public class GradoController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("success", false, "message", "Nivel Escolar not found"));
         }
+    }
+
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> getAllGrados() {
+        List<Grade> grades = gradoService.getGrades();
+        return ResponseEntity.ok(Map.of("data", grades));
     }
 }

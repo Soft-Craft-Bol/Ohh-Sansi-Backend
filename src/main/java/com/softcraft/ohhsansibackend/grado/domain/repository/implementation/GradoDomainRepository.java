@@ -20,7 +20,7 @@ public class GradoDomainRepository implements IGradoRepository {
 
     @Override
     public Grade save(Grade grade) {
-        String sql = "SELECT insertGrade(?)";
+        String sql = "SELECT insertGrado(?)";
         return jdbcTemplate.queryForObject(sql, new Object[]{grade.getNombreGrado()},
                 new BeanPropertyRowMapper<>(Grade.class));
     }
@@ -46,7 +46,7 @@ public class GradoDomainRepository implements IGradoRepository {
     }
     @Override
     public List<Grade> findAll() {
-        String sql = "SELECT * FROM selectAllGrades()";
+        String sql = "SELECT * FROM selectAllGrados()";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Grade.class));
     }
 }
