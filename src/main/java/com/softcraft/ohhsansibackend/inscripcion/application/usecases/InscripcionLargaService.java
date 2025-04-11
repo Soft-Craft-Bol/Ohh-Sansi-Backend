@@ -27,20 +27,21 @@ public class InscripcionLargaService {
     private final TutorService tutorService;
     private final TutorAreaService tutorAreaService;
     private final AreaService areaService;
-    private final InscripcionAreaService inscripcionAreaService;
+    //private final InscripcionAreaService inscripcionAreaService;
 
     @Autowired
     public InscripcionLargaService(InscripcionService inscripcionService, ParticipanteService participanteService,
                                    ParticipanteTutorService participanteTutorService, TutorService tutorService,
-                                   TutorAreaService tutorAreaService, AreaService areaService,
-                                   InscripcionAreaService inscripcionAreaService) {
+                                   TutorAreaService tutorAreaService, AreaService areaService
+    ) {
+
         this.inscripcionService = inscripcionService;
         this.participanteService = participanteService;
         this.participanteTutorService = participanteTutorService;
         this.tutorService = tutorService;
         this.tutorAreaService = tutorAreaService;
         this.areaService = areaService;
-        this.inscripcionAreaService = inscripcionAreaService;
+      //  this.inscripcionAreaService = inscripcionAreaService;
     }
 
     public Map<String, Object> registerInscripcion(InscripcionDTO inscripcionDTO) {
@@ -57,7 +58,7 @@ public class InscripcionLargaService {
         }
         if (inscripcionDTO.getAreasCompetenciaEstudiante() != null) {
             for (AreaCompetenciaDTO areaDTO : inscripcionDTO.getAreasCompetenciaEstudiante()) {
-                inscripcionAreaService.createInscripcionArea(inscripcionId, areaDTO.getIdArea());
+                //inscripcionAreaService.createInscripcionArea(inscripcionId, areaDTO.getIdArea());
             }
         }
         if (inscripcionDTO.getTutores() != null) {
@@ -104,7 +105,7 @@ public class InscripcionLargaService {
             tutor.setApellidosTutor(tutorDTO.getApellidosTutor());
             tutor.setTelefono(tutorDTO.getTelefono());
             tutor.setCarnetIdentidadTutor(tutorDTO.getCarnetIdentidadTutor());
-            tutorService.save(tutor);
+            tutorService.save(tutor,1);
         }
         if (tutor.getIdTutor() == null) {
             throw new IllegalStateException("Error al registrar el tutor");

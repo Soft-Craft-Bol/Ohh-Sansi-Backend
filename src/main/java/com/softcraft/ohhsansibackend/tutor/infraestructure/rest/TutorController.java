@@ -16,14 +16,21 @@ public class TutorController {
     public TutorController(TutorService tutorService) {
         this.tutorService = tutorService;
     }
-    @PostMapping
-    public ResponseEntity<Map<String,Object>> save(@RequestBody Tutor tutor) {
-        return ResponseEntity.ok(tutorService.save(tutor));
+
+    @PostMapping("/{carnetParticipante}")
+    public ResponseEntity<Map<String,Object>> save(
+            @PathVariable int carnetParticipante,
+            @RequestBody Tutor tutor) {
+        return ResponseEntity.ok(tutorService.save(tutor, carnetParticipante));
     }
+
     @GetMapping("/{idTutor}")
-    public ResponseEntity<Map<String,Object>> findByIdTutor(@PathVariable Integer idTutor) {
+    public ResponseEntity<Map<String,Object>> findByIdTutor(
+            @PathVariable Integer idTutor
+    ) {
         return ResponseEntity.ok(tutorService.findByIdTutor(idTutor));
     }
+
     @GetMapping
     public ResponseEntity<Map<String,Object>> findAllTutor() {
         return ResponseEntity.ok(tutorService.findAllTutor());

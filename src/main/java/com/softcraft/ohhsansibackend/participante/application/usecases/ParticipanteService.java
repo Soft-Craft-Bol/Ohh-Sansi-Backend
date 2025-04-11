@@ -1,26 +1,32 @@
 package com.softcraft.ohhsansibackend.participante.application.usecases;
 
 import com.softcraft.ohhsansibackend.exception.DuplicateResourceException;
+import com.softcraft.ohhsansibackend.exception.ParticipanteNotFoundException;
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
+import com.softcraft.ohhsansibackend.inscripcion.application.usecases.InscripcionService;
+import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
 import com.softcraft.ohhsansibackend.participante.application.ports.ParticipanteAdapter;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-
+import com.softcraft.ohhsansibackend.handler.GlobalExceptionHandler;
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
 public class ParticipanteService {
     private final ParticipanteAdapter participanteAdapter;
-
+    private final InscripcionService inscripcionService;
     @Autowired
-    public ParticipanteService(ParticipanteAdapter participanteAdapter) {
+    public ParticipanteService(ParticipanteAdapter participanteAdapter, InscripcionService inscripcionService) {
         this.participanteAdapter = participanteAdapter;
+        this.inscripcionService = inscripcionService;
     }
     public Map<String, Object> save(Participante participante) {
         try {
+            Inscripcion inscripcion = createInscripcion();
+            participante.setIdInscripcion(inscripcion.getIdInscripcion());
             participanteAdapter.save(participante);
         } catch (DuplicateKeyException e) {
             throw new DuplicateResourceException("Email o carnet de identidad del participante ya registrados");
@@ -29,6 +35,13 @@ public class ParticipanteService {
         response.put("message", "Participante registrado exitosamente");
         return response;
     }
+    private Inscripcion createInscripcion() {
+        return inscripcionService.saveInscripcion();
+    }
+
+
+
+
     public Map<String, Object> findById(Long id) {
         Map<String, Object> response = new HashMap<>();
         Participante participante = participanteAdapter.findById(id);
@@ -67,5 +80,13 @@ public class ParticipanteService {
         Map<String, Object> response = new HashMap<>();
         response.put("participante", participante);
         return response;
+    }
+
+    public Participante findByCarnetIdentidadService(int carnetIdentidad) {
+        Participante participante = participanteAdapter.findByCarnetIdentidad(carnetIdentidad);
+        if (participante == null) {
+            throw new ParticipanteNotFoundException("Participante no encontrado");
+        }
+        return participante;
     }
 }

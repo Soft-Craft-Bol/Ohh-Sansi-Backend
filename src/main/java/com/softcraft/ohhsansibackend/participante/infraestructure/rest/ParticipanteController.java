@@ -1,23 +1,32 @@
 package com.softcraft.ohhsansibackend.participante.infraestructure.rest;
 
+import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteCatalogoInscriptionService;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
+import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteTutorService;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
+import com.softcraft.ohhsansibackend.participante.domain.models.ParticipanteTutor;
+import com.softcraft.ohhsansibackend.participante.infraestructure.request.AreaCatalogoDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/participante")
 public class ParticipanteController {
     private final ParticipanteService participanteService;
+    private final ParticipanteTutorService participanteTutorService;
+    private final ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService;
 
     @Autowired
-    public ParticipanteController(ParticipanteService participanteService) {
+    public ParticipanteController(ParticipanteService participanteService, ParticipanteTutorService participanteTutorService, ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService) {
         this.participanteService = participanteService;
+        this.participanteTutorService = participanteTutorService;
+        this.participanteCatalogoInscriptionService = participanteCatalogoInscriptionService;
     }
 
     @PostMapping("/register-participant")
@@ -47,9 +56,34 @@ public class ParticipanteController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+//    @GetMapping("/carnet/{carnetIdentidad}")
+//    public ResponseEntity<Map<String, Object>> findByCarnetIdentidad(@PathVariable int carnetIdentidad) {
+//        Map<String, Object> response = participanteService.findByCarnetIdentidad(carnetIdentidad);
+//        return ResponseEntity.status(HttpStatus.OK).body(response);
+//    }
     @GetMapping("/carnet/{carnetIdentidad}")
-    public ResponseEntity<Map<String, Object>> findByCarnetIdentidad(@PathVariable int carnetIdentidad) {
-        Map<String, Object> response = participanteService.findByCarnetIdentidad(carnetIdentidad);
+    public ResponseEntity<Participante> findByCarnetIdentidad(@PathVariable int carnetIdentidad) {
+        Participante response = participanteService.findByCarnetIdentidadService(carnetIdentidad);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @PostMapping("/register-participant-catalogo/{ciParticipante}")
+    public ResponseEntity<Map<String, Object>> registerParticipantCatalogo(
+            @PathVariable int ciParticipante,
+            @RequestBody @Valid List<AreaCatalogoDTO> areaCatalogos) {
+        for (AreaCatalogoDTO areaCatalogoDTO : areaCatalogos) {
+            Map<String, Object> response = participanteCatalogoInscriptionService.registerParticipantWithCatalogoComposition(ciParticipante, areaCatalogoDTO);
+            if (response != null) {
+                return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            }
+        }
+        return null;
+    }
+
+
+
+
+
+
+
 }
