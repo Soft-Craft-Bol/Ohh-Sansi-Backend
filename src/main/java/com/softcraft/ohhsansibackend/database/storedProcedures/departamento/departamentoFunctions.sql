@@ -1,3 +1,25 @@
+CREATE OR REPLACE FUNCTION saveDepartamento(
+    idDepartamento INTEGER,
+    nombreDepartamento VARCHAR,
+    nombreCorto VARCHAR
+)
+    RETURNS TABLE (
+        id_departamento INTEGER,
+        nombre_departamento VARCHAR(100),
+        nombre_corto VARCHAR(20)
+    )
+AS $$
+BEGIN
+    RETURN QUERY
+        INSERT INTO departamento (id_departamento,nombre_departamento, nombre_corto)
+            VALUES (idDepartamento,nombreDepartamento, nombreCorto)
+            RETURNING *;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
 CREATE OR REPLACE FUNCTION selectAllDepartamentos()
     RETURNS TABLE (
                       id_departamento INTEGER,

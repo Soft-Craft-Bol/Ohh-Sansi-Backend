@@ -5,6 +5,8 @@ import com.softcraft.ohhsansibackend.colegio.domain.models.Colegio;
 import java.util.List;
 
 public interface IColegioDomainRepository {
+    List<Colegio> saveAll(List<Colegio> colegios);
+
     List<Colegio> getColegios();
 
     List<Colegio> getColegiosByMunicipio(int idMunicipio);
