@@ -31,8 +31,13 @@ public class TutorService {
         if (tutors.size() > 2) {
             throw new IllegalArgumentException("No se pueden registrar más de 2 tutores.");
         }
+
         try {
             Participante searchParticipante = participanteService.findByCarnetIdentidadService(carnetParticipante);
+            int currentTutorCount = tutorAdapter.countTutorsByParticipanteId(searchParticipante.getIdParticipante());
+            if (currentTutorCount + tutors.size() > 2) {
+                throw new IllegalArgumentException("El participante ya tiene el número máximo de tutores registrados permitidos (2).");
+            }
 
             for (Tutor tutor : tutors) {
                 Tutor existingTutor = tutorAdapter.findByCarnetIdentidad(tutor.getCarnetIdentidadTutor());
@@ -54,10 +59,7 @@ public class TutorService {
             }
         } catch (DuplicateKeyException e) {
             throw new DuplicateResourceException("Email o carnet de identidad del tutor ya registrados");
-        } catch (Exception e) {
-            throw new RuntimeException("Error al registrar los tutores", e);
         }
-
         return Map.of("message", "Tutores registrados exitosamente");
     }
 

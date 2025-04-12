@@ -35,4 +35,7 @@ public class TutorDomainService {
     public Tutor findByCarnetIdentidad(int carnetIdentidad) {
         return tutorDomainRepository.findByCarnetIdentidad(carnetIdentidad);
     }
+    public int countTutorsByParticipanteId(int participanteId) {
+        return tutorDomainRepository.countTutorsByParticipanteId(participanteId);
+    }
 }
