@@ -29,8 +29,8 @@ public class DepartamentoController {
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAllDepartamento() {
-        Map<String, Object> areas = departamentoService.getAllDepartamentos();
-        return ResponseEntity.status(HttpStatus.OK).body(areas);
+        Map<String, Object> departamentos = departamentoService.getAllDepartamentos();
+        return ResponseEntity.status(HttpStatus.OK).body(departamentos);
     }
 
     @GetMapping("/{id}")

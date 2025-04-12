@@ -1,5 +1,5 @@
 alter table categorias
-    add constraint unique_codigo_categoria unique (codigo_categoria);
+    add constraint unique_nombre_categoria unique (nombre_categoria);
 
 select * from categorias;
 

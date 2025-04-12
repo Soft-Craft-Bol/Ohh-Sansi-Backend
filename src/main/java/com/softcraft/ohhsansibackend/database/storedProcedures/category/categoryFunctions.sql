@@ -70,6 +70,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 SELECT * FROM selectCategoryById(1);
+
+SELECT * FROM grado_categoria;
 -----------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION selectAllCategories()
 RETURNS TABLE (id_categoria INTEGER, nombre_categoria VARCHAR) AS $$
