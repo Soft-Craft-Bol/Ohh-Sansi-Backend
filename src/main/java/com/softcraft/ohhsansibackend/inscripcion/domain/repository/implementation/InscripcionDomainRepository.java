@@ -69,7 +69,7 @@ public class InscripcionDomainRepository {
         String sql = "SELECT * FROM inscripcion WHERE id_inscripcion = ?";
         return jdbcTemplate.queryForList(sql, idInscripcion);
     }
-
+    //participante
     public List<Map<String, Object>> findParticipantesByInscripcionId(int idInscripcion) {
         String sql = "SELECT * FROM participante WHERE id_inscripcion = ?";
         return jdbcTemplate.queryForList(sql, idInscripcion);
@@ -82,8 +82,8 @@ public class InscripcionDomainRepository {
 
     public List<Map<String, Object>> findAreasByInscripcionId(int idInscripcion) {
         String sql = "SELECT a.nombre_area, a.nombre_corto_area, a.descripcion_area " +
-                "FROM area a, inscripcion_area ia " +
-                "WHERE ia.id_inscripcion = ? AND a.id_area = ia.id_area";
+                "FROM participante_catalogo pc, area a " +
+                "WHERE pc.id_inscripcion = ? AND pc.id_area = a.id_area";
         return jdbcTemplate.queryForList(sql, idInscripcion);
     }
 
@@ -94,5 +94,16 @@ public class InscripcionDomainRepository {
                 "WHERE t.id_tutor = pt.id_tutor AND p.id_participante = pt.id_participante " +
                 "AND pt.id_inscripcion = ? AND tt.id_tipo_tutor = t.id_tipo_tutor";
         return jdbcTemplate.queryForList(sql, idInscripcion);
+    }
+
+    public List<Map<String, Object>> findOlimapiada() {
+        String sql =
+                """
+                    select *
+                    from olimpiada
+                    where olimpiada.estado_olimpiada = true;
+                """
+                ;
+        return jdbcTemplate.queryForList(sql);
     }
 }

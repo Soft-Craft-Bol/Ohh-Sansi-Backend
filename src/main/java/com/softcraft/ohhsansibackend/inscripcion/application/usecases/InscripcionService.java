@@ -21,12 +21,14 @@ public class InscripcionService {
     private final InscripcionAdapter inscripcionAdapter;
     private final InscripcionDomainService inscripcionDomainService;
     private final UniqueCodeGenerator uniqueCodeGenerator;
+    private final InscripcionDomainRepository inscripcionDomainRepository;
 
     @Autowired
-    public InscripcionService(InscripcionAdapter inscripcionAdapter, InscripcionDomainService inscripcionDomainService, UniqueCodeGenerator uniqueCodeGenerator) {
+    public InscripcionService(InscripcionAdapter inscripcionAdapter, InscripcionDomainService inscripcionDomainService, UniqueCodeGenerator uniqueCodeGenerator, InscripcionDomainRepository inscripcionDomainRepository) {
         this.inscripcionAdapter = inscripcionAdapter;
         this.inscripcionDomainService = inscripcionDomainService;
         this.uniqueCodeGenerator = uniqueCodeGenerator;
+        this.inscripcionDomainRepository = inscripcionDomainRepository;
     }
 
     public Inscripcion saveInscripcion() {
@@ -91,7 +93,8 @@ public class InscripcionService {
                 "inscripcion", getInscripcionById(id),
                 "participantes", getParticipantesByInscripcionId(id),
                 "areas", getAreasByInscripcionId(id),
-                "tutores", getTutoresByInscripcionId(id)
+                "tutores", getTutoresByInscripcionId(id),
+                "olimpiadas", inscripcionDomainRepository.findOlimapiada()
         );
     }
 
