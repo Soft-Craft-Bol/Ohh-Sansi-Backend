@@ -24,7 +24,12 @@ public class OrdenPagoService {
     }
 
     public OrdenDePago insertarOrdenDePago(OrdenDePago ordenDePago) {
-        return ordenPagoDomainRepository.save(ordenDePago);
+        try {
+            OrdenDePago existingOrden = ordenPagoDomainRepository.findOrdenPagoByID(ordenDePago.getIdInscripcion());
+            return existingOrden;
+        } catch (org.springframework.dao.EmptyResultDataAccessException e) {
+            return ordenPagoDomainRepository.save(ordenDePago);
+        }
     }
 
     public List<OrdenDePago> obtenerOrdenesPorIdInscripcion(String codUnico) {
