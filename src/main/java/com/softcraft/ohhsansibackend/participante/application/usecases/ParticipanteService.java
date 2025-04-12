@@ -11,6 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import com.softcraft.ohhsansibackend.handler.GlobalExceptionHandler;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,4 +94,8 @@ public class ParticipanteService {
         }
         return participante;
     }
+    public Participante findParticipanteByIdInscripcion(int idInscripcion) {
+        return participanteAdapter.findParticipanteByIdInscripcion(idInscripcion);
+    }
+
 }

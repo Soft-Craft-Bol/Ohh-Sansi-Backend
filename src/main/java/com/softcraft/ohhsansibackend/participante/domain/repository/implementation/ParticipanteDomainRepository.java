@@ -115,4 +115,9 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
         int rowsAffected = jdbcTemplate.update(sql, id);
         return rowsAffected > 0;
     }
+
+    public Participante findParticipanteByIdInscripcion(int idInscripcion) {
+        String sql = "SELECT p.* FROM participante p, inscripcion i WHERE p.id_inscripcion = ? AND i.inscripcion_masiva = false AND p.id_inscripcion = i.id_inscripcion";
+        return jdbcTemplate.queryForObject(sql, new Object[]{idInscripcion}, new BeanPropertyRowMapper<>(Participante.class));
+    }
 }

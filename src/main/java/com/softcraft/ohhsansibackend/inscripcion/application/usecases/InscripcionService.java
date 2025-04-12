@@ -5,6 +5,8 @@ import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.application.ports.InscripcionAdapter;
 import com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementation.InscripcionDomainRepository;
 import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionDomainService;
+import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
+import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.utils.UniqueCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,8 @@ import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 
@@ -88,14 +92,27 @@ public class InscripcionService {
         return inscripcionDomainService.getTutoresByInscripcionId(idInscripcion);
     }
     public Map<String, Object> getInscripcionDetails(String codigoUnico) {
-        int id = findIdByCodigoUnico(codigoUnico).intValue();
+        int idInscripcion = findIdByCodigoUnico(codigoUnico).intValue();
+        Participante participante = inscripcionAdapter.findParticipanteByIdInscripcion(idInscripcion);
+        int edadParticipante = inscripcionAdapter.calculateEdad(participante);
+        List<Map<String,Object>> areas = getAreasByInscripcionId(idInscripcion);
+        if (areas.isEmpty()) {
+            throw new ResourceNotFoundException("No se encontraron áreas para la inscripción con código único: " + codigoUnico);
+        }
+        List<Map<String,Object>> tutores = getTutoresByInscripcionId(idInscripcion);
+        if(tutores.isEmpty() && edadParticipante<15){
+            throw new ResourceNotFoundException("No se puede generar la orden de pago, necesitas al menos un tutor para terminar el registro, edad menor a 15 años: " + codigoUnico);
+        }
+
         return Map.of(
-                "inscripcion", getInscripcionById(id),
-                "participantes", getParticipantesByInscripcionId(id),
-                "areas", getAreasByInscripcionId(id),
-                "tutores", getTutoresByInscripcionId(id),
-                "olimpiadas", inscripcionDomainRepository.findOlimapiada()
+                "inscripcion", getInscripcionById(idInscripcion),
+                "participantes", getParticipantesByInscripcionId(idInscripcion),
+                "areas", areas,
+                "tutores", tutores,
+                "olimpiadas", inscripcionDomainRepository.findOlimapiada(),
+                "edadParticipante", edadParticipante
         );
     }
+
 
 }
