@@ -5,10 +5,8 @@ import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteTutorService;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
-import com.softcraft.ohhsansibackend.participante.domain.models.ParticipanteTutor;
 import com.softcraft.ohhsansibackend.tutor.domain.models.Tutor;
 import com.softcraft.ohhsansibackend.tutor.application.ports.TutorAdapter;
-import com.softcraft.ohhsansibackend.tutor.domain.repository.implementation.TutorDomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -29,21 +27,38 @@ public class TutorService {
         this.participanteService = participanteService;
         this.participanteTutorService = participanteTutorService;
     }
-    public Map<String, Object> save(Tutor tutor, int carnetParticipante) {
+    public Map<String, Object> save(List<Tutor> tutors, int carnetParticipante) {
+        if (tutors.size() > 2) {
+            throw new IllegalArgumentException("No se pueden registrar más de 2 tutores.");
+        }
         try {
-            Tutor tutorCreated = tutorAdapter.save(tutor);
             Participante searchParticipante = participanteService.findByCarnetIdentidadService(carnetParticipante);
-            participanteTutorService.createParticipanteTutor(
-                    tutorCreated.getIdTutor().intValue(),
-                    searchParticipante.getIdInscripcion(),
-                    searchParticipante.getIdParticipante()
-            );
+
+            for (Tutor tutor : tutors) {
+                Tutor existingTutor = tutorAdapter.findByCarnetIdentidad(tutor.getCarnetIdentidadTutor());
+
+                if (existingTutor != null) {
+                    participanteTutorService.createParticipanteTutor(
+                            existingTutor.getIdTutor().intValue(),
+                            searchParticipante.getIdInscripcion(),
+                            searchParticipante.getIdParticipante()
+                    );
+                } else {
+                    Tutor tutorCreated = tutorAdapter.save(tutor);
+                    participanteTutorService.createParticipanteTutor(
+                            tutorCreated.getIdTutor().intValue(),
+                            searchParticipante.getIdInscripcion(),
+                            searchParticipante.getIdParticipante()
+                    );
+                }
+            }
         } catch (DuplicateKeyException e) {
             throw new DuplicateResourceException("Email o carnet de identidad del tutor ya registrados");
         } catch (Exception e) {
-            throw new RuntimeException("Error al registrar el tutor", e);
+            throw new RuntimeException("Error al registrar los tutores", e);
         }
-        return Map.of("message", "Tutor registrado exitosamente");
+
+        return Map.of("message", "Tutores registrados exitosamente");
     }
 
     public Map<String, Object> findByIdTutor(int idTutor) {
@@ -54,13 +69,10 @@ public class TutorService {
             throw new ResourceNotFoundException("Error al buscar el tutor");
         }
     }
-    public Tutor findByEmailOrCarnet(String email, int carnetIdentidad) {
-        Tutor tutor = tutorAdapter.findByEmail(email);
-        if (tutor == null) {
-            tutor = tutorAdapter.findByCarnetIdentidad(carnetIdentidad);
-        }
-        return tutor;
+    public Tutor findByCarnet(String email, int carnetIdentidad) {
+        return tutorAdapter.findByCarnetIdentidad(carnetIdentidad);
     }
+
 
     public Map<String, Object> findAllTutor() {
         List<Tutor> tutores = tutorAdapter.findAllTutor();

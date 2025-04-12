@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -18,10 +19,10 @@ public class TutorController {
     }
 
     @PostMapping("/{carnetParticipante}")
-    public ResponseEntity<Map<String,Object>> save(
+    public ResponseEntity<Map<String, Object>> save(
             @PathVariable int carnetParticipante,
-            @RequestBody Tutor tutor) {
-        return ResponseEntity.ok(tutorService.save(tutor, carnetParticipante));
+            @RequestBody List<Tutor> tutors) {
+        return ResponseEntity.ok(tutorService.save(tutors, carnetParticipante));
     }
 
     @GetMapping("/{idTutor}")

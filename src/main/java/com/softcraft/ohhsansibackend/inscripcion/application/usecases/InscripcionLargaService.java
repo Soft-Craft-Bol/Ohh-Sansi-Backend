@@ -96,17 +96,8 @@ public class InscripcionLargaService {
     }
 
     private Tutor registerOrUpdateTutor(TutorDTO tutorDTO) {
-        Tutor tutor = tutorService.findByEmailOrCarnet(tutorDTO.getEmailTutor(), tutorDTO.getCarnetIdentidadTutor());
-        if (tutor == null) {
-            tutor = new Tutor();
-            tutor.setIdTipoTutor(tutorDTO.getIdTipoTutor());
-            tutor.setEmailTutor(tutorDTO.getEmailTutor());
-            tutor.setNombresTutor(tutorDTO.getNombresTutor());
-            tutor.setApellidosTutor(tutorDTO.getApellidosTutor());
-            tutor.setTelefono(tutorDTO.getTelefono());
-            tutor.setCarnetIdentidadTutor(tutorDTO.getCarnetIdentidadTutor());
-            tutorService.save(tutor,1);
-        }
+        Tutor tutor = tutorService.findByCarnet(tutorDTO.getEmailTutor(), tutorDTO.getCarnetIdentidadTutor());
+
         if (tutor.getIdTutor() == null) {
             throw new IllegalStateException("Error al registrar el tutor");
         }
