@@ -106,4 +106,10 @@ public class InscripcionDomainRepository {
                 ;
         return jdbcTemplate.queryForList(sql);
     }
+    public boolean deleteInscripcionById(int idInscripcion) {
+        String sql = "DELETE FROM inscripcion WHERE id_inscripcion = ?";
+        int rowsAffected = jdbcTemplate.update(sql, idInscripcion);
+        return rowsAffected > 0;
+    }
+
 }

@@ -57,4 +57,7 @@ public class InscripcionAdapter {
     public Participante findParticipanteByIdInscripcion(int idInscripcion) {
         return participanteService.findParticipanteByIdInscripcion(idInscripcion);
     }
+    public boolean deleteInscripcionById(int idInscripcion) {
+        return inscripcionDomainService.deleteInscripcionById(idInscripcion);
+    }
 }

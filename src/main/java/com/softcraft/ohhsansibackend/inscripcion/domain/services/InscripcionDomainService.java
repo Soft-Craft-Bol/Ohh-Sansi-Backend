@@ -55,6 +55,8 @@ public class InscripcionDomainService {
     public List<Map<String, Object>> getTutoresByInscripcionId(int idInscripcion) {
         return inscripcionDomainRepository.findTutoresByInscripcionId(idInscripcion);
     }
-
+    public boolean deleteInscripcionById(int idInscripcion) {
+        return inscripcionDomainRepository.deleteInscripcionById(idInscripcion);
+    }
 
 }

@@ -29,11 +29,16 @@ public class ParticipanteService {
         this.inscripcionService = inscripcionService;
     }
     public Map<String, Object> save(Participante participante) {
+        Inscripcion inscripcion = createInscripcion();
         try {
-            Inscripcion inscripcion = createInscripcion();
             participante.setIdInscripcion(inscripcion.getIdInscripcion());
             participanteAdapter.save(participante);
         } catch (DuplicateKeyException e) {
+            try {
+                inscripcionService.deleteInscripcionById(inscripcion.getIdInscripcion());
+            } catch (RuntimeException ex) {
+                throw new RuntimeException("Error al eliminar la inscripción del participante");
+            }
             throw new DuplicateResourceException("Email o carnet de identidad del participante ya registrados");
         }
         Map<String, Object> response = new HashMap<>();

@@ -113,6 +113,9 @@ public class InscripcionService {
                 "edadParticipante", edadParticipante
         );
     }
+    public boolean deleteInscripcionById(int idInscripcion) {
+        return inscripcionAdapter.deleteInscripcionById(idInscripcion);
+    }
 
 
 }
