@@ -1,5 +1,6 @@
 package com.softcraft.ohhsansibackend.catalogoolimpiadas.domain;
 
+import com.softcraft.ohhsansibackend.area.domain.models.Area;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.model.ParticipanteCatalogo;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -44,6 +45,28 @@ public class CatalogoDomainRepository {
         );
         return participanteCatalogo;
     }
+    public List<Area> getAreaByCiParticipante(int ciParticipante) {
+        String sql = """
+            SELECT DISTINCT a.*
+            FROM participante p
+                     JOIN participante_catalogo pc ON p.id_participante = pc.id_participante
+                     JOIN catalogo_olimpiada co ON pc.id_categoria = co.id_categoria
+                AND pc.id_olimpiada = co.id_olimpiada
+                AND pc.id_catalogo = co.id_catalogo
+                AND pc.id_area = co.id_area
+                     JOIN area a ON co.id_area = a.id_area
+                     JOIN categorias c ON co.id_categoria = c.id_categoria
+            WHERE p.carnet_identidad_participante = ?;
+            """;
 
+        return jdbcTemplate.query(sql, new Object[]{ciParticipante}, (rs, rowNum) -> {
+            Area area = new Area();
+            area.setIdArea(rs.getInt("id_area"));
+            area.setNombreArea(rs.getString("nombre_area"));
+            area.setNombreCortoArea(rs.getString("nombre_corto_area"));
+            area.setDescripcionArea(rs.getString("descripcion_area"));
+            return area;
+        });
+    }
 
 }

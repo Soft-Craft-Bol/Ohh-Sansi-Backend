@@ -67,6 +67,16 @@ public class TutorDomainRepository implements ITutorRepository {
     //validacoin para ver si el participante ya tiene cuandtos tutores registrados
     public int countTutorsByParticipanteId(int participanteId) {
         String sql = "SELECT COUNT(pt.id_participante) FROM participante_tutor pt WHERE pt.id_participante = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, participanteId);
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, participanteId);
+        return (count != null) ? count : 0;
     }
+    public List<Tutor> findTutorsByCarnetParticipante(int ciParticipante) {
+        String sql = """
+            select (t.*)
+            from tutor t, participante p, participante_tutor pt
+            where t.id_tutor = pt.id_tutor and p.id_participante = pt.id_participante and p.carnet_identidad_participante= ?;
+        """;
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Tutor.class), ciParticipante);
+    }
+
 }

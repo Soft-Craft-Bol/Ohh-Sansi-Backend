@@ -83,4 +83,8 @@ public class TutorService {
         }
         return Map.of("tutores", tutores);
     }
+
+    public List<Tutor> findTutorsByCarnetParticipante(int ciParticipante){
+        return tutorAdapter.findTutorsByCarnetParticipante(ciParticipante);
+    }
 }

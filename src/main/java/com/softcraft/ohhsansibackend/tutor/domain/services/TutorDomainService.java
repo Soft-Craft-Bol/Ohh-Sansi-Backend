@@ -38,4 +38,8 @@ public class TutorDomainService {
     public int countTutorsByParticipanteId(int participanteId) {
         return tutorDomainRepository.countTutorsByParticipanteId(participanteId);
     }
+    public List<Tutor> findTutorsByCarnetParticipante(int ciParticipante){
+        return tutorDomainRepository.findTutorsByCarnetParticipante(ciParticipante);
+    }
+
 }
