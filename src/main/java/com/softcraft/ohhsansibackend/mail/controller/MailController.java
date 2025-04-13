@@ -16,8 +16,9 @@ public class MailController {
     @PostMapping("/send")
     public String sendEmail(@RequestBody MailRequest emailRequest) {
         try {
+            //en caso de pruebas o enviar otro correo con el mismo codigo
             mailService.sendEmail(
-                    emailRequest.getTo()
+                    emailRequest.getTo(),emailRequest.getCodigoUnico()
             );
             return "Correo enviado con éxito";
         } catch (MessagingException e) {
