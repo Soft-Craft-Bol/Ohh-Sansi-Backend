@@ -25,24 +25,19 @@ import java.util.Map;
 public class ParticipanteService {
     private final ParticipanteAdapter participanteAdapter;
     private final InscripcionService inscripcionService;
-    private MailService mailService;
+    private final MailService mailService;
     @Autowired
-    public ParticipanteService(ParticipanteAdapter participanteAdapter, InscripcionService inscripcionService) {
+    public ParticipanteService(ParticipanteAdapter participanteAdapter, InscripcionService inscripcionService, MailService mailService) {
         this.participanteAdapter = participanteAdapter;
         this.inscripcionService = inscripcionService;
+        this.mailService = mailService;
     }
     public Map<String, Object> save(Participante participante) {
         Inscripcion inscripcion = createInscripcion();
         try {
             participante.setIdInscripcion(inscripcion.getIdInscripcion());
-            String codUnique = inscripcion.getCodigoUnicoInscripcion();
-            String destinatario = participante.getEmailParticipante();
             participanteAdapter.save(participante);
-            try {
-                mailService.sendEmail(destinatario, codUnique);
-            } catch (MessagingException e) {
-                throw new RuntimeException("Error al enviar el correo de confirmación", e);
-            }        } catch (DuplicateKeyException e) {
+        } catch (DuplicateKeyException e) {
             try {
                 inscripcionService.deleteInscripcionById(inscripcion.getIdInscripcion());
             } catch (RuntimeException ex) {
@@ -50,6 +45,16 @@ public class ParticipanteService {
             }
             throw new DuplicateResourceException("Email o carnet de identidad del participante ya registrados");
         }
+
+        // Recien verificamos el envio de correo
+        try {
+            String codUnique = inscripcion.getCodigoUnicoInscripcion();
+            String destinatario = participante.getEmailParticipante();
+            mailService.sendEmail(destinatario, codUnique);
+        } catch (MessagingException e) {
+            System.err.println("Error al enviar el correo: " + e.getMessage());
+        }
+
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Participante registrado exitosamente");
         return response;
@@ -57,8 +62,6 @@ public class ParticipanteService {
     private Inscripcion createInscripcion() {
         return inscripcionService.saveInscripcion();
     }
-
-
 
 
     public Map<String, Object> findById(Long id) {
