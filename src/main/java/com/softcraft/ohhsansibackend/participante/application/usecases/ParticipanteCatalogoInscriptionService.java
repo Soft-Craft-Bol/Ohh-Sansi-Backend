@@ -7,6 +7,7 @@ import com.softcraft.ohhsansibackend.participante.infraestructure.request.AreaCa
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +23,7 @@ public class ParticipanteCatalogoInscriptionService {
 
 
     public Map<String, Object> registerParticipantWithCatalogoComposition(int ciParticipante, List<AreaCatalogoDTO> areaCatalogoDTO) {
+        List<Map<String, Object>> results = new ArrayList<>();
         try {
             if (areaCatalogoDTO.size() > 2) {
                 throw new IllegalArgumentException("El número de áreas no puede ser mayor a 2");
@@ -30,24 +32,39 @@ public class ParticipanteCatalogoInscriptionService {
             if (participante == null) {
                 throw new RuntimeException("Participante no encontrado");
             }
-            for (AreaCatalogoDTO area : areaCatalogoDTO) {
-                ParticipanteCatalogo participanteCatalogo = new ParticipanteCatalogo();
-                participanteCatalogo.setIdCategoria(area.getIdCategoria());
-                participanteCatalogo.setIdArea(area.getIdArea());
-                participanteCatalogo.setIdCatalogo(area.getIdCatalogo());
-                participanteCatalogo.setIdOlimpiada(area.getIdOlimpiada());
-                participanteCatalogo.setIdInscripcion(participante.getIdInscripcion());
-                participanteCatalogo.setIdParticipante(participante.getIdParticipante());
-                catalogoService.insertParticipanteCatalogo(participanteCatalogo);
+            for (int i = 0; i < areaCatalogoDTO.size(); i++) {
+                AreaCatalogoDTO area = areaCatalogoDTO.get(i);
+                try {
+                    ParticipanteCatalogo participanteCatalogo = new ParticipanteCatalogo();
+                    participanteCatalogo.setIdCategoria(area.getIdCategoria());
+                    participanteCatalogo.setIdArea(area.getIdArea());
+                    participanteCatalogo.setIdCatalogo(area.getIdCatalogo());
+                    participanteCatalogo.setIdOlimpiada(area.getIdOlimpiada());
+                    participanteCatalogo.setIdInscripcion(participante.getIdInscripcion());
+                    participanteCatalogo.setIdParticipante(participante.getIdParticipante());
+                    catalogoService.insertParticipanteCatalogo(participanteCatalogo);
+                    results.add(Map.of(
+                            "area", i + 1,
+                            "status", "success",
+                            "message", "Área registrada correctamente"
+                    ));
+                } catch (Exception e) {
+                    results.add(Map.of(
+                            "area", i + 1,
+                            "status", "error",
+                            "message", "Error al registrar el área: " + e.getMessage()
+                    ));
+                }
             }
+
             return Map.of(
-                    "message", "Participante registrado exitosamente con catálogo",
-                    "areasRegistradas", areaCatalogoDTO.size()
+                    "message", "Proceso completado",
+                    "results", results
             );
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Error de validación: " + e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("Error al registrar el participante con catálogo: " + e.getMessage());
+            throw new RuntimeException("Error general: " + e.getMessage());
         }
     }
 
