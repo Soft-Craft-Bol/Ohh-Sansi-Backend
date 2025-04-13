@@ -5,6 +5,7 @@ import com.softcraft.ohhsansibackend.fechasolimpiada.domain.services.OlimpiadaDo
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
@@ -35,4 +36,9 @@ public class OlimpiadaAdapter {
     public List<Olimpiada> getAllOlimpiadas() {
         return olimpiadaDomainService.getAllOlimpiadas();
     }
+
+    public boolean updatePrecioOlimpiada(int idOlimpiada, BigDecimal precioOlimpiada) {
+        return olimpiadaDomainService.updatePrecioOlimpiada(idOlimpiada, precioOlimpiada);
+    }
+
 }

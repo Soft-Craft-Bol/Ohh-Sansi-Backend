@@ -2,6 +2,7 @@ package com.softcraft.ohhsansibackend.fechasolimpiada.domain.services;
 
 import com.softcraft.ohhsansibackend.fechasolimpiada.domain.models.FechaOlimpiada;
 import com.softcraft.ohhsansibackend.fechasolimpiada.domain.repository.abstraction.IFechaOlimpiadaRepository;
+import com.softcraft.ohhsansibackend.fechasolimpiada.infraestructure.dto.OlimpiadaEventosDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
@@ -34,5 +35,9 @@ public class FechaOlimpiadaDomainService {
 
     public FechaOlimpiada getFechaOlimpiadaPublic() {
         return fechaOlimpiadaRepository.getFechaOlimpiadaPublic();
+    }
+
+    public List<OlimpiadaEventosDTO> getOlimpiadasconEventos() {
+        return fechaOlimpiadaRepository.findAllOlimpiadasEventos();
     }
 }

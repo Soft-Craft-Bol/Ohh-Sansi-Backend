@@ -3,11 +3,13 @@ package com.softcraft.ohhsansibackend.fechasolimpiada.application.usecases;
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.fechasolimpiada.application.ports.FechaOlimpiadaAdapter;
 import com.softcraft.ohhsansibackend.fechasolimpiada.domain.models.FechaOlimpiada;
+import com.softcraft.ohhsansibackend.fechasolimpiada.infraestructure.dto.OlimpiadaEventosDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -74,5 +76,9 @@ public class FechaOlimpiadaService {
             response.put("message", "Error al buscar la fecha de olimpiada publica");
         }
         return response;
+    }
+
+    public List<OlimpiadaEventosDTO> getOlimpiadasconEventos() {
+        return fechaOlimpiadaAdapter.getOlimpiadasconEventos();
     }
 }

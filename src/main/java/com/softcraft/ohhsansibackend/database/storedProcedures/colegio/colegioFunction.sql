@@ -7,7 +7,7 @@ CREATE OR REPLACE FUNCTION selectColegioByMunicipio(idMunicipio INTEGER)
        nombre_colegio VARCHAR(200),
        direccion VARCHAR(200),
        coordenadas VARCHAR(200),
-       cantidad_estudiantes_colegio INTEGER DEFAULT NOT NULL
+       cantidad_estudiantes_colegio INTEGER
        ) AS $$
 BEGIN
     RETURN QUERY

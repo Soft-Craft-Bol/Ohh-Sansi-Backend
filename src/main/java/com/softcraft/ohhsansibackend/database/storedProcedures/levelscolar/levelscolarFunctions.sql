@@ -95,4 +95,20 @@ $$ LANGUAGE plpgsql;
 
 SELECT * FROM selectAllGrados();
 -----------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION obtener_grados_por_categoria()
+    RETURNS TABLE(nombre_categoria VARCHAR(100), grados INTEGER[]) AS $$
+BEGIN
+    RETURN QUERY
+        SELECT
+            c.nombre_categoria,
+            array_agg(g.id_grado ORDER BY g.id_grado)
+        FROM grado_categoria gc
+                 JOIN categorias c ON gc.id_categoria = c.id_categoria
+                 JOIN grado g ON gc.id_grado = g.id_grado
+        GROUP BY c.nombre_categoria
+        ORDER BY c.nombre_categoria;
+END;
+$$ LANGUAGE plpgsql;
 
+
+SELECT * FROM obtener_grados_por_categoria();

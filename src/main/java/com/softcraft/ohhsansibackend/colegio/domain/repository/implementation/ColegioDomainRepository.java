@@ -21,30 +21,32 @@ public class ColegioDomainRepository implements IColegioDomainRepository {
 
     @Override
     public List<Colegio> saveAll(List<Colegio> colegios) {
-        String sql = "INSERT INTO colegio (id_colegio, nombre_colegio, direccion, coordenadas, cantidad_estudiantes_colegio, id_municipio, id_departamento) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *";
+        String checkSql = "SELECT COUNT(*) FROM colegio WHERE id_colegio = ?";
+        String insertSql = "INSERT INTO colegio (id_colegio, nombre_colegio, direccion, coordenadas, cantidad_estudiantes_colegio, id_municipio, id_departamento) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         List<Colegio> result = new ArrayList<>();
 
         for (Colegio colegio : colegios) {
-            List<Colegio> saved = jdbcTemplate.query(
-                    sql,
-                    new Object[]{
-                            colegio.getIdColegio(),
-                            colegio.getNombreColegio(),
-                            colegio.getDireccion(),
-                            colegio.getCoordenadas(),
-                            colegio.getCantidadEstudiantesColegio(),
-                            colegio.getIdMunicipio(),
-                            colegio.getIdDepartamento()
-                    },
-                    new BeanPropertyRowMapper<>(Colegio.class)
-            );
-            result.add(saved.get(0));
+            Integer count = jdbcTemplate.queryForObject(checkSql, new Object[]{colegio.getIdColegio()}, Integer.class);
+            if (count != null && count == 0) {
+                jdbcTemplate.update(
+                        insertSql,
+                        colegio.getIdColegio(),
+                        colegio.getNombreColegio(),
+                        colegio.getDireccion(),
+                        colegio.getCoordenadas(),
+                        colegio.getCantidadEstudiantesColegio(),
+                        colegio.getIdMunicipio(),
+                        colegio.getIdDepartamento()
+                );
+                result.add(colegio); // solo añadimos si fue insertado
+            }
         }
 
         return result;
     }
+
 
     @Override
     public List<Colegio> getColegios() {

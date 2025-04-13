@@ -1,18 +1,45 @@
 CREATE OR REPLACE FUNCTION insertOlimpiada(
-    nombreOlimpiada VARCHAR,
-    estadoOlimpiada BOOLEAN,
-    precioOlimpiada DECIMAL
+    anio INTEGER,
+    estadoOlimpiada BOOLEAN DEFAULT FALSE,
+    precioOlimpiada DECIMAL DEFAULT NULL
 )
-    RETURNS TABLE (id_olimpiada INT, nombre_olimpiada VARCHAR, estado_olimpiada BOOLEAN, precio_olimpiada DECIMAL) AS $$
+    RETURNS TABLE (
+                      id_olimpiada INT,
+                      nombre_olimpiada VARCHAR,
+                      estado_olimpiada BOOLEAN,
+                      precio_olimpiada DECIMAL
+                  ) AS $$
 BEGIN
-RETURN QUERY
-    INSERT INTO olimpiada (nombre_olimpiada, estado_olimpiada, precio_olimpiada)
-            VALUES (nombreOlimpiada, estadoOlimpiada, precio_olimpiada)
+    -- 1. 🔍 Check for duplicates BEFORE inserting
+    IF EXISTS (
+        SELECT 1 FROM olimpiada WHERE olimpiada.nombre_olimpiada = CONCAT('Periodo Olímpico ', anio)
+    ) THEN
+        RAISE EXCEPTION 'El período % ya existe', anio;
+    END IF;
+
+    -- 2. 🔄 Deactivate existing active periods if new one is TRUE
+    IF estadoOlimpiada THEN
+        UPDATE olimpiada SET estado_olimpiada = FALSE WHERE olimpiada.estado_olimpiada = TRUE;
+    END IF;
+
+    -- 3. ✅ Insert new period
+    RETURN QUERY
+        INSERT INTO olimpiada (
+                               nombre_olimpiada,
+                               estado_olimpiada,
+                               precio_olimpiada
+            )
+            VALUES (
+                       CONCAT('Periodo Olímpico ', anio),
+                       estadoOlimpiada,
+                       precioOlimpiada
+                   )
             RETURNING *;
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT insertOlimpiada('Olimpiada de Ciencias', TRUE, 100.00);
+
+SELECT * FROM insertOlimpiada(2025, TRUE, NULL);
 ---------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION updateOlimpiada(
     idOlimpiada INTEGER,

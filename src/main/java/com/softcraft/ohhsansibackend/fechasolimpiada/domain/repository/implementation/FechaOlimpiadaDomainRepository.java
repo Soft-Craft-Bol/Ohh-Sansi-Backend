@@ -2,12 +2,18 @@ package com.softcraft.ohhsansibackend.fechasolimpiada.domain.repository.implemen
 
 import com.softcraft.ohhsansibackend.fechasolimpiada.domain.models.FechaOlimpiada;
 import com.softcraft.ohhsansibackend.fechasolimpiada.domain.repository.abstraction.IFechaOlimpiadaRepository;
+import com.softcraft.ohhsansibackend.fechasolimpiada.infraestructure.dto.EventoDTO;
+import com.softcraft.ohhsansibackend.fechasolimpiada.infraestructure.dto.OlimpiadaEventosDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import java.time.LocalDate;
+
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class FechaOlimpiadaDomainRepository implements IFechaOlimpiadaRepository {
@@ -20,13 +26,12 @@ public class FechaOlimpiadaDomainRepository implements IFechaOlimpiadaRepository
 
     @Override
     public FechaOlimpiada upsertFechaOlimpiada(FechaOlimpiada fechaOlimpiada) {
-        String sql = "SELECT * FROM upsertFechaOlimpiada(?, ?, ?, ?, ?, ?, ?)";
+        String sql = "SELECT * FROM upsertFechasOlimpiadas(?, ?, ?, ?, ?)";
         return jdbcTemplate.queryForObject(sql, new Object[]{
                 fechaOlimpiada.getIdOlimpiada(),
-                fechaOlimpiada.getIdOlimpiada(),
+                fechaOlimpiada.getNombreEvento(),
                 fechaOlimpiada.getFechaInicio(),
                 fechaOlimpiada.getFechaFin(),
-                fechaOlimpiada.getNombreEvento(),
                 fechaOlimpiada.getEsPublica()
         }, new BeanPropertyRowMapper<>(FechaOlimpiada.class));
     }
@@ -40,7 +45,7 @@ public class FechaOlimpiadaDomainRepository implements IFechaOlimpiadaRepository
 
     @Override
     public List<FechaOlimpiada> getFechaOlimpiada() {
-        String sql = "SELECT * FROM selectAllFechaOlimpiada()";
+        String sql = "SELECT * FROM selectAllFechasOlimpiadas()";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(FechaOlimpiada.class));
     }
 
@@ -58,4 +63,38 @@ public class FechaOlimpiadaDomainRepository implements IFechaOlimpiadaRepository
                 new BeanPropertyRowMapper<>(FechaOlimpiada.class));
     }
 
+    @Override
+    public List<OlimpiadaEventosDTO> findAllOlimpiadasEventos() {
+        String sql = "SELECT * FROM selectAllFechasOlimpiadas()";
+
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+
+        Map<String, OlimpiadaEventosDTO> olimpiadasMap = new LinkedHashMap<>();
+
+        for (Map<String, Object> row : rows) {
+            String nombreOlimpiada = (String) row.get("nombre_olimpiada");
+            boolean estadoOlimpiada = (Boolean) row.get("estado_olimpiada");
+
+            EventoDTO evento = new EventoDTO();
+            evento.setIdFechaOlimpiada((Integer) row.get("id_fecha_olimpiada"));
+            evento.setNombreEvento((String) row.get("nombre_evento"));
+            Date fechaInicioSql = (Date) row.get("fecha_inicio");
+            evento.setFechaInicio(fechaInicioSql != null ? fechaInicioSql.toLocalDate() : null);
+
+            Date fechaFinSql = (Date) row.get("fecha_fin");
+            evento.setFechaFin(fechaFinSql != null ? fechaFinSql.toLocalDate() : null);
+
+            evento.setEsPublica((Boolean) row.get("es_publica"));
+
+            String key = nombreOlimpiada + "-" + estadoOlimpiada;
+
+            if (!olimpiadasMap.containsKey(key)) {
+                olimpiadasMap.put(key, new OlimpiadaEventosDTO(nombreOlimpiada, estadoOlimpiada, new ArrayList<>()));
+            }
+
+            olimpiadasMap.get(key).getEventos().add(evento);
+        }
+
+        return new ArrayList<>(olimpiadasMap.values());
+    }
 }
