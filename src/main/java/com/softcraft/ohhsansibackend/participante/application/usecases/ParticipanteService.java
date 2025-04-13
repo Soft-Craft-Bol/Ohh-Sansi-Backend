@@ -5,8 +5,10 @@ import com.softcraft.ohhsansibackend.exception.ParticipanteNotFoundException;
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.application.usecases.InscripcionService;
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
+import com.softcraft.ohhsansibackend.mail.service.MailService;
 import com.softcraft.ohhsansibackend.participante.application.ports.ParticipanteAdapter;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -23,10 +25,12 @@ import java.util.Map;
 public class ParticipanteService {
     private final ParticipanteAdapter participanteAdapter;
     private final InscripcionService inscripcionService;
+    private final MailService mailService;
     @Autowired
-    public ParticipanteService(ParticipanteAdapter participanteAdapter, InscripcionService inscripcionService) {
+    public ParticipanteService(ParticipanteAdapter participanteAdapter, InscripcionService inscripcionService, MailService mailService) {
         this.participanteAdapter = participanteAdapter;
         this.inscripcionService = inscripcionService;
+        this.mailService = mailService;
     }
     public Map<String, Object> save(Participante participante) {
         Inscripcion inscripcion = createInscripcion();
@@ -41,6 +45,16 @@ public class ParticipanteService {
             }
             throw new DuplicateResourceException("Email o carnet de identidad del participante ya registrados");
         }
+
+        // Recien verificamos el envio de correo
+        try {
+            String codUnique = inscripcion.getCodigoUnicoInscripcion();
+            String destinatario = participante.getEmailParticipante();
+            mailService.sendEmail(destinatario, codUnique);
+        } catch (MessagingException e) {
+            System.err.println("Error al enviar el correo: " + e.getMessage());
+        }
+
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Participante registrado exitosamente");
         return response;
@@ -48,8 +62,6 @@ public class ParticipanteService {
     private Inscripcion createInscripcion() {
         return inscripcionService.saveInscripcion();
     }
-
-
 
 
     public Map<String, Object> findById(Long id) {
