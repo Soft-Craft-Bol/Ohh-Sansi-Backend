@@ -6,24 +6,30 @@ import com.softcraft.ohhsansibackend.fechasolimpiada.domain.models.Olimpiada;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
 public class OlimpiadaService {
     private final OlimpiadaAdapter OlimpiadaAdapter;
+    private final OlimpiadaAdapter olimpiadaAdapter;
 
     @Autowired
-    public OlimpiadaService(OlimpiadaAdapter OlimpiadaAdapter) {
+    public OlimpiadaService(OlimpiadaAdapter OlimpiadaAdapter, OlimpiadaAdapter olimpiadaAdapter) {
         this.OlimpiadaAdapter = OlimpiadaAdapter;
+        this.olimpiadaAdapter = olimpiadaAdapter;
     }
 
     public Map<String, Object> saveOlimpiada(Olimpiada olimpiada) {
         Map<String, Object> response = new HashMap<>();
         try {
-            OlimpiadaAdapter.saveOlimpiada(olimpiada);
+            Olimpiada saved = OlimpiadaAdapter.saveOlimpiada(olimpiada);
+            response.put("success", true);
             response.put("message", "Olimpiada registrada exitosamente");
+            response.put("olimpiada", saved);
         } catch (Exception e) {
+            response.put("success", false);
             response.put("message", "Error al registrar la olimpiada: " + e.getMessage());
         }
         return response;
@@ -79,5 +85,25 @@ public class OlimpiadaService {
         }
         return response;
     }
+
+    public Map<String, Object> updatePrecioOlimpiada(int idOlimpiada, BigDecimal precioOlimpiada) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            boolean updated = olimpiadaAdapter.updatePrecioOlimpiada(idOlimpiada, precioOlimpiada);
+
+            if (updated) {
+                response.put("message", "Precio de la olimpiada actualizado exitosamente");
+                response.put("success", true);
+            } else {
+                response.put("message", "No se encontró la olimpiada para actualizar");
+                response.put("success", false);
+            }
+        } catch (Exception e) {
+            response.put("message", "Error al actualizar el precio de la olimpiada: " + e.getMessage());
+            response.put("success", false);
+        }
+        return response;
+    }
+
 
 }

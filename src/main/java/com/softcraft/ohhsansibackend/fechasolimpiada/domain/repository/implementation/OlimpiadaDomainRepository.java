@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
@@ -20,9 +21,8 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
 
     @Override
     public Olimpiada saveOlimpiada(Olimpiada olimpiada) {
-        String sql = "SELECT * FROM insertOlimpiada(?, ?, ?, ?, ?)";
+        String sql = "SELECT * FROM insertOlimpiada(?, ?, ?)";
         return jdbcTemplate.queryForObject(sql, new Object[]{
-                olimpiada.getIdOlimpiada(),
                 olimpiada.getNombreOlimpiada(),
                 olimpiada.getEstadoOlimpiada(),
                 olimpiada.getPrecioOlimpiada()
@@ -52,7 +52,17 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
 
     @Override
     public List<Olimpiada> getOlimpiadas() {
-        String sql = "SELECT * FROM selectAllOlimpiadas()";
+        String sql = "SELECT * FROM selectOlimpiada()";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Olimpiada.class));
     }
+
+    @Override
+    public boolean updatePrecioOlimpiada(int idOlimpiada, BigDecimal nuevoPrecio) {
+        String sql = "SELECT updatePrecioOlimpiada(?, ?)";
+        Boolean result = jdbcTemplate.queryForObject(sql, Boolean.class, idOlimpiada, nuevoPrecio);
+        return result != null && result;
+    }
+
+
+
 }

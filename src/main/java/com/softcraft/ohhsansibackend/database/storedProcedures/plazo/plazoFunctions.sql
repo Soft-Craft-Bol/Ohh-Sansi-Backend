@@ -1,120 +1,105 @@
-CREATE OR REPLACE FUNCTION upsertPlazoInscripcion(
-    p_nombre_periodo_inscripcion VARCHAR,
-    p_fecha_inicio_inscripcion DATE,
-    p_fecha_fin_inscripcion DATE,
-    p_fecha_inicio_olimpiadas DATE DEFAULT NULL,
-    p_fecha_fin_olimpiadas DATE DEFAULT NULL,
-    p_fecha_resultados DATE DEFAULT NULL,
-    p_fecha_premiacion DATE DEFAULT NULL,
-    p_precio_periodo NUMERIC DEFAULT NULL
+CREATE OR REPLACE FUNCTION upsertFechasOlimpiadas(
+    idOlimpiada INTEGER,
+    nombreEvento VARCHAR,
+    fechaInicio DATE,
+    fechaFin DATE DEFAULT NULL,
+    esPublica BOOLEAN DEFAULT TRUE
 )
     RETURNS TABLE (
-                      idPeriodoInscripcion INTEGER,
-                      nombrePeriodoInscripcion VARCHAR,
-                      fechaInicioInscripcion DATE,
-                      fechaFinInscripcion DATE,
-                      fechaInicioOlimpiadas DATE,
-                      fechaFinOlimpiadas DATE,
-                      fechaResultados DATE,
-                      fechaPremiacion DATE,
-                      fechaPlazoInscripcionActivo BOOLEAN,
-                      precioPeriodo NUMERIC
+                      id_fecha_olimpiada INTEGER,
+                      id_olimpiada INTEGER,
+                      nombre_evento VARCHAR,
+                      fecha_inicio DATE,
+                      fecha_fin DATE,
+                      es_publica BOOLEAN
                   ) AS $$
 DECLARE
-    ultimo_id INTEGER;
+    max_eventos INTEGER := 3;
+    eventos_existentes INTEGER;
+    nuevo_id INTEGER;
 BEGIN
-    UPDATE periodos_inscripcion SET fecha_plazo_inscripcion_activo = FALSE;
-
-    IF EXISTS (
-        SELECT 1 FROM periodos_inscripcion
-        WHERE EXTRACT(YEAR FROM fecha_inicio_inscripcion) = EXTRACT(YEAR FROM p_fecha_inicio_inscripcion)
-    ) THEN
-        UPDATE periodos_inscripcion
-        SET
-            nombre_periodo_inscripcion = p_nombre_periodo_inscripcion,
-            fecha_inicio_inscripcion = p_fecha_inicio_inscripcion,
-            fecha_fin_inscripcion = p_fecha_fin_inscripcion,
-            fecha_inicio_olimpiadas = p_fecha_inicio_olimpiadas,
-            fecha_fin_olimpiadas = p_fecha_fin_olimpiadas,
-            fecha_resultados = p_fecha_resultados,
-            fecha_premiacion = p_fecha_premiacion,
-            precio_periodo = p_precio_periodo
-        WHERE EXTRACT(YEAR FROM fecha_inicio_inscripcion) = EXTRACT(YEAR FROM p_fecha_inicio_inscripcion)
-        RETURNING id_periodo_inscripcion INTO ultimo_id;
-    ELSE
-        INSERT INTO periodos_inscripcion (
-            nombre_periodo_inscripcion,
-            fecha_inicio_inscripcion,
-            fecha_fin_inscripcion,
-            fecha_inicio_olimpiadas,
-            fecha_fin_olimpiadas,
-            fecha_resultados,
-            fecha_premiacion,
-            fecha_plazo_inscripcion_activo,
-            precio_periodo
-        )
-        VALUES (
-                   p_nombre_periodo_inscripcion,
-                   p_fecha_inicio_inscripcion,
-                   p_fecha_fin_inscripcion,
-                   p_fecha_inicio_olimpiadas,
-                   p_fecha_fin_olimpiadas,
-                   p_fecha_resultados,
-                   p_fecha_premiacion,
-                   FALSE,
-                   p_precio_periodo
-               )
-        RETURNING id_periodo_inscripcion INTO ultimo_id;
+    -- ✅ Validar fechas
+    IF fechaFin IS NOT NULL AND fechaFin < fechaInicio THEN
+        RAISE EXCEPTION 'La fecha de fin no puede ser menor que la fecha de inicio.';
     END IF;
 
-    UPDATE periodos_inscripcion
-    SET fecha_plazo_inscripcion_activo = TRUE
-    WHERE id_periodo_inscripcion = ultimo_id
-      AND CURRENT_DATE BETWEEN fecha_inicio_inscripcion AND fecha_fin_inscripcion;
+    -- ✅ Validar máximo de eventos por olimpiada
+    SELECT COUNT(*) INTO eventos_existentes
+    FROM fechas_olimpiadas f
+    WHERE f.id_olimpiada = idOlimpiada;
+
+    IF eventos_existentes >= max_eventos THEN
+        RAISE EXCEPTION 'Solo se permiten % eventos por olimpiada. Ya existen %.', max_eventos, eventos_existentes;
+    END IF;
+
+    -- ✅ Verificar solapamiento de fechas
+    IF EXISTS (
+        SELECT 1
+        FROM fechas_olimpiadas f
+        WHERE f.id_olimpiada = idOlimpiada
+          AND (
+            (f.fecha_inicio, COALESCE(f.fecha_fin, f.fecha_inicio))
+                OVERLAPS
+            (fechaInicio, COALESCE(fechaFin, fechaInicio))
+            )
+    ) THEN
+        RAISE EXCEPTION 'Las fechas del evento se superponen con otro evento ya registrado.';
+    END IF;
+
+    -- ✅ Insertar nuevo evento
+    INSERT INTO fechas_olimpiadas (
+        id_olimpiada, nombre_evento, fecha_inicio, fecha_fin, es_publica
+    ) VALUES (
+                 idOlimpiada, nombreEvento, fechaInicio, fechaFin, esPublica
+             )
+    RETURNING fechas_olimpiadas.id_fecha_olimpiada INTO nuevo_id;
+
+    -- ✅ Retornar el registro creado
+    RETURN QUERY
+        SELECT f.id_fecha_olimpiada, f.id_olimpiada, f.nombre_evento, f.fecha_inicio, f.fecha_fin, f.es_publica
+        FROM fechas_olimpiadas f
+        WHERE f.id_fecha_olimpiada = nuevo_id;
+
+END;
+$$ LANGUAGE plpgsql;
+
+
+SELECT * FROM fechas_olimpiadas;
+SELECT * FROM upsertFechasOlimpiadas(1, 'Competencia Final', '2025-05-02', '2025-05-05', FALSE);
+SELECT * FROM upsertFechasOlimpiadas(1, 'Apertura', '2025-05-01', NULL, TRUE);
+SELECT * FROM upsertFechasOlimpiadas(1, NULL, NULL, NULL, TRUE, TRUE);
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION updateEsPublicaFecha(
+    idFechaOlimpiada INTEGER,
+    esPublica BOOLEAN
+)
+    RETURNS TABLE (
+                      id_fecha_olimpiada INTEGER,
+                      id_olimpiada INTEGER,
+                      nombre_evento VARCHAR,
+                      fecha_inicio DATE,
+                      fecha_fin DATE,
+                      es_publica BOOLEAN
+                  ) AS $$
+BEGIN
+    UPDATE fechas_olimpiadas f
+    SET es_publica = esPublica
+    WHERE f.id_fecha_olimpiada = idFechaOlimpiada;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'No se encontró una fecha con ID %', idFechaOlimpiada;
+    END IF;
 
     RETURN QUERY
-        SELECT
-            id_periodo_inscripcion AS "idPeriodoInscripcion",
-            nombre_periodo_inscripcion AS "nombrePeriodoInscripcion",
-            fecha_inicio_inscripcion AS "fechaInicioInscripcion",
-            fecha_fin_inscripcion AS "fechaFinInscripcion",
-            fecha_inicio_olimpiadas AS "fechaInicioOlimpiadas",
-            fecha_fin_olimpiadas AS "fechaFinOlimpiadas",
-            fecha_resultados AS "fechaResultados",
-            fecha_premiacion AS "fechaPremiacion",
-            fecha_plazo_inscripcion_activo AS "fechaPlazoInscripcionActivo",
-            precio_periodo AS "precioPeriodo"
-        FROM periodos_inscripcion
-        WHERE id_periodo_inscripcion = ultimo_id;
+        SELECT f.id_fecha_olimpiada, f.id_olimpiada, f.nombre_evento, f.fecha_inicio, f.fecha_fin, f.es_publica
+        FROM fechas_olimpiadas f
+        WHERE f.id_fecha_olimpiada = idFechaOlimpiada;
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM upsertPlazoInscripcion(
-    'Periodo de Inscripción 2025',
-    '2025-01-01',
-    '2025-01-31',
-    '2025-02-01',
-    '2025-02-15',
-    '2025-03-01',
-    '2025-03-15',
-    100.00
-);
--------------------------------------------------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION updatePrecioPeriodo(
-    p_id_periodo INTEGER,
-    p_precio NUMERIC
-) RETURNS BOOLEAN AS $$
-BEGIN
-    UPDATE periodos_inscripcion
-    SET precio_periodo = p_precio
-    WHERE id_periodo_inscripcion = p_id_periodo;
-
-    RETURN FOUND;
-END;
-$$ LANGUAGE plpgsql;
-
-SELECT updatePrecioPeriodo(2, 150.00);
-
+SELECT * FROM updateEsPublicaFecha(1, FALSE);
+SELECT * FROM updateEsPublicaFecha(1, TRUE);
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION deletePlazoInscripcion(idPeriodoInscripcion INTEGER)
     RETURNS BOOLEAN AS $$
@@ -177,26 +162,42 @@ $$ LANGUAGE plpgsql;
 
 SELECT * FROM selectPlazoInscripcionByDate('2025-01-15');
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION selectAllPlazoInscripcion()
+CREATE OR REPLACE FUNCTION selectAllFechasOlimpiadas()
     RETURNS TABLE (
-                      id_periodo_inscripcion INTEGER,
-                        nombre_periodo_inscripcion VARCHAR,
-                      fecha_inicio_inscripcion DATE,
-                      fecha_fin_inscripcion DATE,
-                        fecha_inicio_olimpiadas DATE,
-                        fecha_fin_olimpiadas DATE,
-                      fecha_resultados DATE,
-                      fecha_premiacion DATE,
-                      fecha_plazo_inscripcion_activo BOOLEAN,
-                  precio_periodo NUMERIC
+                      id_fecha_olimpiada INTEGER,
+                      id_olimpiada INTEGER,
+                      nombre_evento VARCHAR,
+                      fecha_inicio DATE,
+                      fecha_fin DATE,
+                      es_publica BOOLEAN
                   )
 AS $$
 BEGIN
     RETURN QUERY
-        SELECT * FROM periodos_inscripcion;
+        SELECT * FROM fechas_olimpiadas;
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM selectAllPlazoInscripcion();
+SELECT * FROM selectAllFechasOlimpiadas();
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION selectAllFechasOlimpiadas()
+    RETURNS TABLE (
+                      id_fecha_olimpiada INTEGER,
+                      id_olimpiada INTEGER,
+                      nombre_evento VARCHAR,
+                      fecha_inicio DATE,
+                      fecha_fin DATE,
+                      es_publica BOOLEAN,
+                      nombre_olimpiada VARCHAR,
+                      estado_olimpiada BOOLEAN
+                  )
+AS $$
+BEGIN
+    RETURN QUERY
+        SELECT f.id_fecha_olimpiada, f.id_olimpiada, f.nombre_evento, f.fecha_inicio, f.fecha_fin, f.es_publica,
+               o.nombre_olimpiada, o.estado_olimpiada
+        FROM fechas_olimpiadas f
+        JOIN olimpiada o ON f.id_olimpiada = o.id_olimpiada;
+END;
+$$ LANGUAGE plpgsql;
 

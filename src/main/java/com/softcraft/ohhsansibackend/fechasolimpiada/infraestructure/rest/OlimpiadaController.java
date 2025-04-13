@@ -2,11 +2,14 @@ package com.softcraft.ohhsansibackend.fechasolimpiada.infraestructure.rest;
 
 import com.softcraft.ohhsansibackend.fechasolimpiada.application.usecases.OlimpiadaService;
 import com.softcraft.ohhsansibackend.fechasolimpiada.domain.models.Olimpiada;
+import com.softcraft.ohhsansibackend.fechasolimpiada.infraestructure.dto.UpdatePrecio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -48,4 +51,14 @@ public class OlimpiadaController {
         Map<String, Object> response = olimpiadaService.getOlimpiadaPublic();
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/update-precio")
+    public ResponseEntity<Map<String, Object>> updatePrecioOlimpiada(@RequestBody UpdatePrecio request) {
+        Map<String, Object> response = olimpiadaService.updatePrecioOlimpiada(
+                request.getIdOlimpiada(), request.getPrecioOlimpiada()
+        );
+        return ResponseEntity.ok(response);
+    }
+
+
 }

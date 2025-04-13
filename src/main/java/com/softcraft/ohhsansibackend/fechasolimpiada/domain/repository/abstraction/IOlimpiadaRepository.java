@@ -2,6 +2,7 @@ package com.softcraft.ohhsansibackend.fechasolimpiada.domain.repository.abstract
 
 import com.softcraft.ohhsansibackend.fechasolimpiada.domain.models.Olimpiada;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface IOlimpiadaRepository {
@@ -14,4 +15,6 @@ public interface IOlimpiadaRepository {
     Olimpiada getOlimpiadaPublic();
 
     List<Olimpiada> getOlimpiadas();
+
+    boolean updatePrecioOlimpiada(int idOlimpiada, BigDecimal precioOlimpiada);
 }
