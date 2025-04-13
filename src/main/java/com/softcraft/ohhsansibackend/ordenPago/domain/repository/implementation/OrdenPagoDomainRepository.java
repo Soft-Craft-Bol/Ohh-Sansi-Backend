@@ -102,4 +102,14 @@ public class OrdenPagoDomainRepository {
             }
         });
     }
+    public boolean verificarExistenciaDeInscripcionEnOrdenPago(int idInscripcion){
+        String sql = """
+                        select exists(
+                        select 1
+                        from orden_de_pago
+                        where id_inscripcion = ?);
+                    """;
+        Boolean exists = jdbcTemplate.queryForObject(sql, new Object[]{idInscripcion}, Boolean.class);
+        return (exists != null) ? exists : false;
+    }
 }

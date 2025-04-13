@@ -40,4 +40,7 @@ public class OrdenPagoService {
         }
         return ordenes;
     }
+    public boolean verificarExistenciaDeInscripcionEnOrdenPago(int idInscripcion){
+        return ordenPagoDomainRepository.verificarExistenciaDeInscripcionEnOrdenPago(idInscripcion);
+    }
 }

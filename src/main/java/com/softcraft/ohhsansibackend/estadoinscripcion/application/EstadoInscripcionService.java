@@ -4,6 +4,7 @@ import com.softcraft.ohhsansibackend.catalogoolimpiadas.application.CatalogoServ
 import com.softcraft.ohhsansibackend.estadoinscripcion.domain.EstadoInscripcionDomainRepository;
 import com.softcraft.ohhsansibackend.exception.ParticipanteNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.application.ports.InscripcionAdapter;
+import com.softcraft.ohhsansibackend.ordenPago.application.usecases.OrdenPagoService;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorService;
@@ -21,18 +22,21 @@ public class EstadoInscripcionService {
     private final TutorService tutorService;
     private final InscripcionAdapter inscripcionAdapter;
     private final CatalogoService catalogoService;
+    private final OrdenPagoService ordenPagoService;
     @Autowired
     public EstadoInscripcionService(EstadoInscripcionDomainRepository estadoInscripcionDomainRepository,
                                     ParticipanteService participanteService,
                                     TutorService tutorService,
                                     InscripcionAdapter inscripcionAdapter,
-                                    CatalogoService catalogoService
+                                    CatalogoService catalogoService,
+                                    OrdenPagoService ordenPagoService
     ) {
         this.estadoInscripcionDomainRepository = estadoInscripcionDomainRepository;
         this.participanteService = participanteService;
         this.tutorService = tutorService;
         this.inscripcionAdapter = inscripcionAdapter;
         this.catalogoService = catalogoService;
+        this.ordenPagoService = ordenPagoService;
     }
     public Map<String, Object> verificarExistenciaDeTutores(int ciParticipante) {
         Map<String, Object> response = new HashMap<>();
@@ -40,7 +44,7 @@ public class EstadoInscripcionService {
 
         Participante participante = getParticipanteByCarnetIdentidad(ciParticipante);
         if (participante != null) {
-            response.put("RegistroDatosParticipante",
+            response.put("registroDatosParticipante",
                     Map.of(
                             "estado", "Completado",
                             "fechaRegistro", "No seteado hacer querys",
@@ -51,7 +55,7 @@ public class EstadoInscripcionService {
             throw new ParticipanteNotFoundException("No se encontraron datos del participante");
         }
         if(catalogoService.existsParticipanteInCatalogo(ciParticipante)){
-            response.put("RegistroAreas",
+            response.put("registroAreas",
                     Map.of(
                             "estado", "Completado",
                             "fechaRegistro", "No seteado hacer querys",
@@ -59,7 +63,7 @@ public class EstadoInscripcionService {
                             "areas", catalogoService.getAreaCatalogoByCiParticipante(ciParticipante)
                     ));
         }else{
-            response.put("RegistroAreas",
+            response.put("registroAreas",
                     Map.of(
                             "estado", "No Completado",
                             "fechaRegistro", "No seteado hacer querys",
@@ -68,7 +72,7 @@ public class EstadoInscripcionService {
                     ));
         }
         if (cantRegistrosTutorParticipante > 0) {
-            response.put("RegistroDatosTutor",
+            response.put("registroDatosTutor",
                     Map.of(
                             "estado", "Completado",
                             "fechaRegistro", "No seteado hacer querys",
@@ -77,7 +81,7 @@ public class EstadoInscripcionService {
                     ));
         } else {
             if (inscripcionAdapter.calculateEdad(participante) < 15) {
-                response.put("RegistroDatosTutor",
+                response.put("registroDatosTutor",
                         Map.of(
                                 "estado", "No Completado",
                                 "fechaRegistro", "No seteado hacer querys",
@@ -85,7 +89,7 @@ public class EstadoInscripcionService {
                                 "tutores", "No existen tutores registrados"
                         ));
             } else {
-                response.put("RegistroDatosTutor",
+                response.put("registroDatosTutor",
                         Map.of(
                                 "estado", "No Completado",
                                 "fechaRegistro", "No seteado hacer querys",
@@ -93,6 +97,27 @@ public class EstadoInscripcionService {
                                 "tutores", "No existen tutores registrados"
                         ));
             }
+        }
+        if(ordenPagoService.verificarExistenciaDeInscripcionEnOrdenPago(participante.getIdInscripcion())){
+            response.put("registroOrdenPago",
+                    Map.of(
+                            "estado", "Generado",
+                            "fechaRegistro", "No seteado hacer querys",
+                            "comentarios", "Orden de pago registrada correctamente.",
+                            "codigoUnico", inscripcionAdapter.
+                                    findInscripcionById(participante.getIdInscripcion()).
+                                    getCodigoUnicoInscripcion()
+                    ));
+        }else{
+            response.put("registroOrdenPago",
+                    Map.of(
+                            "estado", "No Generado",
+                            "fechaRegistro", "No seteado hacer querys",
+                            "comentarios", "No se encontraron ordenes de pago registradas para el participante.",
+                            "codigoUnico", inscripcionAdapter.
+                                    findInscripcionById(participante.getIdInscripcion()).
+                                    getCodigoUnicoInscripcion()
+                    ));
         }
         return response;
     }
