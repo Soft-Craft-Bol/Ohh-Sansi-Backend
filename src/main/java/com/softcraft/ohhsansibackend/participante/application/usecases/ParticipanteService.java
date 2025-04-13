@@ -5,8 +5,10 @@ import com.softcraft.ohhsansibackend.exception.ParticipanteNotFoundException;
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.application.usecases.InscripcionService;
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
+import com.softcraft.ohhsansibackend.mail.service.MailService;
 import com.softcraft.ohhsansibackend.participante.application.ports.ParticipanteAdapter;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ import java.util.Map;
 public class ParticipanteService {
     private final ParticipanteAdapter participanteAdapter;
     private final InscripcionService inscripcionService;
+    private MailService mailService;
     @Autowired
     public ParticipanteService(ParticipanteAdapter participanteAdapter, InscripcionService inscripcionService) {
         this.participanteAdapter = participanteAdapter;
@@ -32,8 +35,14 @@ public class ParticipanteService {
         Inscripcion inscripcion = createInscripcion();
         try {
             participante.setIdInscripcion(inscripcion.getIdInscripcion());
+            String codUnique = inscripcion.getCodigoUnicoInscripcion();
+            String destinatario = participante.getEmailParticipante();
             participanteAdapter.save(participante);
-        } catch (DuplicateKeyException e) {
+            try {
+                mailService.sendEmail(destinatario, codUnique);
+            } catch (MessagingException e) {
+                throw new RuntimeException("Error al enviar el correo de confirmación", e);
+            }        } catch (DuplicateKeyException e) {
             try {
                 inscripcionService.deleteInscripcionById(inscripcion.getIdInscripcion());
             } catch (RuntimeException ex) {
