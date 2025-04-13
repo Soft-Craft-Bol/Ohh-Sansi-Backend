@@ -41,4 +41,7 @@ public class ParticipanteAdapter {
     public Participante findParticipanteByIdInscripcion(int idInscripcion) {
         return participanteDomainService.findParticipanteByIdInscripcion(idInscripcion);
     }
+    public int countParticipantesEnCatalogoParticipante(int idParticipante){
+        return participanteDomainService.countParticipantesEnCatalogoParticipante(idParticipante);
+    }
 }

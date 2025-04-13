@@ -2,6 +2,7 @@ package com.softcraft.ohhsansibackend.participante.application.usecases;
 
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.application.CatalogoService;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.model.ParticipanteCatalogo;
+import com.softcraft.ohhsansibackend.participante.application.ports.ParticipanteAdapter;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.infraestructure.request.AreaCatalogoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,12 @@ import java.util.Map;
 public class ParticipanteCatalogoInscriptionService {
     private final ParticipanteService participanteService;
     private final CatalogoService catalogoService;
+    private final ParticipanteAdapter participanteAdapter;
     @Autowired
-    public ParticipanteCatalogoInscriptionService(ParticipanteService participanteService, CatalogoService catalogoService) {
+    public ParticipanteCatalogoInscriptionService(ParticipanteService participanteService, CatalogoService catalogoService, ParticipanteAdapter participanteAdapter) {
         this.participanteService = participanteService;
         this.catalogoService = catalogoService;
+        this.participanteAdapter = participanteAdapter;
     }
 
 
@@ -32,6 +35,11 @@ public class ParticipanteCatalogoInscriptionService {
             if (participante == null) {
                 throw new RuntimeException("Participante no encontrado");
             }
+            int areasParticipante = participanteAdapter.countParticipantesEnCatalogoParticipante(participante.getIdParticipante());
+            if(areasParticipante >= 2){
+                throw new RuntimeException("El participante ya tiene áreas registradas en el catálogo, areas registradas :"+ areasParticipante);
+            }
+
             for (int i = 0; i < areaCatalogoDTO.size(); i++) {
                 AreaCatalogoDTO area = areaCatalogoDTO.get(i);
                 try {
@@ -66,6 +74,10 @@ public class ParticipanteCatalogoInscriptionService {
         } catch (Exception e) {
             throw new RuntimeException("Error general: " + e.getMessage());
         }
+    }
+
+    public int getParticipanteNumeroDeAreasEnCatalogo(int idParticipante){
+        return 1;
     }
 
 

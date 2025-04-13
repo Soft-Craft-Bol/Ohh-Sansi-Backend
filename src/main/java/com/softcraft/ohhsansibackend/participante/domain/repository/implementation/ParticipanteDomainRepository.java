@@ -120,4 +120,10 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
         String sql = "SELECT p.* FROM participante p, inscripcion i WHERE p.id_inscripcion = ? AND i.inscripcion_masiva = false AND p.id_inscripcion = i.id_inscripcion";
         return jdbcTemplate.queryForObject(sql, new Object[]{idInscripcion}, new BeanPropertyRowMapper<>(Participante.class));
     }
+
+    public int countParticipantesEnCatalogoParticipante(int idParticipante){
+        String sql = "SELECT COUNT(participante_catalogo.id_participante) FROM participante_catalogo WHERE id_participante = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, new Object[]{idParticipante}, Integer.class);
+        return count != null ? count : 0;
+    }
 }
