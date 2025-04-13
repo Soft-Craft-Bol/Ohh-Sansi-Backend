@@ -32,5 +32,8 @@ public class CatalogoService {
     public List<Area> getAreaCatalogoByCiParticipante(int ciParticipante) {
         return catalogoDomainRepository.getAreaByCiParticipante(ciParticipante);
     }
+    public boolean existsParticipanteInCatalogo(int ciParticipante){
+        return catalogoDomainRepository.existsParticipanteInCatalogo(ciParticipante);
+    }
 
 }

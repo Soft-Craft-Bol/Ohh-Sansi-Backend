@@ -68,5 +68,17 @@ public class CatalogoDomainRepository {
             return area;
         });
     }
+    public boolean existsParticipanteInCatalogo(int ciParticipante) {
+        String sql = """
+            select exists (
+                select 1
+                from participante p
+                         join participante_catalogo pc on p.id_participante = pc.id_participante
+                where p.carnet_identidad_participante = ?
+            );
+        """;
+        Boolean exists = jdbcTemplate.queryForObject(sql, new Object[]{ciParticipante}, Boolean.class);
+        return (exists != null) ? exists : false;
+    }
 
 }

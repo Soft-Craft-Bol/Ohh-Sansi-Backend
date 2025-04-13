@@ -1,5 +1,6 @@
 package com.softcraft.ohhsansibackend.estadoinscripcion.application;
 
+import com.softcraft.ohhsansibackend.catalogoolimpiadas.application.CatalogoService;
 import com.softcraft.ohhsansibackend.estadoinscripcion.domain.EstadoInscripcionDomainRepository;
 import com.softcraft.ohhsansibackend.exception.ParticipanteNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.application.ports.InscripcionAdapter;
@@ -9,6 +10,7 @@ import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.xml.catalog.Catalog;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,17 +20,23 @@ public class EstadoInscripcionService {
     private final ParticipanteService participanteService;
     private final TutorService tutorService;
     private final InscripcionAdapter inscripcionAdapter;
+    private final CatalogoService catalogoService;
     @Autowired
-    public EstadoInscripcionService(EstadoInscripcionDomainRepository estadoInscripcionDomainRepository, ParticipanteService participanteService, TutorService tutorService, InscripcionAdapter inscripcionAdapter) {
+    public EstadoInscripcionService(EstadoInscripcionDomainRepository estadoInscripcionDomainRepository,
+                                    ParticipanteService participanteService,
+                                    TutorService tutorService,
+                                    InscripcionAdapter inscripcionAdapter,
+                                    CatalogoService catalogoService
+    ) {
         this.estadoInscripcionDomainRepository = estadoInscripcionDomainRepository;
         this.participanteService = participanteService;
         this.tutorService = tutorService;
         this.inscripcionAdapter = inscripcionAdapter;
+        this.catalogoService = catalogoService;
     }
     public Map<String, Object> verificarExistenciaDeTutores(int ciParticipante) {
         Map<String, Object> response = new HashMap<>();
-        int cantRegistros = estadoInscripcionDomainRepository.countParticipanteByCarnetIdentidad(ciParticipante);
-        System.out.println("Cantidad de registros: " + cantRegistros);
+        int cantRegistrosTutorParticipante = estadoInscripcionDomainRepository.countParticipanteByCarnetIdentidad(ciParticipante);
 
         Participante participante = getParticipanteByCarnetIdentidad(ciParticipante);
         if (participante != null) {
@@ -42,8 +50,24 @@ public class EstadoInscripcionService {
         } else {
             throw new ParticipanteNotFoundException("No se encontraron datos del participante");
         }
-
-        if (cantRegistros > 0) {
+        if(catalogoService.existsParticipanteInCatalogo(ciParticipante)){
+            response.put("RegistroAreas",
+                    Map.of(
+                            "estado", "Completado",
+                            "fechaRegistro", "No seteado hacer querys",
+                            "comentarios", "Areas de competencia registradas correctamente.",
+                            "areas", catalogoService.getAreaCatalogoByCiParticipante(ciParticipante)
+                    ));
+        }else{
+            response.put("RegistroAreas",
+                    Map.of(
+                            "estado", "No Completado",
+                            "fechaRegistro", "No seteado hacer querys",
+                            "comentarios", "No se encontraron areas de competencia registradas para el participante.",
+                            "areas", "No existen areas registradas"
+                    ));
+        }
+        if (cantRegistrosTutorParticipante > 0) {
             response.put("RegistroDatosTutor",
                     Map.of(
                             "estado", "Completado",
