@@ -71,13 +71,8 @@ public class ParticipanteController {
     public ResponseEntity<Map<String, Object>> registerParticipantCatalogo(
             @PathVariable int ciParticipante,
             @RequestBody @Valid List<AreaCatalogoDTO> areaCatalogos) {
-        for (AreaCatalogoDTO areaCatalogoDTO : areaCatalogos) {
-            Map<String, Object> response = participanteCatalogoInscriptionService.registerParticipantWithCatalogoComposition(ciParticipante, areaCatalogoDTO);
-            if (response != null) {
-                return ResponseEntity.status(HttpStatus.CREATED).body(response);
-            }
-        }
-        return null;
+        Map<String, Object> response = participanteCatalogoInscriptionService.registerParticipantWithCatalogoComposition(ciParticipante, areaCatalogos);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
 

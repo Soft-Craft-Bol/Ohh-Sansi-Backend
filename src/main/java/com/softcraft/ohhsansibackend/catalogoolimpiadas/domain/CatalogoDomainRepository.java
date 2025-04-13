@@ -19,14 +19,13 @@ public class CatalogoDomainRepository {
 
     public List<Map<String, Object>> getCatalogoByGrado(int grado) {
         String sql = """
-            SELECT a.id_area, a.nombre_area, a.nombre_corto_area, a.descripcion_area, co.id_categoria, c.nombre_categoria, co.id_olimpiada, co.id_catalogo, o.precio_olimpiada
-            FROM participante p, grado_categoria gc, catalogo_olimpiada co, area a, categorias c, olimpiada o
-            WHERE ? = gc.id_grado
-              AND gc.id_categoria = co.id_categoria
-              AND a.id_area = co.id_area
-              AND c.id_categoria = co.id_categoria
-              AND o.id_olimpiada = co.id_olimpiada
-     
+            select distinct a.id_area, a.nombre_area, a.nombre_corto_area, a.descripcion_area, co.id_categoria, c.nombre_categoria, co.id_olimpiada, co.id_catalogo, o.precio_olimpiada
+            from participante p, grado_categoria gc, catalogo_olimpiada co, area a, categorias c, olimpiada o
+            where ? = gc.id_grado
+            and gc.id_categoria = co.id_categoria
+            and a.id_area = co.id_area
+            and c.id_categoria = co.id_categoria
+            and o.id_olimpiada = co.id_olimpiada
         """;
         return jdbcTemplate.queryForList(sql, grado);
     }
