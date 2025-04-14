@@ -25,4 +25,9 @@ public class ParticipanteTutorDomainRepository implements IParticipanteTutorRepo
         participanteTutor.setIdParticipanteTutor(idParticipanteTutor);
         return participanteTutor;
     }
+    public boolean existsByTutorAndParticipante(int idTutor, int idParticipante) {
+        String sql = "SELECT COUNT(*) FROM participante_tutor WHERE id_tutor = ? AND id_participante = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, new Object[]{idTutor, idParticipante}, Integer.class);
+        return count != null && count > 0;
+    }
 }

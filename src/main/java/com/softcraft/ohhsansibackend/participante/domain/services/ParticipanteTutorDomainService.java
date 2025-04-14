@@ -22,4 +22,7 @@ public class ParticipanteTutorDomainService {
         participanteTutor.setIdParticipante(idParticipante);
         return participanteTutorRepository.save(participanteTutor);
     }
+    public boolean existsByTutorAndParticipante(int idTutor, int idParticipante) {
+        return participanteTutorRepository.existsByTutorAndParticipante(idTutor, idParticipante);
+    }
 }

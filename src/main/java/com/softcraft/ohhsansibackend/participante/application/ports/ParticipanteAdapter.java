@@ -44,4 +44,5 @@ public class ParticipanteAdapter {
     public int countParticipantesEnCatalogoParticipante(int idParticipante){
         return participanteDomainService.countParticipantesEnCatalogoParticipante(idParticipante);
     }
+
 }
