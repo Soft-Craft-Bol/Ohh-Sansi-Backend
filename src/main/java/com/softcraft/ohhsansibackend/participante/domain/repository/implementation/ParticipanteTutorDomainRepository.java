@@ -30,4 +30,16 @@ public class ParticipanteTutorDomainRepository implements IParticipanteTutorRepo
         Integer count = jdbcTemplate.queryForObject(sql, new Object[]{idTutor, idParticipante}, Integer.class);
         return count != null && count > 0;
     }
+    public ParticipanteTutor findParticipanteTutor(int idTutor, int idParticipante) {
+        String sql = "SELECT * FROM participante_tutor WHERE id_tutor = ? AND id_participante = ?";
+        return jdbcTemplate.queryForObject(sql, new Object[]{idTutor, idParticipante},
+                (rs, rowNum) -> {
+                    ParticipanteTutor participanteTutor = new ParticipanteTutor();
+                    participanteTutor.setIdParticipanteTutor(rs.getInt("id_participante_tutor"));
+                    participanteTutor.setIdTutor(rs.getInt("id_tutor"));
+                    participanteTutor.setIdInscripcion(rs.getInt("id_inscripcion"));
+                    participanteTutor.setIdParticipante(rs.getInt("id_participante"));
+                    return participanteTutor;
+                });
+    }
 }

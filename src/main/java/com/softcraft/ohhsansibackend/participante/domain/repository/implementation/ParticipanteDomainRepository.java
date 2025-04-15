@@ -1,8 +1,11 @@
 package com.softcraft.ohhsansibackend.participante.domain.repository.implementation;
 
+import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.domain.repository.abstraction.IParticipanteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -85,7 +88,13 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
     @Override
     public Participante findByCarnetIdentidad(int carnetIdentidad) {
         String sql = "SELECT * FROM participante WHERE carnet_identidad_participante = ?";
-        return jdbcTemplate.queryForObject(sql, new Object[]{carnetIdentidad}, new BeanPropertyRowMapper<>(Participante.class));
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{carnetIdentidad}, new BeanPropertyRowMapper<>(Participante.class));
+        } catch (EmptyResultDataAccessException ex) {
+            throw new ResourceNotFoundException("Participante no entontrado, ci incorrecto, introduce otro");
+        } catch (IncorrectResultSizeDataAccessException ex) {
+            throw new IllegalStateException("Participante no entontrado, ci incorrecto");
+        }
     }
 
     @Override

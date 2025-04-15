@@ -25,4 +25,8 @@ public class ParticipanteTutorDomainService {
     public boolean existsByTutorAndParticipante(int idTutor, int idParticipante) {
         return participanteTutorRepository.existsByTutorAndParticipante(idTutor, idParticipante);
     }
+    public ParticipanteTutor findParticipanteTutor(int idTutor, int idParticipante) {
+        return participanteTutorRepository.findParticipanteTutor(idTutor, idParticipante);
+    }
+
 }

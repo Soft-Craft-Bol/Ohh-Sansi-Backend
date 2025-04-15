@@ -97,7 +97,7 @@ public class ParticipanteService {
     public Map<String, Object> findByCarnetIdentidad(int carnetIdentidad) {
         Participante participante = participanteAdapter.findByCarnetIdentidad(carnetIdentidad);
         if (participante == null) {
-            throw new ResourceNotFoundException("Participante no encontrado");
+            throw new IllegalArgumentException("Participante no encontrado");
         }
         Map<String, Object> response = new HashMap<>();
         response.put("participante", participante);
@@ -107,7 +107,7 @@ public class ParticipanteService {
     public Participante findByCarnetIdentidadService(int carnetIdentidad) {
         Participante participante = participanteAdapter.findByCarnetIdentidad(carnetIdentidad);
         if (participante == null) {
-            throw new ParticipanteNotFoundException("Participante no encontrado");
+            throw new IllegalArgumentException("Participante no encontrado");
         }
         return participante;
     }
