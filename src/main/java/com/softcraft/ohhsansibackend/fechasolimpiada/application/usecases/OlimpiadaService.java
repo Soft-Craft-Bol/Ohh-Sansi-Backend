@@ -4,6 +4,7 @@ import com.softcraft.ohhsansibackend.fechasolimpiada.application.ports.Olimpiada
 import com.softcraft.ohhsansibackend.fechasolimpiada.domain.models.FechaOlimpiada;
 import com.softcraft.ohhsansibackend.fechasolimpiada.domain.models.Olimpiada;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,9 +29,24 @@ public class OlimpiadaService {
             response.put("success", true);
             response.put("message", "Olimpiada registrada exitosamente");
             response.put("olimpiada", saved);
+        }  catch (DataAccessException dae) {
+            String errorMessage = dae.getRootCause() != null ? dae.getRootCause().getMessage() : dae.getMessage();
+            String userFriendlyMessage;
+            String errorMessageLower = errorMessage.toLowerCase();
+
+            if (errorMessageLower.contains("no se pueden activar")) {
+                userFriendlyMessage = "No puedes activar una olimpiada de un año anterior al actual.";
+            } else if (errorMessageLower.contains("ya existe")) {
+                userFriendlyMessage = "Este período olímpico ya ha sido registrado anteriormente.";
+            } else {
+                userFriendlyMessage = "Error interno al registrar la olimpiada.";
+            }
+
+            response.put("success", false);
+            response.put("message", userFriendlyMessage);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "Error al registrar la olimpiada: " + e.getMessage());
+            response.put("message", "Error interno al registrar la olimpiada.");
         }
         return response;
     }

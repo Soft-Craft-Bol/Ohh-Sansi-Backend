@@ -23,7 +23,7 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
     public Olimpiada saveOlimpiada(Olimpiada olimpiada) {
         String sql = "SELECT * FROM insertOlimpiada(?, ?, ?)";
         return jdbcTemplate.queryForObject(sql, new Object[]{
-                olimpiada.getNombreOlimpiada(),
+                olimpiada.getAnio(),
                 olimpiada.getEstadoOlimpiada(),
                 olimpiada.getPrecioOlimpiada()
         }, new BeanPropertyRowMapper<>(Olimpiada.class));

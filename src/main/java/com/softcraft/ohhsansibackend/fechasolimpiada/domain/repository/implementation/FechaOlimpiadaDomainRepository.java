@@ -75,6 +75,8 @@ public class FechaOlimpiadaDomainRepository implements IFechaOlimpiadaRepository
             String nombreOlimpiada = (String) row.get("nombre_olimpiada");
             boolean estadoOlimpiada = (Boolean) row.get("estado_olimpiada");
 
+            int anio = Integer.parseInt(nombreOlimpiada.replaceAll("\\D+", ""));
+
             EventoDTO evento = new EventoDTO();
             evento.setIdFechaOlimpiada((Integer) row.get("id_fecha_olimpiada"));
             evento.setNombreEvento((String) row.get("nombre_evento"));
@@ -86,10 +88,10 @@ public class FechaOlimpiadaDomainRepository implements IFechaOlimpiadaRepository
 
             evento.setEsPublica((Boolean) row.get("es_publica"));
 
-            String key = nombreOlimpiada + "-" + estadoOlimpiada;
+            String key = anio + "-" + estadoOlimpiada;
 
             if (!olimpiadasMap.containsKey(key)) {
-                olimpiadasMap.put(key, new OlimpiadaEventosDTO(nombreOlimpiada, estadoOlimpiada, new ArrayList<>()));
+                olimpiadasMap.put(key, new OlimpiadaEventosDTO(anio, nombreOlimpiada, estadoOlimpiada, new ArrayList<>()));
             }
 
             olimpiadasMap.get(key).getEventos().add(evento);

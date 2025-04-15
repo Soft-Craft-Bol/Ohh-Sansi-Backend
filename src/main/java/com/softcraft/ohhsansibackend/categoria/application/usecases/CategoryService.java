@@ -1,6 +1,7 @@
 package com.softcraft.ohhsansibackend.categoria.application.usecases;
 
 import com.softcraft.ohhsansibackend.categoria.domain.repository.implementation.CategoryDomainRepository;
+import com.softcraft.ohhsansibackend.exception.DuplicateResourceException;
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.categoria.application.ports.CategoryAdapter;
 import com.softcraft.ohhsansibackend.categoria.domain.models.Category;
@@ -10,6 +11,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
@@ -36,8 +38,8 @@ public class CategoryService {
         validateCategory(category);
         try {
             categoryDomainRepository.save(category);
-        } catch (DuplicateKeyException e) {
-            throw new DuplicateKeyException(e.getMessage());
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicateResourceException("Categoría ya registrada");
         }
         return Map.of("success", true, "message", "Categoria creada exitosamente");
     }

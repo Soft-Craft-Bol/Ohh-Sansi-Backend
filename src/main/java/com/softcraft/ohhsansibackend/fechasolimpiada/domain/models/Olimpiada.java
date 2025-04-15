@@ -5,12 +5,14 @@ import java.math.BigDecimal;
 public class Olimpiada {
 
     private int idOlimpiada;
+    private int anio;
     private String nombreOlimpiada;
     private Boolean estadoOlimpiada;
     private BigDecimal precioOlimpiada;
 
-    public Olimpiada(int idOlimpiada, String nombreOlimpiada, Boolean estadoOlimpiada, BigDecimal precioOlimpiada) {
+    public Olimpiada(int idOlimpiada, int anio, String nombreOlimpiada, Boolean estadoOlimpiada, BigDecimal precioOlimpiada) {
         this.idOlimpiada = idOlimpiada;
+        this.anio = anio;
         this.nombreOlimpiada = nombreOlimpiada;
         this.estadoOlimpiada = estadoOlimpiada;
         this.precioOlimpiada = precioOlimpiada;
@@ -25,6 +27,14 @@ public class Olimpiada {
 
     public void setIdOlimpiada(int idOlimpiada) {
         this.idOlimpiada = idOlimpiada;
+    }
+
+    public int getAnio() {
+        return anio;
+    }
+
+    public void setAnio(int anio) {
+        this.anio = anio;
     }
 
     public String getNombreOlimpiada() {
