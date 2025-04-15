@@ -35,8 +35,11 @@ public class TutorDomainService {
     public Tutor findByCarnetIdentidad(int carnetIdentidad) {
         return tutorDomainRepository.findByCarnetIdentidad(carnetIdentidad);
     }
-    public int countTutorsByParticipanteId(int participanteId) {
-        return tutorDomainRepository.countTutorsByParticipanteId(participanteId);
+    public int countTutorsAcademicosByParticipanteId(int participanteId) {
+        return tutorDomainRepository.countTutorsAcademicosByParticipanteId(participanteId);
+    }
+    public int countTutorsLegalesByParticipanteId(int participanteId) {
+        return tutorDomainRepository.countTutorsLegalesByParticipanteId(participanteId);
     }
     public List<Tutor> findTutorsByCarnetParticipante(int ciParticipante){
         return tutorDomainRepository.findTutorsByCarnetParticipante(ciParticipante);

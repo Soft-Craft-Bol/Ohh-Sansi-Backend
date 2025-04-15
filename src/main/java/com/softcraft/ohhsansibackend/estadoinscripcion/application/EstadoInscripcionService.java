@@ -71,33 +71,78 @@ public class EstadoInscripcionService {
                             "areas", "No existen areas registradas"
                     ));
         }
-        if (cantRegistrosTutorParticipante > 0) {
-            response.put("registroDatosTutor",
-                    Map.of(
-                            "estado", "Completado",
-                            "fechaRegistro", "No seteado hacer querys",
-                            "comentarios", "Datos del tutor registrados correctamente.",
-                            "tutores", tutorService.findTutorsByCarnetParticipante(ciParticipante)
-                    ));
-        } else {
-            if (inscripcionAdapter.calculateEdad(participante) < 15) {
+        int tutoresAcademicos = tutorService.countTutorsAcademicosByParticipanteId(participante.getIdParticipante());
+        int tutoresLegales = tutorService.countTutorsLegalesByParticipanteId(participante.getIdParticipante());
+        int totalTutores = tutoresAcademicos + tutoresLegales;
+        int edadParticipante = inscripcionAdapter.calculateEdad(participante);
+
+        if (tutoresLegales >= 1) {
+            if(tutoresAcademicos == 0){
                 response.put("registroDatosTutor",
                         Map.of(
-                                "estado", "No Completado",
+                                "estado", "Completado",
                                 "fechaRegistro", "No seteado hacer querys",
-                                "comentarios", "No se encontraron tutores registrados para el participante.",
-                                "tutores", "No existen tutores registrados"
+                                "comentarios", "Datos del tutor registrados correctamente. Recuerda que puedes registrar hasta 2 tutores academicos",
+                                "tutores", tutorService.findTutorsByCarnetParticipante(ciParticipante)
                         ));
-            } else {
+            }
+            if(tutoresAcademicos == 1){
+                response.put("registroDatosTutor",
+                        Map.of(
+                                "estado", "Completado",
+                                "fechaRegistro", "No seteado hacer querys",
+                                "comentarios", "Datos del tutor registrados correctamente. Recuerda que puedes registrar hasta 1 tutor académico más",
+                                "tutores", tutorService.findTutorsByCarnetParticipante(ciParticipante)
+                        ));
+
+            }
+            if(tutoresAcademicos == 2){
+                response.put("registroDatosTutor",
+                        Map.of(
+                                "estado", "Completado",
+                                "fechaRegistro", "No seteado hacer querys",
+                                "comentarios", "Datos del tutor registrados correctamente.",
+                                "tutores", tutorService.findTutorsByCarnetParticipante(ciParticipante)
+                        ));
+            }
+        }else {
+            if(tutoresAcademicos>=1){
+                if(edadParticipante >= 15) {
+                    response.put("registroDatosTutor",
+                            Map.of(
+                                    "estado", "Completado",
+                                    "fechaRegistro", "No seteado hacer querys",
+                                    "comentarios", "Datos del tutor registrados correctamente. Recuerda que puedes registrar 3 tutores como maximo, 2 de estos; academicos como maximo",
+                                    "tutores", tutorService.findTutorsByCarnetParticipante(ciParticipante)
+                            ));
+                }else{
+                    response.put("registroDatosTutor",
+                            Map.of(
+                                    "estado", "No Completado",
+                                    "fechaRegistro", "No seteado hacer querys",
+                                    "comentarios", "Es necesario que registres al menos un tutor legal",
+                                    "tutores", tutorService.findTutorsByCarnetParticipante(ciParticipante)
+                            ));
+                }
+            }else{
                 response.put("registroDatosTutor",
                         Map.of(
                                 "estado", "No Completado",
                                 "fechaRegistro", "No seteado hacer querys",
-                                "comentarios", "No es necesario registrar tutores.",
+                                "comentarios", "Es necesario que registres al menos un tutor legal y si quieres puedes registrar uno o dos tutor academico",
                                 "tutores", "No existen tutores registrados"
                         ));
             }
         }
+
+
+
+
+
+
+
+
+
         if(ordenPagoService.verificarExistenciaDeInscripcionEnOrdenPago(participante.getIdInscripcion())){
             response.put("registroOrdenPago",
                     Map.of(

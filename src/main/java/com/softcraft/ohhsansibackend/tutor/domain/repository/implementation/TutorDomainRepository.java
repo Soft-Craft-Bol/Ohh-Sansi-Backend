@@ -64,12 +64,19 @@ public class TutorDomainRepository implements ITutorRepository {
         List<Tutor> tutors = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Tutor.class), carnetIdentidad);
         return tutors.isEmpty() ? null : tutors.get(0);
     }
-    //validacoin para ver si el participante ya tiene cuandtos tutores registrados
-    public int countTutorsByParticipanteId(int participanteId) {
-        String sql = "SELECT COUNT(pt.id_participante) FROM participante_tutor pt WHERE pt.id_participante = ?";
+    //validacoin para ver si el participante ya tiene cuandtos tutores registrados academicos
+    public int countTutorsAcademicosByParticipanteId(int participanteId) {
+        String sql = "SELECT COUNT(pt.id_participante) FROM participante_tutor pt, tutor t, tipo_tutor tt WHERE pt.id_participante = ? and t.id_tutor = pt.id_tutor and t.id_tipo_tutor = tt.id_tipo_tutor and tt.nombre_tipo_tutor = 'ACADEMICO';";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, participanteId);
         return (count != null) ? count : 0;
     }
+    //validacion para ver si el participante ya tiene cuandtos tutores registrados legales
+    public int countTutorsLegalesByParticipanteId(int participanteId) {
+        String sql = "SELECT COUNT(pt.id_participante) FROM participante_tutor pt, tutor t, tipo_tutor tt WHERE pt.id_participante = ? and t.id_tutor = pt.id_tutor and t.id_tipo_tutor = tt.id_tipo_tutor and tt.nombre_tipo_tutor = 'LEGAL';";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, participanteId);
+        return (count != null) ? count : 0;
+    }
+
     public List<Tutor> findTutorsByCarnetParticipante(int ciParticipante) {
         String sql = """
             select (t.*)
