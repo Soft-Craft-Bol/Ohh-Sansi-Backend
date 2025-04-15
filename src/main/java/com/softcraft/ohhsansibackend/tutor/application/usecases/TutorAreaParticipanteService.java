@@ -47,29 +47,39 @@ public class TutorAreaParticipanteService {
         this.participanteService = participanteService;
         this.participanteTutorDomainService = participanteTutorDomainService;
     }
-    public Map<String,Object> getTutorAreaParticipanteInfo(int ciParticipante){
-        Map<String,Object> response = new HashMap<>();
+    public Map<String, Object> getTutorAreaParticipanteInfo(int ciParticipante) {
+        Map<String, Object> response = new HashMap<>();
         Participante participante = participanteService.findByCarnetIdentidadService(ciParticipante);
-        if(participante==null){
+        if (participante == null) {
             throw new IllegalArgumentException("Ci de participante no encontrado, documento invalido");
         }
         List<Area> areasParticipante = catalogoService.getAreaCatalogoByCiParticipante(ciParticipante);
-        if(areasParticipante.isEmpty()){
+        if (areasParticipante.isEmpty()) {
             throw new IllegalArgumentException("No se encontraron areas de competencia registradas para el participante");
         }
-        if(tutorService.countTutorsAcademicosByParticipanteId(participante.getIdParticipante())==0){
+        List<Integer> registeredAreaIds = tutorAreaParticipanteDomainRepository.findDistinctAreasByCarnetIdentidad(ciParticipante);
+        List<Area> unregisteredAreas = new ArrayList<>();
+        for (Area area : areasParticipante) {
+            if (!registeredAreaIds.contains(area.getIdArea())) {
+                unregisteredAreas.add(area);
+            }
+        }
+        if (unregisteredAreas.isEmpty()) {
+            throw new IllegalArgumentException("El participante ya tiene todas las áreas asignadas a un tutor.");
+        }
+        if (tutorService.countTutorsAcademicosByParticipanteId(participante.getIdParticipante()) == 0) {
             throw new IllegalArgumentException("No se encontraron tutores académicos registrados para el participante, salta esta etapa o registra tutores académicos");
         }
         List<Tutor> tutorParticipante = tutorService.findTutorsByCarnetParticipante(ciParticipante);
-        if(tutorParticipante.isEmpty()){
+        if (tutorParticipante.isEmpty()) {
             throw new IllegalArgumentException("No se encontraron tutores registrados para el participante");
         }
         List<TipoTutor> tipoTutores = tipoTutorAdapter.findAllTipoTutor();
-        if(tipoTutores.isEmpty()){
+        if (tipoTutores.isEmpty()) {
             throw new IllegalArgumentException("Error al obtener los tipos de tutores");
         }
         response.put("participante", participante);
-        response.put("areasParticipante", areasParticipante);
+        response.put("areasParticipante", unregisteredAreas); // Only unregistered areas
         response.put("tutoresParticipante", tutorParticipante);
         response.put("tipoTutores", tipoTutores);
         response.put("status", "success");
@@ -102,5 +112,9 @@ public class TutorAreaParticipanteService {
         response.put("insertados", insertedRecords);
         return response;
     }
+    public List<Integer> findDistinctAreasByCarnetIdentidad(int carnetIdentidad) {
+        return tutorAreaParticipanteDomainRepository.findDistinctAreasByCarnetIdentidad(carnetIdentidad);
+    }
+
 
 }
