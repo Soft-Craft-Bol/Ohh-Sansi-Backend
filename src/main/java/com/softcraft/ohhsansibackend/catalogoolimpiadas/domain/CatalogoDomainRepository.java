@@ -30,6 +30,8 @@ public class CatalogoDomainRepository {
         """;
         return jdbcTemplate.queryForList(sql, grado);
     }
+
+
     public ParticipanteCatalogo insertParticipanteCatalogo(ParticipanteCatalogo participanteCatalogo) {
         String sql = """
             INSERT INTO participante_catalogo (id_categoria, id_area, id_catalogo, id_olimpiada, id_inscripcion, id_participante)
@@ -79,6 +81,25 @@ public class CatalogoDomainRepository {
         """;
         Boolean exists = jdbcTemplate.queryForObject(sql, new Object[]{ciParticipante}, Boolean.class);
         return (exists != null) ? exists : false;
+    }
+    public List<Integer> getRegisteredAreasByParticipante(int idParticipante) {
+        String sql = """
+        SELECT pc.id_area
+        FROM participante_catalogo pc
+        WHERE pc.id_participante = ?
+    """;
+        return jdbcTemplate.queryForList(sql, new Object[]{idParticipante}, Integer.class);
+    }
+    public void validateRegisteredAreas(int idParticipante) {
+        String sql = """
+        SELECT COUNT(pc.id_area)
+        FROM participante_catalogo pc
+        WHERE pc.id_participante = ?
+    """;
+        Integer count = jdbcTemplate.queryForObject(sql, new Object[]{idParticipante}, Integer.class);
+        if (count != null && count >= 2) {
+            throw new IllegalArgumentException("El participante ya tiene 2 áreas registradas.");
+        }
     }
 
 }

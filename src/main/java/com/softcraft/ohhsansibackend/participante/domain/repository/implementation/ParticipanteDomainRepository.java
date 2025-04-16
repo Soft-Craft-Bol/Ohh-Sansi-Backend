@@ -91,7 +91,7 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
         try {
             return jdbcTemplate.queryForObject(sql, new Object[]{carnetIdentidad}, new BeanPropertyRowMapper<>(Participante.class));
         } catch (EmptyResultDataAccessException ex) {
-            throw new ResourceNotFoundException("Participante no entontrado, ci incorrecto, introduce otro");
+            throw new ResourceNotFoundException("Participante no encontrado, ci incorrecto, introduce uno valido o registra un participante");
         } catch (IncorrectResultSizeDataAccessException ex) {
             throw new IllegalStateException("Participante no entontrado, ci incorrecto");
         }
