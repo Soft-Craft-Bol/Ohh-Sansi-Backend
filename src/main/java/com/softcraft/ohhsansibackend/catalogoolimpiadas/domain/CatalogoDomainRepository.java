@@ -26,6 +26,7 @@ public class CatalogoDomainRepository {
             and a.id_area = co.id_area
             and c.id_categoria = co.id_categoria
             and o.id_olimpiada = co.id_olimpiada
+            and o.estado_olimpiada = true
         """;
         return jdbcTemplate.queryForList(sql, grado);
     }

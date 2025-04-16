@@ -72,6 +72,7 @@ public class FechaOlimpiadaDomainRepository implements IFechaOlimpiadaRepository
         Map<String, OlimpiadaEventosDTO> olimpiadasMap = new LinkedHashMap<>();
 
         for (Map<String, Object> row : rows) {
+            int idOlimpiada = (Integer) row.get("id_olimpiada");
             String nombreOlimpiada = (String) row.get("nombre_olimpiada");
             boolean estadoOlimpiada = (Boolean) row.get("estado_olimpiada");
 
@@ -91,7 +92,7 @@ public class FechaOlimpiadaDomainRepository implements IFechaOlimpiadaRepository
             String key = anio + "-" + estadoOlimpiada;
 
             if (!olimpiadasMap.containsKey(key)) {
-                olimpiadasMap.put(key, new OlimpiadaEventosDTO(anio, nombreOlimpiada, estadoOlimpiada, new ArrayList<>()));
+                olimpiadasMap.put(key, new OlimpiadaEventosDTO(idOlimpiada, anio, nombreOlimpiada, estadoOlimpiada, new ArrayList<>()));
             }
 
             olimpiadasMap.get(key).getEventos().add(evento);

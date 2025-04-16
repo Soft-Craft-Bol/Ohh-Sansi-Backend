@@ -43,14 +43,12 @@ public class ParticipanteService {
             } catch (RuntimeException ex) {
                 throw new RuntimeException("Error al eliminar la inscripción del participante");
             }
-            throw new DuplicateResourceException("Email o carnet de identidad del participante ya registrados");
+            throw new DuplicateResourceException("Carnet de identidad del participante ya registrado");
         }
 
-        // Recien verificamos el envio de correo
         try {
-            String codUnique = inscripcion.getCodigoUnicoInscripcion();
-            String destinatario = participante.getEmailParticipante();
-            mailService.sendEmail(destinatario, codUnique);
+            mailService.sendEmailAsync(participante.getEmailParticipante(), participante.getParticipanteHash());
+
         } catch (MessagingException e) {
             System.err.println("Error al enviar el correo: " + e.getMessage());
         }

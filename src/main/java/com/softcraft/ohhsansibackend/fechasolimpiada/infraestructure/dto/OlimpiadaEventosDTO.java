@@ -3,16 +3,29 @@ package com.softcraft.ohhsansibackend.fechasolimpiada.infraestructure.dto;
 import java.util.List;
 
 public class OlimpiadaEventosDTO {
+    private int idOlimpiada;
     private int anio;
     private String nombreOlimpiada;
     private boolean estadoOlimpiada;
     private List<EventoDTO> eventos;
 
-    public OlimpiadaEventosDTO(int anio, String nombreOlimpiada, boolean estadoOlimpiada, List<EventoDTO> eventos) {
+    public OlimpiadaEventosDTO(int idOlimpiada, int anio, String nombreOlimpiada, boolean estadoOlimpiada, List<EventoDTO> eventos) {
+        this.idOlimpiada = idOlimpiada;
         this.anio = anio;
         this.nombreOlimpiada = nombreOlimpiada;
         this.estadoOlimpiada = estadoOlimpiada;
         this.eventos = eventos;
+    }
+
+    public OlimpiadaEventosDTO() {
+    }
+
+    public int getIdOlimpiada() {
+        return idOlimpiada;
+    }
+
+    public void setIdOlimpiada(int idOlimpiada) {
+        this.idOlimpiada = idOlimpiada;
     }
 
     public int getAnio() {

@@ -14,7 +14,7 @@ CREATE OR REPLACE FUNCTION upsertFechasOlimpiadas(
                       es_publica BOOLEAN
                   ) AS $$
 DECLARE
-    max_eventos INTEGER := 3;
+    max_eventos INTEGER := 7;
     eventos_existentes INTEGER;
     nuevo_id INTEGER;
 BEGIN

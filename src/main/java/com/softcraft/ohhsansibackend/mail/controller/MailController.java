@@ -17,7 +17,7 @@ public class MailController {
     public String sendEmail(@RequestBody MailRequest emailRequest) {
         try {
             //en caso de pruebas o enviar otro correo con el mismo codigo
-            mailService.sendEmail(
+            mailService.sendEmailAsync(
                     emailRequest.getTo(),emailRequest.getCodigoUnico()
             );
             return "Correo enviado con éxito";
