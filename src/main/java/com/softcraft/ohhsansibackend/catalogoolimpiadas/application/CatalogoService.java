@@ -20,9 +20,24 @@ public class CatalogoService {
         this.participanteService = participanteService;
     }
 
-    public List<Map<String,Object>> getCatalogoByGrado(int ciParticipante) {
+    public List<Map<String, Object>> getUnregisteredAreasByGrado(int ciParticipante) {
         Participante participante = participanteService.findByCarnetIdentidadService(ciParticipante);
-        return catalogoDomainRepository.getCatalogoByGrado(participante.getIdGrado());
+        if (participante == null) {
+            throw new IllegalArgumentException("Participante no encontrado con el CI proporcionado.");
+        }
+        catalogoDomainRepository.validateRegisteredAreas(participante.getIdParticipante());
+        List<Map<String, Object>> allAreas = catalogoDomainRepository.getCatalogoByGrado(participante.getIdGrado());
+        if (allAreas.isEmpty()) {
+            throw new IllegalArgumentException("No existen áreas disponibles para el grado escolar del participante.");
+        }
+        List<Integer> registeredAreaIds = catalogoDomainRepository.getRegisteredAreasByParticipante(participante.getIdParticipante());
+        List<Map<String, Object>> unregisteredAreas = allAreas.stream()
+                .filter(area -> !registeredAreaIds.contains((Integer) area.get("id_area")))
+                .toList();
+        if (unregisteredAreas.isEmpty()) {
+            throw new IllegalArgumentException("El participante ya tiene todas las áreas registradas.");
+        }
+            return unregisteredAreas;
     }
 
     public ParticipanteCatalogo insertParticipanteCatalogo(ParticipanteCatalogo participanteCatalogo) {
@@ -35,5 +50,7 @@ public class CatalogoService {
     public boolean existsParticipanteInCatalogo(int ciParticipante){
         return catalogoDomainRepository.existsParticipanteInCatalogo(ciParticipante);
     }
-
+    public List<Integer> getRegisteredAreasByParticipante(int idParticipante) {
+        return catalogoDomainRepository.getRegisteredAreasByParticipante(idParticipante);
+    }
 }
