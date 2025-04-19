@@ -115,11 +115,20 @@ public class OlimpiadaService {
                 response.put("success", false);
             }
         } catch (Exception e) {
-            response.put("message", "Error al actualizar el precio de la olimpiada: " + e.getMessage());
+            String errorMsg = e.getMessage();
+            String userMessage;
+
+            if (errorMsg == null) {
+                userMessage = "Error desconocido al actualizar el precio.";
+            } else if (errorMsg.contains("olimpiada activa")) {
+                userMessage = "No puedes cambiar el precio de una olimpiada que ya ha sido activada.";
+            } else {
+                userMessage = "Error al actualizar el precio: " + errorMsg;
+            }
+
+            response.put("message", userMessage);
             response.put("success", false);
         }
         return response;
     }
-
-
 }

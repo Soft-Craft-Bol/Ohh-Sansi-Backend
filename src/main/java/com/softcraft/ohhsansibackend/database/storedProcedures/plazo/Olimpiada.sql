@@ -125,16 +125,23 @@ $$
 DECLARE
     rows_updated INT;
 BEGIN
-    UPDATE olimpiada
-    SET precio_olimpiada = nuevoPrecio
-    WHERE id_olimpiada = idOlimpiada;
-
-    GET DIAGNOSTICS rows_updated = ROW_COUNT;
-
-    IF rows_updated = 0 THEN
+    -- Primero verificamos si la olimpiada existe
+    IF NOT EXISTS (SELECT 1 FROM olimpiada WHERE id_olimpiada = idOlimpiada) THEN
         RAISE EXCEPTION 'Olimpiada con ID % no encontrada', idOlimpiada;
     END IF;
 
+    -- Verificamos si la olimpiada está activa
+    IF EXISTS (SELECT 1 FROM olimpiada WHERE id_olimpiada = idOlimpiada AND estado_olimpiada = true) THEN
+        RAISE EXCEPTION 'No se puede actualizar el precio de una olimpiada activa (ID: %)', idOlimpiada;
+    END IF;
+
+    -- Realizamos la actualización
+    UPDATE olimpiada
+    SET precio_olimpiada = nuevoPrecio
+    WHERE id_olimpiada = idOlimpiada
+      AND estado_olimpiada = false;
+
+    GET DIAGNOSTICS rows_updated = ROW_COUNT;
     RETURN rows_updated > 0;
 END;
 $$ LANGUAGE plpgsql;
