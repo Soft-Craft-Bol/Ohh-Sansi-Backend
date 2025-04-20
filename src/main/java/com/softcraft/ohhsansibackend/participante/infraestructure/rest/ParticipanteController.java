@@ -6,6 +6,7 @@ import com.softcraft.ohhsansibackend.participante.application.usecases.Participa
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.domain.models.ParticipanteTutor;
 import com.softcraft.ohhsansibackend.participante.infraestructure.request.AreaCatalogoDTO;
+import com.softcraft.ohhsansibackend.participante.infraestructure.request.ParticipanteVerifyDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -75,10 +76,19 @@ public class ParticipanteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PostMapping("/verify")
+    public ResponseEntity<?> verifyParticipante(@RequestBody ParticipanteVerifyDTO request) {
+        Participante participante = participanteService.findByCarnetIdentidadService(request.getCi());
 
+        if (participante == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Participante no encontrado.");
+        }
 
+        if (!participante.getEmailParticipante().equalsIgnoreCase(request.getValuePermit())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Permiso inválido.");
+        }
 
-
-
+        return ResponseEntity.ok(participante);
+    }
 
 }
