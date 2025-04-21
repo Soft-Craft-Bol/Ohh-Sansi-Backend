@@ -36,6 +36,21 @@ public class ParticipanteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PostMapping("/verify")
+    public ResponseEntity<?> verifyParticipante(@RequestBody ParticipanteVerifyDTO request) {
+        Participante participante = participanteService.findByCarnetIdentidadService(request.getCi());
+
+        if (participante == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Participante no encontrado.");
+        }
+
+        if (!participante.getEmailParticipante().equalsIgnoreCase(request.getValuePermit())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Permiso inválido.");
+        }
+
+        return ResponseEntity.ok(participante);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> findById(@PathVariable Long id) {
         Map<String, Object> response = participanteService.findById(id);
@@ -74,21 +89,6 @@ public class ParticipanteController {
             @RequestBody @Valid List<AreaCatalogoDTO> areaCatalogos) {
         Map<String, Object> response = participanteCatalogoInscriptionService.registerParticipantWithCatalogoComposition(ciParticipante, areaCatalogos);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @PostMapping("/verify")
-    public ResponseEntity<?> verifyParticipante(@RequestBody ParticipanteVerifyDTO request) {
-        Participante participante = participanteService.findByCarnetIdentidadService(request.getCi());
-
-        if (participante == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Participante no encontrado.");
-        }
-
-        if (!participante.getEmailParticipante().equalsIgnoreCase(request.getValuePermit())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Permiso inválido.");
-        }
-
-        return ResponseEntity.ok(participante);
     }
 
 }
