@@ -5,6 +5,7 @@ import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.model.CatalogoOli
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.repository.abstraction.ICatalogoOlimpiadaRepository;
 import com.softcraft.ohhsansibackend.grado.infraestructure.request.GradoCategoriaDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -26,20 +27,12 @@ public class CatalogoOlimpiadaDomainRepository implements ICatalogoOlimpiadaRepo
 
     @Override
     public CatalogoOlimpiada save(CatalogoOlimpiada catalogoOlimpiada) {
-        String sql = "INSERT INTO catalogo_olimpiada (id_categoria, id_area, id_olimpiada) VALUES (?, ?, ?) RETURNING id_catalogo";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, new String[] {"id_catalogo"});
-            ps.setInt(1, catalogoOlimpiada.getIdArea());
-            ps.setInt(2, catalogoOlimpiada.getIdCategoria());
-            ps.setInt(3, catalogoOlimpiada.getIdOlimpiada());
-            return ps;
-        }, keyHolder);
-
-        int newId = keyHolder.getKey().intValue();
-        catalogoOlimpiada.setIdCatalogo(newId);
-        return catalogoOlimpiada;
+        String sql = "SELECT * FROM insertcatalogo(?, ?, ?)";
+      return jdbcTemplate .queryForObject(sql, new Object[]{
+                catalogoOlimpiada.getIdArea(),
+                catalogoOlimpiada.getIdCategoria(),
+                catalogoOlimpiada.getIdOlimpiada()
+        }, new BeanPropertyRowMapper<>(CatalogoOlimpiada.class));
     }
 
 

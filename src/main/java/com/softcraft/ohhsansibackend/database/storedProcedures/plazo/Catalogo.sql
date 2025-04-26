@@ -1,25 +1,85 @@
 CREATE OR REPLACE FUNCTION insertCatalogo(
     idArea INTEGER,
     idCategoria INTEGER,
-    idCatalogo INTEGER,
     idOlimpiada INTEGER
 )
     RETURNS TABLE (
-        id_area INTEGER,
-        id_categoria INTEGER,
-        id_catalogo INTEGER,
-        id_olimpiada INTEGER
-    ) AS $$
-BEGIN
-    INSERT INTO catalogo_olimpiada (id_area, id_categoria, id_catalogo, id_olimpiada)
-    VALUES (idArea, idCategoria, idCatalogo, idOlimpiada)
-    RETURNING id_area, id_categoria, id_catalogo, id_olimpiada INTO id_area, id_categoria, id_catalogo, id_olimpiada;
+                      id_categoria INTEGER,
+                      id_area INTEGER,
+                      id_catalogo INTEGER,
+                      id_olimpiada INTEGER
+                  ) AS $$
+DECLARE
+    conflict_found INTEGER;
+    exists_grado_categoria INTEGER;
 
-    RETURN;
+    v_id_categoria INTEGER;
+    v_id_area INTEGER;
+    v_id_catalogo INTEGER;
+    v_id_olimpiada INTEGER;
+BEGIN
+    SELECT 1 INTO exists_grado_categoria
+    FROM grado_categoria gc
+    WHERE gc.id_categoria = idCategoria
+    LIMIT 1;
+
+    IF exists_grado_categoria IS NULL THEN
+        RAISE EXCEPTION 'No se puede registrar: la categoría % no tiene grados asociados.', idCategoria;
+    END IF;
+
+    IF EXISTS (
+        SELECT 1
+        FROM catalogo_olimpiada co
+        WHERE co.id_categoria = idCategoria
+          AND co.id_area = idArea
+          AND co.id_olimpiada = idOlimpiada
+    ) THEN
+        RAISE EXCEPTION 'Ya existe esta categoría registrada en esta área y olimpiada.';
+    END IF;
+
+    SELECT 1 INTO conflict_found
+    FROM grado_categoria gc_nueva
+    WHERE gc_nueva.id_categoria = idCategoria
+      AND EXISTS (
+        SELECT 1
+        FROM catalogo_olimpiada co
+                 JOIN grado_categoria gc_existente ON gc_existente.id_categoria = co.id_categoria
+        WHERE co.id_olimpiada = idOlimpiada
+          AND co.id_area = idArea
+          AND co.id_categoria != idCategoria
+          AND gc_nueva.id_grado = gc_existente.id_grado
+    )
+    LIMIT 1;
+
+    IF conflict_found IS NOT NULL THEN
+        RAISE EXCEPTION 'Conflicto: Esta categoría comparte grados con otra categoría ya registrada en esta área y olimpiada.';
+    END IF;
+
+    INSERT INTO catalogo_olimpiada (id_categoria, id_area, id_olimpiada)
+    VALUES (idCategoria, idArea, idOlimpiada)
+    RETURNING
+        catalogo_olimpiada.id_categoria,
+        catalogo_olimpiada.id_area,
+        catalogo_olimpiada.id_catalogo,
+        catalogo_olimpiada.id_olimpiada
+        INTO
+            v_id_categoria,
+            v_id_area,
+            v_id_catalogo,
+            v_id_olimpiada;
+
+    id_categoria := v_id_categoria;
+    id_area := v_id_area;
+    id_catalogo := v_id_catalogo;
+    id_olimpiada := v_id_olimpiada;
+
+    RETURN NEXT;
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM insertCatalogo(1, 1, 1, 1);
+
+
+SELECT * FROM insertCatalogo(18, 100, 1);
 -- -----------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION obtener_catalogo_por_periodo()
     RETURNS TABLE (

@@ -68,6 +68,7 @@ public class GradoCategoriaDomainRepository implements IGradoCategoriaRepository
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             GradoCategoriaDTO dto = new GradoCategoriaDTO();
+            dto.setIdCategoria(rs.getInt("id_categoria"));
             dto.setNombreCategoria(rs.getString("nombre_categoria"));
 
             Array gradosArray = rs.getArray("grados");

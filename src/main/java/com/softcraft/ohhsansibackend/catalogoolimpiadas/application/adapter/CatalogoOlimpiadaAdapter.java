@@ -1,6 +1,7 @@
 package com.softcraft.ohhsansibackend.catalogoolimpiadas.application.adapter;
 
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.DTO.CatalogoOlimpiadaDTO;
+import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.model.CatalogoOlimpiada;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.services.CatalogoOlimpiadaDomainService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -14,6 +15,10 @@ public class CatalogoOlimpiadaAdapter {
     @Autowired
     public CatalogoOlimpiadaAdapter(CatalogoOlimpiadaDomainService catalogoOlimpiadaDomainService) {
         this.catalogoOlimpiadaDomainService = catalogoOlimpiadaDomainService;
+    }
+
+    public CatalogoOlimpiada save(CatalogoOlimpiada catalogoOlimpiada) {
+        return catalogoOlimpiadaDomainService.save(catalogoOlimpiada);
     }
 
     public List<CatalogoOlimpiadaDTO> findAll() {
