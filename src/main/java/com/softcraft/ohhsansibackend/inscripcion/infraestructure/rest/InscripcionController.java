@@ -28,8 +28,8 @@ public class InscripcionController {
     }
 
     @PostMapping("/register-inscripcion")
-    public ResponseEntity<Map<String, Object>> createInscripcion(@Valid @RequestBody Inscripcion inscripcion) {
-        Map<String, Object> response = inscripcionService.saveInscripcion(inscripcion);
+    public ResponseEntity<Inscripcion> createInscripcion() {
+        Inscripcion response = inscripcionService.saveInscripcion();
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -44,28 +44,10 @@ public class InscripcionController {
         return ResponseEntity.ok(inscripcionService.getInscripciones());
     }
 
-    @GetMapping("/by-date-time")
-    public ResponseEntity<List<Inscripcion>> findByDateAndTime(@RequestParam Date date, @RequestParam Time time) {
-        return ResponseEntity.ok(inscripcionService.findByDateAndTime(date, time));
-    }
-
-    @GetMapping("/by-range-date")
-    public ResponseEntity<Map<String, Object>> getInscripcionesByDateRange(@RequestBody FechaRangeRequest fechaRange) {
-        List<Inscripcion> inscripciones = inscripcionService.findByRangeDate(fechaRange.getFechaInicio(), fechaRange.getFechaFin());
-        return ResponseEntity.ok(Map.of("data", inscripciones));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateInscripcion(@PathVariable int id, @Valid @RequestBody Inscripcion inscripcion) {
-        inscripcion.setIdInscripcion(id);
-        Map<String, Object> response = inscripcionService.updateInscripcion(inscripcion);
-        return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> deleteInscription(@PathVariable int id) {
-        Map<String, Object> response = inscripcionService.deleteInscripcion(id);
-        return ResponseEntity.ok(response);
+    @GetMapping("/details/{codigoUnico}")
+    public ResponseEntity<Map<String, Object>> getInscripcionDetails(@PathVariable String codigoUnico) {
+        Map<String, Object> details = inscripcionService.getInscripcionDetails(codigoUnico);
+        return ResponseEntity.ok(details);
     }
 
 }

@@ -18,4 +18,7 @@ public class ParticipanteTutorAdapter {
     public ParticipanteTutor saveParticipanteTutor(int idTutor, int idInscripcion, int idParticipante) {
         return participanteTutorDomainService.createParticipanteTutor(idTutor, idInscripcion, idParticipante);
     }
+    public boolean existsByTutorAndParticipante(int idTutor, int idParticipante) {
+        return participanteTutorDomainService.existsByTutorAndParticipante(idTutor, idParticipante);
+    }
 }

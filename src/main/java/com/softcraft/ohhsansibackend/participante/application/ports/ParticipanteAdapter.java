@@ -38,5 +38,11 @@ public class ParticipanteAdapter {
     public boolean deleteParticipant(Long id){
         return participanteDomainService.deleteParticipant(id);
     }
+    public Participante findParticipanteByIdInscripcion(int idInscripcion) {
+        return participanteDomainService.findParticipanteByIdInscripcion(idInscripcion);
+    }
+    public int countParticipantesEnCatalogoParticipante(int idParticipante){
+        return participanteDomainService.countParticipantesEnCatalogoParticipante(idParticipante);
+    }
 
 }

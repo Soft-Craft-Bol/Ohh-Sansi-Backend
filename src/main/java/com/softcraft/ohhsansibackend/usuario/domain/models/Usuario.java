@@ -10,7 +10,6 @@ public class Usuario {
     private String apellidoPaternoUsuario;
     private String apellidoMaternoUsuario;
     private String correoUsuario;
-    private String contrasenaUsuario;
     private String password;
     private Date fechaNacimiento;
 
@@ -66,13 +65,6 @@ public class Usuario {
         this.correoUsuario = correoUsuario;
     }
 
-    public String getContrasenaUsuario() {
-        return contrasenaUsuario;
-    }
-
-    public void setContrasenaUsuario(String contrasenaUsuario) {
-        this.contrasenaUsuario = contrasenaUsuario;
-    }
 
     public String getPassword() {
         return password;

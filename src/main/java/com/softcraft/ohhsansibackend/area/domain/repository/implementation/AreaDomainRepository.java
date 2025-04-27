@@ -21,7 +21,7 @@ public class AreaDomainRepository implements IAreaRepository {
     @Override
     public Area save(Area area) {
         String sql = "SELECT insertarea(?, ? , ?)";
-        return jdbcTemplate.queryForObject(sql, new Object[]{area.getNombreArea(),area.getPrecioArea(), area.getNombreCortoArea()
+        return jdbcTemplate.queryForObject(sql, new Object[]{area.getNombreArea(),area.getNombreCortoArea(),area.getDescripcionArea()
         }, new BeanPropertyRowMapper<>(Area.class));
     }
 
@@ -29,7 +29,7 @@ public class AreaDomainRepository implements IAreaRepository {
     @Override
     public boolean update(Area area) {
         String sql = "SELECT UpdateArea(?, ?, ?, ?)";
-        Boolean rowsAffected = jdbcTemplate.queryForObject(sql, Boolean.class, area.getIdArea(), area.getNombreArea(), area.getPrecioArea(), area.getNombreCortoArea());
+        Boolean rowsAffected = jdbcTemplate.queryForObject(sql, Boolean.class, area.getIdArea(), area.getNombreArea(), area.getNombreCortoArea(), area.getDescripcionArea());
         return rowsAffected != null && rowsAffected;
     }
 

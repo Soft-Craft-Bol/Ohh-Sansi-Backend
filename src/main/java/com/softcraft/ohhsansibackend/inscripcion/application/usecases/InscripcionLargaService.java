@@ -1,9 +1,6 @@
 package com.softcraft.ohhsansibackend.inscripcion.application.usecases;
 
 import com.softcraft.ohhsansibackend.area.application.usecases.AreaService;
-import com.softcraft.ohhsansibackend.area.domain.models.Area;
-import com.softcraft.ohhsansibackend.colegio.application.usecases.ColegioService;
-import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
 import com.softcraft.ohhsansibackend.inscripcion.infraestructure.request.AreaCompetenciaDTO;
 import com.softcraft.ohhsansibackend.inscripcion.infraestructure.request.InscripcionDTO;
@@ -16,7 +13,6 @@ import com.softcraft.ohhsansibackend.participante.domain.models.ParticipanteTuto
 import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorAreaService;
 import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorService;
 import com.softcraft.ohhsansibackend.tutor.domain.models.Tutor;
-import com.softcraft.ohhsansibackend.tutor.domain.models.TutorArea;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,20 +27,21 @@ public class InscripcionLargaService {
     private final TutorService tutorService;
     private final TutorAreaService tutorAreaService;
     private final AreaService areaService;
-    private final InscripcionAreaService inscripcionAreaService;
+    //private final InscripcionAreaService inscripcionAreaService;
 
     @Autowired
     public InscripcionLargaService(InscripcionService inscripcionService, ParticipanteService participanteService,
                                    ParticipanteTutorService participanteTutorService, TutorService tutorService,
-                                   TutorAreaService tutorAreaService, AreaService areaService,
-                                   InscripcionAreaService inscripcionAreaService) {
+                                   TutorAreaService tutorAreaService, AreaService areaService
+    ) {
+
         this.inscripcionService = inscripcionService;
         this.participanteService = participanteService;
         this.participanteTutorService = participanteTutorService;
         this.tutorService = tutorService;
         this.tutorAreaService = tutorAreaService;
         this.areaService = areaService;
-        this.inscripcionAreaService = inscripcionAreaService;
+      //  this.inscripcionAreaService = inscripcionAreaService;
     }
 
     public Map<String, Object> registerInscripcion(InscripcionDTO inscripcionDTO) {
@@ -61,7 +58,7 @@ public class InscripcionLargaService {
         }
         if (inscripcionDTO.getAreasCompetenciaEstudiante() != null) {
             for (AreaCompetenciaDTO areaDTO : inscripcionDTO.getAreasCompetenciaEstudiante()) {
-                inscripcionAreaService.createInscripcionArea(inscripcionId, areaDTO.getIdArea());
+                //inscripcionAreaService.createInscripcionArea(inscripcionId, areaDTO.getIdArea());
             }
         }
         if (inscripcionDTO.getTutores() != null) {
@@ -88,28 +85,19 @@ public class InscripcionLargaService {
         participante.setIdDepartamento(participanteDTO.getIdDepartamento());
         participante.setIdMunicipio(participanteDTO.getIdMunicipio());
         participante.setIdColegio(participanteDTO.getIdColegio());
-        participante.setIdNivel(participanteDTO.getIdNivelGradoEscolar());
+        participante.setIdGrado(participanteDTO.getIdNivelGradoEscolar());
         participante.setApellidoPaterno(participanteDTO.getApellidoPaterno());
         participante.setApellidoMaterno(participanteDTO.getApellidoMaterno());
         participante.setNombreParticipante(participanteDTO.getNombreParticipante());
         participante.setFechaNacimiento(participanteDTO.getFechaNacimiento());
-        participante.setCorreoElectronicoParticipante(participanteDTO.getCorreoElectronicoParticipante());
+        //participante.setCorreoElectronicoParticipante(participanteDTO.getCorreoElectronicoParticipante());
         participante.setCarnetIdentidadParticipante(participanteDTO.getCarnetIdentidadParticipante());
         return participante;
     }
 
     private Tutor registerOrUpdateTutor(TutorDTO tutorDTO) {
-        Tutor tutor = tutorService.findByEmailOrCarnet(tutorDTO.getEmailTutor(), tutorDTO.getCarnetIdentidadTutor());
-        if (tutor == null) {
-            tutor = new Tutor();
-            tutor.setIdTipoTutor(tutorDTO.getIdTipoTutor());
-            tutor.setEmailTutor(tutorDTO.getEmailTutor());
-            tutor.setNombresTutor(tutorDTO.getNombresTutor());
-            tutor.setApellidosTutor(tutorDTO.getApellidosTutor());
-            tutor.setTelefono(tutorDTO.getTelefono());
-            tutor.setCarnetIdentidadTutor(tutorDTO.getCarnetIdentidadTutor());
-            tutorService.save(tutor);
-        }
+        Tutor tutor = tutorService.findByCarnet(tutorDTO.getEmailTutor(), tutorDTO.getCarnetIdentidadTutor());
+
         if (tutor.getIdTutor() == null) {
             throw new IllegalStateException("Error al registrar el tutor");
         }

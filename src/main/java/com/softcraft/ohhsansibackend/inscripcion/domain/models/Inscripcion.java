@@ -9,21 +9,20 @@ import java.sql.Time;
 public class Inscripcion {
     private int idInscripcion;
 
-    @NotNull(message = "La fecha de inscripción no puede ser nula")
-    @PastOrPresent(message = "La fecha de inscripción no puede ser en el futuro")
     private Date fechaInscripcion;
-
-    @NotNull(message = "La hora de inscripción no puede ser nula")
     private Time horaInscripcion;
+    private String codigoUnicoInscripcion;
+
 
     public Inscripcion() {
 
     }
 
-    public Inscripcion(int idInscripcion, Date fechaInscripcion, Time horaInscripcion) {
+    public Inscripcion(int idInscripcion, Date fechaInscripcion, Time horaInscripcion, String codigoUnicoInscripcion) {
         this.idInscripcion = idInscripcion;
         this.fechaInscripcion = fechaInscripcion;
         this.horaInscripcion = horaInscripcion;
+        this.codigoUnicoInscripcion = codigoUnicoInscripcion;
     }
 
     public int getIdInscripcion() {
@@ -48,5 +47,13 @@ public class Inscripcion {
 
     public void setHoraInscripcion(Time horaInscripcion) {
         this.horaInscripcion = horaInscripcion;
+    }
+
+    public String getCodigoUnicoInscripcion() {
+        return codigoUnicoInscripcion;
+    }
+
+    public void setCodigoUnicoInscripcion(String codigoUnicoInscripcion) {
+        this.codigoUnicoInscripcion = codigoUnicoInscripcion;
     }
 }

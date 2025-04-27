@@ -3,6 +3,11 @@ package com.softcraft.ohhsansibackend.inscripcion.application.usecases;
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.application.ports.InscripcionAdapter;
+import com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementation.InscripcionDomainRepository;
+import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionDomainService;
+import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
+import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
+import com.softcraft.ohhsansibackend.utils.UniqueCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,28 +15,39 @@ import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class InscripcionService {
     private final InscripcionAdapter inscripcionAdapter;
+    private final InscripcionDomainService inscripcionDomainService;
+    private final UniqueCodeGenerator uniqueCodeGenerator;
+    private final InscripcionDomainRepository inscripcionDomainRepository;
 
     @Autowired
-    public InscripcionService(InscripcionAdapter inscripcionAdapter) {
+    public InscripcionService(InscripcionAdapter inscripcionAdapter, InscripcionDomainService inscripcionDomainService, UniqueCodeGenerator uniqueCodeGenerator, InscripcionDomainRepository inscripcionDomainRepository) {
         this.inscripcionAdapter = inscripcionAdapter;
+        this.inscripcionDomainService = inscripcionDomainService;
+        this.uniqueCodeGenerator = uniqueCodeGenerator;
+        this.inscripcionDomainRepository = inscripcionDomainRepository;
     }
 
-    public Map<String, Object> saveInscripcion(Inscripcion inscripcion) {
+    public Inscripcion saveInscripcion() {
         try {
-            Inscripcion nuevaInscripcion = inscripcionAdapter.saveInscripcion(inscripcion);
-            return Map.of("success", true, "message", "Inscripción registrada exitosamente",
-                    "data", nuevaInscripcion
-            );
+            Inscripcion inscripcion = new Inscripcion();
+            inscripcion.setFechaInscripcion(Date.valueOf(LocalDate.now()));
+            inscripcion.setHoraInscripcion(Time.valueOf(LocalTime.now()));
+            String uniqueCode = uniqueCodeGenerator.generate();
+            inscripcion.setCodigoUnicoInscripcion(uniqueCode);
+            return inscripcionAdapter.saveInscripcion(inscripcion);
         } catch (Exception e) {
-            return Map.of("success", false, "message", "Error al registrar la inscripción");
+            throw new RuntimeException("Error al registrar la inscripción: " + e.getMessage());
         }
     }
+
     public Inscripcion findInscripcionById(int id) {
         Inscripcion inscripcion = inscripcionAdapter.findInscripcionById(id);
         if (inscripcion == null) {
@@ -44,40 +60,62 @@ public class InscripcionService {
         return inscripcionAdapter.findAllInscripciones();
     }
 
-    public List<Inscripcion> findByDateAndTime(Date date, Time time) {
-        return inscripcionAdapter.findByDateAndTime(date, time);
-    }
 
-    public List<Inscripcion> findByRangeDate(LocalDate fechaInicio, LocalDate fechaFin) {
-        return inscripcionAdapter.findByRangeDate(fechaInicio, fechaFin);
-    }
-
-    public Map<String, Object> updateInscripcion(Inscripcion inscripcion) {
-        if(inscripcionAdapter.findInscripcionById(inscripcion.getIdInscripcion()) == null) {
-            throw new ResourceNotFoundException("Inscripcion con ID " + inscripcion.getIdInscripcion() + " no encontrada");
-        }
-        inscripcionAdapter.updateInscripcion(inscripcion);
-        return Map.of("success", true, "message", "Inscripcion actualizada exitosamente");
-    }
-
-    public Map<String, Object> deleteInscripcion(int id) {
-        if (inscripcionAdapter.findInscripcionById(id) == null) {
-            throw new ResourceNotFoundException("Inscripcion con ID " + id + " no encontrada");
-        }
-        boolean deleted = inscripcionAdapter.deleteInscripcion(id);
-
-        if (!deleted) {
-            return Map.of("success", false, "message", "Error al eliminar la inscripción");
-        }
-
-        return Map.of("success", true, "message", "Inscripción eliminada exitosamente");
-    }
-
-    //devolucion
     public int createInscripcionAndReturnId(Inscripcion inscripcion) {
         inscripcion.setFechaInscripcion(Date.valueOf(LocalDate.now()));
         inscripcion.setHoraInscripcion(Time.valueOf(LocalTime.now()));
         Inscripcion savedInscripcion = inscripcionAdapter.saveInscripcion(inscripcion);
         return savedInscripcion.getIdInscripcion();
     }
+    //codigo
+    public Long findIdByCodigoUnico(String codigoUnico) {
+        return inscripcionAdapter.findIdByCodigoUnico(codigoUnico);
+    }
+    //nuevos sql
+    public List<Map<String, Object>> getInscripcionById(int idInscripcion) {
+        return inscripcionDomainService.getInscripcionById(idInscripcion);
+    }
+
+    public List<Map<String, Object>> getParticipantesByInscripcionId(int idInscripcion) {
+        return inscripcionDomainService.getParticipantesByInscripcionId(idInscripcion);
+    }
+
+    public List<Map<String, Object>> getInscripcionAreasByInscripcionId(int idInscripcion) {
+        return inscripcionDomainService.getInscripcionAreasByInscripcionId(idInscripcion);
+    }
+
+    public List<Map<String, Object>> getAreasByInscripcionId(int idInscripcion) {
+        return inscripcionDomainService.getAreasByInscripcionId(idInscripcion);
+    }
+
+    public List<Map<String, Object>> getTutoresByInscripcionId(int idInscripcion) {
+        return inscripcionDomainService.getTutoresByInscripcionId(idInscripcion);
+    }
+    public Map<String, Object> getInscripcionDetails(String codigoUnico) {
+        int idInscripcion = findIdByCodigoUnico(codigoUnico).intValue();
+        Participante participante = inscripcionAdapter.findParticipanteByIdInscripcion(idInscripcion);
+        int edadParticipante = inscripcionAdapter.calculateEdad(participante);
+        List<Map<String,Object>> areas = getAreasByInscripcionId(idInscripcion);
+        if (areas.isEmpty()) {
+            throw new ResourceNotFoundException("No se encontraron áreas para la inscripción con código único: " + codigoUnico);
+        }
+        List<Map<String,Object>> tutores = getTutoresByInscripcionId(idInscripcion);
+        if(tutores.isEmpty() && edadParticipante<15){
+            throw new ResourceNotFoundException("No se puede generar la orden de pago, necesitas al menos un tutor para terminar el registro, edad menor a 15 años: " + codigoUnico);
+        }
+
+        return Map.of(
+                "inscripcion", getInscripcionById(idInscripcion),
+                "participantes", getParticipantesByInscripcionId(idInscripcion),
+                "areas", areas,
+                "tutores", tutores,
+                "olimpiadas", inscripcionDomainRepository.findOlimapiada(),
+                "edadParticipante", edadParticipante
+        );
+    }
+    public boolean deleteInscripcionById(int idInscripcion) {
+        return inscripcionAdapter.deleteInscripcionById(idInscripcion);
+    }
+
+
 }

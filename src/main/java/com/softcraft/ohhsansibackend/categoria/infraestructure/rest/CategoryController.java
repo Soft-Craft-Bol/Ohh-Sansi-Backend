@@ -27,6 +27,19 @@ public class CategoryController {
         Map<String, Object> response = categoryService.saveCategory(category);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> deleteCategory(@PathVariable int id) {
+        Map<String, Object> response = categoryService.deleteCategory(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> getCategories(Category category) {
+        Map<String, Object> response = categoryService.findAll(category);
+        return ResponseEntity.ok(response);
+    }
+
+
 
 
 }

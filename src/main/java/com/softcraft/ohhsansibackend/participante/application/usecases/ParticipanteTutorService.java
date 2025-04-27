@@ -16,6 +16,19 @@ public class ParticipanteTutorService {
     }
 
     public ParticipanteTutor createParticipanteTutor(int idTutor, int idInscripcion, int idParticipante) {
-        return participanteTutorAdapter.saveParticipanteTutor(idTutor, idInscripcion, idParticipante);
+        if (participanteTutorAdapter.existsByTutorAndParticipante(idTutor, idParticipante)) {
+            throw new IllegalArgumentException("El tutor ya está registrado para este participante.");
+        }
+
+        ParticipanteTutor pt = null;
+        try {
+            if (idTutor <= 0 || idInscripcion <= 0 || idParticipante <= 0) {
+                throw new IllegalArgumentException("Invalid parametros introducidos invalidos");
+            }
+            pt = participanteTutorAdapter.saveParticipanteTutor(idTutor, idInscripcion, idParticipante);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Error en el servicio de ParticipanteTutor: " + e.getMessage());
+        }
+        return pt;
     }
 }

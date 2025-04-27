@@ -1,10 +1,12 @@
 package com.softcraft.ohhsansibackend.municipio.application.usecases;
 
+import com.softcraft.ohhsansibackend.departamento.domain.models.Departamento;
 import com.softcraft.ohhsansibackend.municipio.application.ports.MunicipioAdapter;
 import com.softcraft.ohhsansibackend.municipio.domain.models.Municipio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +19,12 @@ public class MunicipioService {
         this.municipioAdapter = municipioAdapter;
     }
 
+    public Map<String, Object> saveMunicipios(List<Municipio> municipios) {
+        List<Municipio> savedMunicipios = municipioAdapter.saveMunicipios(municipios);
+        Map<String, Object> response = new HashMap<>();
+        response.put("municipios", savedMunicipios);
+        return response;
+    }
     public Map<String, Object> getMunicipioById(int id) {
         Municipio municipio = municipioAdapter.getMunicipioById(id);
         return Map.of("municipio", municipio);

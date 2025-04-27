@@ -16,6 +16,10 @@ public class MunicipioAdapter {
         this.municipioDomainService = municipioDomainService;
     }
 
+    public List<Municipio> saveMunicipios(List<Municipio> municipios) {
+        return municipioDomainService.createMunicipios(municipios);
+    }
+
     public Municipio getMunicipioById(int id) {
         return municipioDomainService.getMunicipioById(id);
     }

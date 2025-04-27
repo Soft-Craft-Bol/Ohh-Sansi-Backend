@@ -17,6 +17,16 @@ public class Tutor {
     private int telefono;
     @NotNull(message = "El carnet de identidad del tutor es requerido")
     private int carnetIdentidadTutor;
+    private String complementoCiTutor;
+
+
+    public String getComplementoCiTutor() {
+        return complementoCiTutor;
+    }
+
+    public void setComplementoCiTutor(String complementoCiTutor) {
+        this.complementoCiTutor = complementoCiTutor;
+    }
 
     public Long getIdTutor() {
         return idTutor;

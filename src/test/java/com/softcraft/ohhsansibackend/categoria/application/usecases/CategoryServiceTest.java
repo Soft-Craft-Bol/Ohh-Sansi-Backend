@@ -27,8 +27,8 @@ public class CategoryServiceTest {
     @Test
     public void testSaveCategory() {
         Category category = new Category();
-        category.setCodigoCategoria("Pelicano");
-        category.setIdArea(38);
+        category.setNombreCategoria("Pelicano");
+
 
         when(categoryDomainRepository.save(category)).thenReturn(category);
 
