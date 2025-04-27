@@ -1,6 +1,6 @@
 package com.softcraft.ohhsansibackend.tutor.application.usecases;
 
-import com.softcraft.ohhsansibackend.tutor.domain.models.Tutor;
+import com.softcraft.ohhsansibackend.tutor.domain.models.TutorAsigned;
 import com.softcraft.ohhsansibackend.tutor.domain.repository.abstraction.ITutorAsignado;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,15 @@ public class TutorAsignadoService {
     }
 
     public Map<String, Object> getTutoresLegales(String ci) {
-        List<Tutor> tutores = tutorAsignado.findAllTutors(ci);
-        return Map.of("tutoresLegales", tutores);
+        try {
+            List<TutorAsigned> tutores = tutorAsignado.findAllTutors(ci);
+            if (tutores == null || tutores.isEmpty()) {
+                throw new RuntimeException("No se encontraron tutores legales para el CI proporcionado.");
+            }
+            return Map.of("tutoresLegales", tutores);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al obtener los tutores legales", e);
+        }
     }
 }
