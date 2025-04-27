@@ -72,11 +72,6 @@ public class ParticipanteController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-//    @GetMapping("/carnet/{carnetIdentidad}")
-//    public ResponseEntity<Map<String, Object>> findByCarnetIdentidad(@PathVariable int carnetIdentidad) {
-//        Map<String, Object> response = participanteService.findByCarnetIdentidad(carnetIdentidad);
-//        return ResponseEntity.status(HttpStatus.OK).body(response);
-//    }
     @GetMapping("/carnet/{carnetIdentidad}")
     public ResponseEntity<Participante> findByCarnetIdentidad(@PathVariable int carnetIdentidad) {
         Participante response = participanteService.findByCarnetIdentidadService(carnetIdentidad);
