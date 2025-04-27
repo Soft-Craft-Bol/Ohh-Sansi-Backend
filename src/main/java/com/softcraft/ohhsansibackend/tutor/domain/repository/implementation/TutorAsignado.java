@@ -21,10 +21,12 @@ public class TutorAsignado implements ITutorAsignado {
     @Override
     public List<Tutor> findAllTutors(String ci) {
         String sql = "SELECT T.* FROM " +
-                "(SELECT id_tutor, email_tutor, nombres_tutor, apellidos_tutor, telefono, carnet_identidad_tutor, complemento_ci_tutor" +
-                "FROM public.tutor) T, public.participante_tutor Pa, (SELECT id_participante, carnet_identidad_participante" +
-                "FROM public.participante WHERE carnet_identidad_participante = ? ) P" +
-                "WHERE T.id_tutor = Pa.id_tutor and Pa.id_participante = P.id_participante"; // parámetro para el CI
+                "(SELECT id_tutor, email_tutor, nombres_tutor, apellidos_tutor, telefono, carnet_identidad_tutor, complemento_ci_tutor " +
+                "FROM public.tutor "+
+                " WHERE id_tipo_tutor = 2) T, public.participante_tutor Pa, (SELECT id_participante, carnet_identidad_participante " +
+                "FROM public.participante "+
+                " WHERE carnet_identidad_participante = ? ) P " +
+                " WHERE T.id_tutor = Pa.id_tutor and Pa.id_participante = P.id_participante";
         return jdbcTemplate.query(sql, new Object[]{ci}, new BeanPropertyRowMapper<>(Tutor.class));
     }
 }
