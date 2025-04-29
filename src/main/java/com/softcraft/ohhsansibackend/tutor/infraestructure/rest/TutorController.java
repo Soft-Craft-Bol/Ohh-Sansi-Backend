@@ -1,8 +1,12 @@
 package com.softcraft.ohhsansibackend.tutor.infraestructure.rest;
 
+import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
+import com.softcraft.ohhsansibackend.participante.infraestructure.request.ParticipanteVerifyDTO;
 import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorService;
 import com.softcraft.ohhsansibackend.tutor.domain.models.Tutor;
+import com.softcraft.ohhsansibackend.tutor.infraestructure.request.TutorVerifyDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +22,21 @@ public class TutorController {
         this.tutorService = tutorService;
     }
 
+    @PostMapping("/verify")
+    public ResponseEntity<?> verifyTutor(@RequestBody TutorVerifyDTO request) {
+        Tutor tutor = tutorService.findByCarnet("", request.getCi());
+
+        if (tutor == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("tutor no encontrado.");
+        }
+
+        if (!tutor.getEmailTutor().equalsIgnoreCase(request.getValuePermit())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Permiso inválido.");
+        }
+
+        return ResponseEntity.ok(tutor);
+    }
+
     @PostMapping("/{carnetParticipante}")
     public ResponseEntity<Map<String, Object>> save(
             @PathVariable int carnetParticipante,
@@ -30,6 +49,13 @@ public class TutorController {
             @PathVariable Integer idTutor
     ) {
         return ResponseEntity.ok(tutorService.findByIdTutor(idTutor));
+    }
+
+    @GetMapping("/byCi/{ciTutor}")
+    public  ResponseEntity<Tutor> findByCarnet(
+            @PathVariable Integer ciTutor
+    ) {
+        return ResponseEntity.ok(tutorService.findByCarnet("", ciTutor));
     }
 
     @GetMapping
