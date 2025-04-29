@@ -3,6 +3,8 @@ package com.softcraft.ohhsansibackend.participante.infraestructure.rest;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteCatalogoInscriptionService;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteTutorService;
+import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteAreasDTO;
+import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteTutorAreaDTO;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.domain.models.ParticipanteTutor;
 import com.softcraft.ohhsansibackend.participante.infraestructure.request.AreaCatalogoDTO;
@@ -84,6 +86,20 @@ public class ParticipanteController {
             @RequestBody @Valid List<AreaCatalogoDTO> areaCatalogos) {
         Map<String, Object> response = participanteCatalogoInscriptionService.registerParticipantWithCatalogoComposition(ciParticipante, areaCatalogos);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/{carnetIdentidad}/areas")
+    public ResponseEntity<ParticipanteAreasDTO> getAreasByCarnet(@PathVariable int carnetIdentidad) {
+        return participanteCatalogoInscriptionService.execute(carnetIdentidad)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/carnet/{carnetIdentidad}/areas-tutores")
+    public ResponseEntity<ParticipanteTutorAreaDTO> getAreasTutoresByCarnet(@PathVariable int carnetIdentidad) {
+        return participanteCatalogoInscriptionService.getTutorArea(carnetIdentidad)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
 }

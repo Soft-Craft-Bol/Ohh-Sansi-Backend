@@ -102,4 +102,50 @@ public class CatalogoDomainRepository {
         }
     }
 
+    public List<Map<String, Object>> getRegisterAreaParticipante(int idParticipante, int idGrado) {
+        String sql = """
+            SELECT
+                a.id_area,
+                a.nombre_area,
+                a.nombre_corto_area,
+                a.descripcion_area,
+                co.id_categoria,
+                c.nombre_categoria,
+                co.id_olimpiada,
+                co.id_catalogo,
+                o.precio_olimpiada,
+                p.id_participante,
+                p.nombre_participante || ' ' || p.apellido_paterno AS nombre_completo,
+                EXISTS (
+                    SELECT 1
+                    FROM participante_catalogo pc
+                    WHERE co.id_categoria = pc.id_categoria
+                    AND co.id_area = pc.id_area
+                    AND co.id_catalogo = pc.id_catalogo
+                    AND co.id_olimpiada = pc.id_olimpiada
+                    AND pc.id_participante = p.id_participante
+                ) AS asignada
+            FROM
+                grado_categoria gc
+            JOIN
+                catalogo_olimpiada co ON gc.id_categoria = co.id_categoria
+            JOIN
+                area a ON co.id_area = a.id_area
+            JOIN
+                categorias c ON co.id_categoria = c.id_categoria
+            JOIN
+                olimpiada o ON co.id_olimpiada = o.id_olimpiada
+            CROSS JOIN
+                participante p
+            WHERE
+                gc.id_grado = ?
+                AND o.estado_olimpiada = true
+                AND p.id_participante = ?
+            ORDER BY
+                a.nombre_area;
+            """;
+
+        return jdbcTemplate.queryForList(sql, idGrado, idParticipante);
+    }
+
 }

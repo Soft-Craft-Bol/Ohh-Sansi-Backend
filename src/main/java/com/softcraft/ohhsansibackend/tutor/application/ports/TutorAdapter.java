@@ -46,4 +46,9 @@ public class TutorAdapter {
     public List<Tutor> findTutorsByCarnetParticipante(int ciParticipante){
         return tutorDomainService.findTutorsByCarnetParticipante(ciParticipante);
     }
+
+    public void guardarTutorAcademico(Tutor tutor, int idParticipante, int idInscripcion, int idArea) {
+        tutorDomainService.guardarTutorAcademico(tutor, idParticipante, idInscripcion, idArea);
+    }
+
 }

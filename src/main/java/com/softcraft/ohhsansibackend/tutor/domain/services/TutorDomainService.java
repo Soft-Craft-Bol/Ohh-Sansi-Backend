@@ -45,4 +45,7 @@ public class TutorDomainService {
         return tutorDomainRepository.findTutorsByCarnetParticipante(ciParticipante);
     }
 
+    public void guardarTutorAcademico(Tutor tutor, int idParticipante, int idInscripcion, int idArea) {
+        tutorDomainRepository.guardarTutorAcademico(tutor, idParticipante, idInscripcion, idArea);
+    }
 }

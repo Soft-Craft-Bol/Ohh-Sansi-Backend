@@ -1,6 +1,8 @@
 package com.softcraft.ohhsansibackend.participante.domain.repository.implementation;
 
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
+import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteAreasDTO;
+import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteTutorAreaDTO;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.domain.repository.abstraction.IParticipanteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +14,11 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 @Repository
 public class ParticipanteDomainRepository implements IParticipanteRepository {
     private final JdbcTemplate jdbcTemplate;
@@ -135,4 +138,191 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
         Integer count = jdbcTemplate.queryForObject(sql, new Object[]{idParticipante}, Integer.class);
         return count != null ? count : 0;
     }
+
+    @Override
+    public Optional<ParticipanteAreasDTO> findAreasByCarnetIdentidad(int carnetIdentidad) {
+        String sql = """
+        SELECT 
+            par.id_participante,
+            CONCAT(par.nombre_participante, ' ', par.apellido_paterno, 
+                   CASE WHEN par.apellido_materno IS NOT NULL THEN ' ' || par.apellido_materno ELSE '' END) AS nombre_completo,
+            par.carnet_identidad_participante,
+            gr.nombre_grado,
+            ARRAY_AGG(ar.id_area) AS ids_areas,
+            ARRAY_AGG(ar.nombre_area) AS nombres_areas
+        FROM 
+            participante par
+        JOIN 
+            grado gr ON gr.id_grado = par.id_grado
+        JOIN 
+            participante_catalogo pc ON par.id_participante = pc.id_participante
+        JOIN 
+            area ar ON ar.id_area = pc.id_area
+        JOIN 
+            catalogo_olimpiada co ON co.id_area = ar.id_area
+        WHERE 
+            par.carnet_identidad_participante = ?
+        GROUP BY
+            par.id_participante,
+            par.nombre_participante,
+            par.apellido_paterno,
+            par.apellido_materno,
+            par.carnet_identidad_participante,
+            gr.nombre_grado
+        """;
+
+        try {
+            ParticipanteAreasDTO result = jdbcTemplate.queryForObject(
+                    sql,
+                    (rs, rowNum) -> {
+                        ParticipanteAreasDTO dto = new ParticipanteAreasDTO();
+                        dto.setIdParticipante(rs.getInt("id_participante"));
+                        dto.setNombreCompleto(rs.getString("nombre_completo"));
+                        dto.setCarnetIdentidad(rs.getInt("carnet_identidad_participante"));
+                        dto.setGrado(rs.getString("nombre_grado"));
+
+                        // Convertir arrays SQL a listas Java
+                        Array idsArray = rs.getArray("ids_areas");
+                        dto.setIdsAreas(idsArray != null ? Arrays.asList((Integer[]) idsArray.getArray()) : Collections.emptyList());
+
+                        Array nombresArray = rs.getArray("nombres_areas");
+                        dto.setNombresAreas(nombresArray != null ? Arrays.asList((String[]) nombresArray.getArray()) : Collections.emptyList());
+
+                        return dto;
+                    },
+                    carnetIdentidad
+            );
+            return Optional.ofNullable(result);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<ParticipanteTutorAreaDTO> findParticipanteAreasTutoresById(int carnetIdentidad) {
+        String sql = """
+        WITH tutores_participante AS (
+            SELECT
+                pt.id_participante_tutor,
+                pt.id_tutor,
+                pt.id_participante,
+                t.nombres_tutor,
+                t.carnet_identidad_tutor,
+                t.apellidos_tutor,
+                t.email_tutor,
+                t.telefono
+            FROM
+                participante_tutor pt
+            JOIN
+                tutor t ON pt.id_tutor = t.id_tutor AND t.id_tipo_tutor = 1
+            JOIN participante p on p.id_participante = pt.id_participante
+            WHERE
+                p.carnet_identidad_participante = ?
+        )
+        SELECT
+            p.id_participante,
+            CONCAT(p.nombre_participante, ' ', p.apellido_paterno,
+                   COALESCE(' ' || p.apellido_materno, '')) AS nombre_completo,
+            p.carnet_identidad_participante,
+            p.id_inscripcion,
+            g.nombre_grado,
+            a.id_area,
+            a.nombre_area,
+            tp.id_tutor,
+            tp.nombres_tutor,
+            tp.carnet_identidad_tutor,
+            tp.apellidos_tutor,
+            tp.email_tutor,
+            tp.telefono
+        FROM
+            participante p
+        JOIN
+            grado g ON g.id_grado = p.id_grado
+        JOIN
+            participante_catalogo pc ON p.id_participante = pc.id_participante
+        JOIN
+            area a ON a.id_area = pc.id_area
+        LEFT JOIN
+            tutor_area_participante tap ON tap.id_area = a.id_area
+            AND EXISTS (
+                SELECT 1 FROM tutores_participante tp
+                WHERE tp.id_participante_tutor = tap.id_participante_tutor
+            )
+        LEFT JOIN
+            tutores_participante tp ON tp.id_participante_tutor = tap.id_participante_tutor
+        WHERE
+            p.carnet_identidad_participante = ?
+        ORDER BY
+            a.nombre_area;
+    """;
+
+        try {
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, carnetIdentidad, carnetIdentidad);
+
+            if (rows.isEmpty()) {
+                return Optional.empty();
+            }
+
+            ParticipanteTutorAreaDTO dto = new ParticipanteTutorAreaDTO();
+            List<Integer> idsAreas = new ArrayList<>();
+            List<String> nombresAreas = new ArrayList<>();
+            List<ParticipanteTutorAreaDTO.AreaTutorDTO> areasTutores = new ArrayList<>();
+
+            boolean initialized = false;
+            for (Map<String, Object> row : rows) {
+                if (!initialized) {
+                    dto.setIdParticipante((Integer) row.get("id_participante"));
+                    dto.setIdInscripcion((Integer) row.get("id_inscripcion"));
+                    dto.setNombreCompleto((String) row.get("nombre_completo"));
+
+                    // Manejo seguro del carnet de identidad
+                    Object ciObj = row.get("carnet_identidad_participante");
+                    if (ciObj instanceof Number) {
+                        dto.setCarnetIdentidad(((Number) ciObj).longValue());
+                    } else if (ciObj != null) {
+                        dto.setCarnetIdentidad(Long.parseLong(ciObj.toString()));
+                    }
+
+                    dto.setGrado((String) row.get("nombre_grado"));
+                    initialized = true;
+                }
+
+                idsAreas.add((Integer) row.get("id_area"));
+                nombresAreas.add((String) row.get("nombre_area"));
+
+                ParticipanteTutorAreaDTO.AreaTutorDTO areaTutor = new ParticipanteTutorAreaDTO.AreaTutorDTO();
+                areaTutor.setIdArea((Integer) row.get("id_area"));
+                areaTutor.setNombreArea((String) row.get("nombre_area"));
+                areaTutor.setCarnetIdentidadTutor(
+                        row.get("carnet_identidad_tutor") != null ?
+                                ((Number) row.get("carnet_identidad_tutor")).longValue() :
+                                null
+                );
+                areaTutor.setIdTutor(row.get("id_tutor") != null ? (Integer) row.get("id_tutor") : null);
+                areaTutor.setNombresTutor((String) row.get("nombres_tutor"));
+                areaTutor.setApellidosTutor((String) row.get("apellidos_tutor"));
+                areaTutor.setEmailTutor((String) row.get("email_tutor"));
+
+                // Manejo seguro del teléfono
+                Object telefonoObj = row.get("telefono");
+                if (telefonoObj != null) {
+                    areaTutor.setTelefono(telefonoObj.toString());
+                } else {
+                    areaTutor.setTelefono(null);
+                }
+
+                areasTutores.add(areaTutor);
+            }
+
+            dto.setIdsAreas(idsAreas);
+            dto.setNombresAreas(nombresAreas);
+            dto.setAreasTutores(areasTutores);
+
+            return Optional.of(dto);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
 }
