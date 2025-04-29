@@ -37,4 +37,11 @@ public class TutorController {
         return ResponseEntity.ok(tutorService.findAllTutor());
     }
 
+    @PostMapping("/academico/{carnetParticipante}/{idArea}")
+    public ResponseEntity<Map<String, Object>> registrarTutorAcademico(
+            @PathVariable int carnetParticipante,
+            @PathVariable int idArea,
+            @RequestBody Tutor tutor) {
+        return ResponseEntity.ok(tutorService.registrarTutorAcademico(tutor, carnetParticipante, idArea));
+    }
 }

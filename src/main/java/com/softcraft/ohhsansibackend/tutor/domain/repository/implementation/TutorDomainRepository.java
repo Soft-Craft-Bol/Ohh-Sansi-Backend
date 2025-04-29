@@ -86,4 +86,20 @@ public class TutorDomainRepository implements ITutorRepository {
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Tutor.class), ciParticipante);
     }
 
+    public void guardarTutorAcademico(Tutor tutor, int idParticipante, int idInscripcion, int idArea) {
+        String sql = "CALL registrar_tutor_academico2(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql,
+                tutor.getCarnetIdentidadTutor(),
+                tutor.getComplementoCiTutor(),
+                tutor.getNombresTutor(),
+                tutor.getApellidosTutor(),
+                tutor.getEmailTutor(),
+                tutor.getTelefono(),
+                idParticipante,
+                idInscripcion,
+                idArea
+        );
+    }
+
+
 }

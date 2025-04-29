@@ -8,4 +8,5 @@ public interface ITutorRepository {
     Tutor save(Tutor tutor);
     Tutor findByIdTutor(int idTutor);
     List<Tutor> findAllTutor();
+    void guardarTutorAcademico(Tutor tutor, int idParticipante, int idInscripcion, int idArea);
 }

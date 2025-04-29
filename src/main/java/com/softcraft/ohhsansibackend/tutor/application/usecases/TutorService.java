@@ -106,4 +106,18 @@ public class TutorService {
     public int countTutorsLegalesByParticipanteId(int participanteId) {
         return tutorAdapter.countTutorsLegalesByParticipanteId(participanteId);
     }
+
+    public Map<String, Object> registrarTutorAcademico(Tutor tutor, int carnetParticipante, int idArea) {
+        Participante searchParticipante = participanteService.findByCarnetIdentidadService(carnetParticipante);
+
+        int tutoresAcademicos = tutorAdapter.countTutorsAcademicosByParticipanteId(searchParticipante.getIdParticipante());
+        if (tutoresAcademicos >= 2) {
+            throw new IllegalArgumentException("Ya hay 2 tutores académicos registrados");
+        }
+
+        tutorAdapter.guardarTutorAcademico(tutor, searchParticipante.getIdParticipante(), searchParticipante.getIdInscripcion(), idArea);
+
+        return Map.of("message", "Tutor académico registrado exitosamente");
+    }
+
 }

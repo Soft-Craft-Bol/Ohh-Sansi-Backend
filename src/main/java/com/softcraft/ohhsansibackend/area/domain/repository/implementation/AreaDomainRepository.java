@@ -53,4 +53,6 @@ public class AreaDomainRepository implements IAreaRepository {
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Area.class));
     }
 
+
+
 }
