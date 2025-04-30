@@ -5,10 +5,12 @@ import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.application.ports.InscripcionAdapter;
 import com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementation.InscripcionDomainRepository;
 import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionDomainService;
+import com.softcraft.ohhsansibackend.ordenPago.application.usecases.OrdenPagoService;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.utils.UniqueCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -26,9 +28,8 @@ public class InscripcionService {
     private final InscripcionDomainService inscripcionDomainService;
     private final UniqueCodeGenerator uniqueCodeGenerator;
     private final InscripcionDomainRepository inscripcionDomainRepository;
-
     @Autowired
-    public InscripcionService(InscripcionAdapter inscripcionAdapter, InscripcionDomainService inscripcionDomainService, UniqueCodeGenerator uniqueCodeGenerator, InscripcionDomainRepository inscripcionDomainRepository) {
+    public InscripcionService(@Lazy InscripcionAdapter inscripcionAdapter, InscripcionDomainService inscripcionDomainService, UniqueCodeGenerator uniqueCodeGenerator, InscripcionDomainRepository inscripcionDomainRepository) {
         this.inscripcionAdapter = inscripcionAdapter;
         this.inscripcionDomainService = inscripcionDomainService;
         this.uniqueCodeGenerator = uniqueCodeGenerator;
@@ -104,13 +105,15 @@ public class InscripcionService {
             throw new ResourceNotFoundException("No se puede generar la orden de pago, necesitas al menos un tutor para terminar el registro, edad menor a 15 años: " + codigoUnico);
         }
 
+
         return Map.of(
                 "inscripcion", getInscripcionById(idInscripcion),
                 "participantes", getParticipantesByInscripcionId(idInscripcion),
                 "areas", areas,
                 "tutores", tutores,
                 "olimpiadas", inscripcionDomainRepository.findOlimapiada(),
-                "edadParticipante", edadParticipante
+                "edadParticipante", edadParticipante,
+                "ordenDePagoGenerada",inscripcionAdapter.verificarEstadoOrdenPago(idInscripcion)
         );
     }
     public boolean deleteInscripcionById(int idInscripcion) {

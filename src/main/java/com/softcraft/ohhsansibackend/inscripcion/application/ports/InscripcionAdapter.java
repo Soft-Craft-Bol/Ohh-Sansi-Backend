@@ -2,6 +2,7 @@ package com.softcraft.ohhsansibackend.inscripcion.application.ports;
 
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
 import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionDomainService;
+import com.softcraft.ohhsansibackend.ordenPago.application.usecases.OrdenPagoService;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +21,13 @@ import java.util.List;
 public class InscripcionAdapter {
     private final InscripcionDomainService inscripcionDomainService;
     private final ParticipanteService participanteService;
+    private final OrdenPagoService ordenPagoService;
+
     @Autowired
-    public InscripcionAdapter(InscripcionDomainService inscripcionDomainService, @Lazy ParticipanteService participanteService) {
+    public InscripcionAdapter(InscripcionDomainService inscripcionDomainService, @Lazy ParticipanteService participanteService,@Lazy OrdenPagoService ordenPagoService) {
         this.inscripcionDomainService = inscripcionDomainService;
         this.participanteService = participanteService;
+        this.ordenPagoService = ordenPagoService;
     }
 
     public Inscripcion saveInscripcion(Inscripcion inscripcion) {
@@ -59,5 +63,9 @@ public class InscripcionAdapter {
     }
     public boolean deleteInscripcionById(int idInscripcion) {
         return inscripcionDomainService.deleteInscripcionById(idInscripcion);
+    }
+
+    public boolean verificarEstadoOrdenPago(int idInscripcion) {
+        return ordenPagoService.verificarExistenciaDeInscripcionEnOrdenPago(idInscripcion);
     }
 }
