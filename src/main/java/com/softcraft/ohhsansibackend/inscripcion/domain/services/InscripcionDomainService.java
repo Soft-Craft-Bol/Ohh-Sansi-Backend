@@ -59,4 +59,6 @@ public class InscripcionDomainService {
         return inscripcionDomainRepository.deleteInscripcionById(idInscripcion);
     }
 
+
+
 }

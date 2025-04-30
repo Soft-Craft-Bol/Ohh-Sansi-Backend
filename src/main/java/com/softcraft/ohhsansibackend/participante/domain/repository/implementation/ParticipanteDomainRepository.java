@@ -135,4 +135,6 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
         Integer count = jdbcTemplate.queryForObject(sql, new Object[]{idParticipante}, Integer.class);
         return count != null ? count : 0;
     }
+
+
 }

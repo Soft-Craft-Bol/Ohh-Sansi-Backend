@@ -112,4 +112,27 @@ public class InscripcionDomainRepository {
         return rowsAffected > 0;
     }
 
+    public Inscripcion findByCarnetIdentidad(Long ci) {
+        String sql = """
+            SELECT id_inscripcion,
+                   id_colegio,
+                   id_grado,
+                   id_departamento,
+                   id_municipio,
+                   tutor_requerido
+            FROM inscripcion
+            WHERE carnet_identidad_participante = ?
+              AND inscripcion_masiva = false
+            """;
+        try {
+            return jdbcTemplate.queryForObject(
+                    sql,
+                    new Object[]{ci},
+                    new BeanPropertyRowMapper<>(Inscripcion.class)
+            );
+        } catch (EmptyResultDataAccessException ex) {
+            return null;
+        }
+    }
+
 }

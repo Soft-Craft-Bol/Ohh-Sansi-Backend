@@ -5,6 +5,7 @@ import com.softcraft.ohhsansibackend.participante.application.usecases.Participa
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteTutorService;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.domain.models.ParticipanteTutor;
+import com.softcraft.ohhsansibackend.participante.domain.services.BulkParticipanteService;
 import com.softcraft.ohhsansibackend.participante.infraestructure.request.AreaCatalogoDTO;
 import com.softcraft.ohhsansibackend.participante.infraestructure.request.ParticipanteVerifyDTO;
 import jakarta.validation.Valid;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -22,12 +24,15 @@ public class ParticipanteController {
     private final ParticipanteService participanteService;
     private final ParticipanteTutorService participanteTutorService;
     private final ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService;
+    private final BulkParticipanteService bulkParticipanteService;
+
 
     @Autowired
-    public ParticipanteController(ParticipanteService participanteService, ParticipanteTutorService participanteTutorService, ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService) {
+    public ParticipanteController(ParticipanteService participanteService, ParticipanteTutorService participanteTutorService, ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService, BulkParticipanteService bulkParticipanteService) {
         this.participanteService = participanteService;
         this.participanteTutorService = participanteTutorService;
         this.participanteCatalogoInscriptionService = participanteCatalogoInscriptionService;
+        this.bulkParticipanteService = bulkParticipanteService;
     }
 
     @PostMapping("/register-participant")
@@ -84,6 +89,12 @@ public class ParticipanteController {
             @RequestBody @Valid List<AreaCatalogoDTO> areaCatalogos) {
         Map<String, Object> response = participanteCatalogoInscriptionService.registerParticipantWithCatalogoComposition(ciParticipante, areaCatalogos);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/upload-excel")
+    public ResponseEntity<Map<String,Object>> uploadExcel(@RequestParam("file") MultipartFile file) {
+        Map<String,Object> resultado = bulkParticipanteService.importFromExcel(file);
+        return ResponseEntity.status(HttpStatus.CREATED).body(resultado);
     }
 
 }
