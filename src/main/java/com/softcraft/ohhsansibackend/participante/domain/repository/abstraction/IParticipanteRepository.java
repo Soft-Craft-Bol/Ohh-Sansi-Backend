@@ -1,6 +1,7 @@
 package com.softcraft.ohhsansibackend.participante.domain.repository.abstraction;
 
 import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteAreasDTO;
+import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteResumenDTO;
 import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteTutorAreaDTO;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 
@@ -17,5 +18,5 @@ public interface IParticipanteRepository {
     boolean deleteParticipant(Long id);
     Optional<ParticipanteAreasDTO> findAreasByCarnetIdentidad(int carnetIdentidad);
     Optional<ParticipanteTutorAreaDTO> findParticipanteAreasTutoresById(int carnetIdentidad);
-
+    Optional<ParticipanteResumenDTO> findParticipanteResumenByCi(int carnetIdentidad);
 }

@@ -1,6 +1,7 @@
 package com.softcraft.ohhsansibackend.participante.domain.services;
 
 import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteAreasDTO;
+import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteResumenDTO;
 import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteTutorAreaDTO;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.domain.repository.implementation.ParticipanteDomainRepository;
@@ -53,5 +54,8 @@ public class ParticipanteDomainService {
 
     public Optional<ParticipanteTutorAreaDTO> obtenerTutorAreaPorCarnet (int carnetIdentidad){
         return participanteRepository.findParticipanteAreasTutoresById(carnetIdentidad);
+    }
+    public Optional<ParticipanteResumenDTO> obtenerParticipanteResumenPorCi(int carnetIdentidad) {
+        return participanteRepository.findParticipanteResumenByCi(carnetIdentidad);
     }
 }

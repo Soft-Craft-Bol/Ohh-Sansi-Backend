@@ -2,6 +2,7 @@ package com.softcraft.ohhsansibackend.participante.domain.repository.implementat
 
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteAreasDTO;
+import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteResumenDTO;
 import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteTutorAreaDTO;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.domain.repository.abstraction.IParticipanteRepository;
@@ -138,6 +139,40 @@ public class ParticipanteDomainRepository implements IParticipanteRepository {
         Integer count = jdbcTemplate.queryForObject(sql, new Object[]{idParticipante}, Integer.class);
         return count != null ? count : 0;
     }
+
+    public Optional<ParticipanteResumenDTO> findParticipanteResumenByCi(int carnetIdentidad) {
+        String sql = """
+        SELECT 
+            pr.nombre_participante,
+            pr.apellido_paterno,
+            pr.carnet_identidad_participante,
+            pr.complemento_ci_participante,
+            gr.nombre_grado
+        FROM participante pr
+        JOIN grado gr ON gr.id_grado = pr.id_grado
+        WHERE pr.carnet_identidad_participante = ?
+    """;
+
+        try {
+            ParticipanteResumenDTO dto = jdbcTemplate.queryForObject(
+                    sql,
+                    new Object[]{carnetIdentidad},
+                    (rs, rowNum) -> {
+                        ParticipanteResumenDTO result = new ParticipanteResumenDTO();
+                        result.setNombreParticipante(rs.getString("nombre_participante"));
+                        result.setApellidoPaterno(rs.getString("apellido_paterno"));
+                        result.setCarnetIdentidadParticipante(rs.getInt("carnet_identidad_participante"));
+                        result.setComplementoCiParticipante(rs.getString("complemento_ci_participante"));
+                        result.setNombreGrado(rs.getString("nombre_grado"));
+                        return result;
+                    }
+            );
+            return Optional.of(dto);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
 
     @Override
     public Optional<ParticipanteAreasDTO> findAreasByCarnetIdentidad(int carnetIdentidad) {
