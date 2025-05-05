@@ -3,9 +3,10 @@ package com.softcraft.ohhsansibackend.tutor.application.ports;
 import com.softcraft.ohhsansibackend.tutor.domain.models.TutorParentesco;
 import com.softcraft.ohhsansibackend.tutor.domain.services.TutorParentescoDomainService;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.stereotype.Repository;
 import java.util.List;
 
+@Repository
 public class TutorParentescoAdapter {
     private final TutorParentescoDomainService tutorParentescoDomainService;
 
