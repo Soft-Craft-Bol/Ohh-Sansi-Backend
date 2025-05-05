@@ -111,7 +111,7 @@ public class InscripcionLargaService {
         participanteTutorService.createParticipanteTutor(
                 participanteTutor.getIdTutor(),
                 participanteTutor.getIdInscripcion(),
-                participanteTutor.getIdParticipante()
+                participanteTutor.getIdParticipante(),1 //temporal solution, later implement this endopoint
         );
     }
 }
