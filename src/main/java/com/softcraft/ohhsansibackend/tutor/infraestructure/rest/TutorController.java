@@ -4,6 +4,7 @@ import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.infraestructure.request.ParticipanteVerifyDTO;
 import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorService;
 import com.softcraft.ohhsansibackend.tutor.domain.models.Tutor;
+import com.softcraft.ohhsansibackend.tutor.domain.models.TutorRegistrationRequest;
 import com.softcraft.ohhsansibackend.tutor.infraestructure.request.TutorVerifyDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,8 +41,8 @@ public class TutorController {
     @PostMapping("/{carnetParticipante}")
     public ResponseEntity<Map<String, Object>> save(
             @PathVariable int carnetParticipante,
-            @RequestBody List<Tutor> tutors) {
-        return ResponseEntity.ok(tutorService.save(tutors, carnetParticipante));
+            @RequestBody TutorRegistrationRequest request) {
+        return ResponseEntity.ok(tutorService.save(request.getTutors(), carnetParticipante, request.getIdTutorParentesco()));
     }
 
     @GetMapping("/{idTutor}")

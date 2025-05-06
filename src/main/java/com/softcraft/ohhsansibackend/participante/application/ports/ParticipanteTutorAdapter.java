@@ -15,8 +15,8 @@ public class ParticipanteTutorAdapter {
         this.participanteTutorDomainService = participanteTutorDomainService;
     }
 
-    public ParticipanteTutor saveParticipanteTutor(int idTutor, int idInscripcion, int idParticipante) {
-        return participanteTutorDomainService.createParticipanteTutor(idTutor, idInscripcion, idParticipante);
+    public ParticipanteTutor saveParticipanteTutor(int idTutor, int idInscripcion, int idParticipante, int idTutorParentesco) {
+        return participanteTutorDomainService.createParticipanteTutor(idTutor, idInscripcion, idParticipante, idTutorParentesco);
     }
     public boolean existsByTutorAndParticipante(int idTutor, int idParticipante) {
         return participanteTutorDomainService.existsByTutorAndParticipante(idTutor, idParticipante);

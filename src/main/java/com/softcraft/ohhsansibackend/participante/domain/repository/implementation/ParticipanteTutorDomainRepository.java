@@ -16,11 +16,12 @@ public class ParticipanteTutorDomainRepository implements IParticipanteTutorRepo
 
     @Override
     public ParticipanteTutor save(ParticipanteTutor participanteTutor) {
-        String sql = "INSERT INTO participante_tutor (id_tutor, id_inscripcion, id_participante) VALUES (?, ?, ?) RETURNING id_participante_tutor";
+        String sql = "INSERT INTO participante_tutor (id_tutor, id_inscripcion, id_participante, id_tutor_parentesco) VALUES (?, ?, ?, ?) RETURNING id_participante_tutor";
         int idParticipanteTutor = jdbcTemplate.queryForObject(sql, new Object[]{
                 participanteTutor.getIdTutor(),
                 participanteTutor.getIdInscripcion(),
-                participanteTutor.getIdParticipante()
+                participanteTutor.getIdParticipante(),
+                participanteTutor.getIdTutorParentesco()
         }, Integer.class);
         participanteTutor.setIdParticipanteTutor(idParticipanteTutor);
         return participanteTutor;
@@ -39,6 +40,7 @@ public class ParticipanteTutorDomainRepository implements IParticipanteTutorRepo
                     participanteTutor.setIdTutor(rs.getInt("id_tutor"));
                     participanteTutor.setIdInscripcion(rs.getInt("id_inscripcion"));
                     participanteTutor.setIdParticipante(rs.getInt("id_participante"));
+                    participanteTutor.setIdTutorParentesco(rs.getInt("id_tutor_parentesco"));
                     return participanteTutor;
                 });
     }
