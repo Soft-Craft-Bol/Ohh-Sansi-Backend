@@ -1,6 +1,5 @@
 package com.softcraft.ohhsansibackend.area.domain.services;
 
-
 import com.softcraft.ohhsansibackend.area.domain.models.Area;
 import com.softcraft.ohhsansibackend.area.domain.repository.abstraction.IAreaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import java.util.List;
 public class AreaDomainService {
     private final IAreaRepository IAreaRepository;
 
-
     @Autowired
     public AreaDomainService(IAreaRepository IAreaRepository) {
         this.IAreaRepository = IAreaRepository;
@@ -20,6 +18,10 @@ public class AreaDomainService {
 
     public Area createArea(Area area) {
         return IAreaRepository.save(area);
+    }
+
+    public List<Area> getAreas() {
+        return IAreaRepository.findAll();
     }
 
     public boolean updateArea(Area area) {
@@ -33,10 +35,5 @@ public class AreaDomainService {
     public Area findAreaById(int id) {
         return IAreaRepository.findById(id);
     }
-
-    public List<Area> getAreas() {
-        return IAreaRepository.findAll();
-    }
-
 
 }

@@ -1,6 +1,5 @@
 package com.softcraft.ohhsansibackend.categoria.infraestructure.rest;
 
-
 import com.softcraft.ohhsansibackend.categoria.application.usecases.CategoryService;
 import com.softcraft.ohhsansibackend.categoria.domain.models.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-
 
 @RestController
 @RequestMapping("/category")
@@ -27,11 +25,6 @@ public class CategoryController {
         Map<String, Object> response = categoryService.saveCategory(category);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> deleteCategory(@PathVariable int id) {
-        Map<String, Object> response = categoryService.deleteCategory(id);
-        return ResponseEntity.ok(response);
-    }
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getCategories(Category category) {
@@ -39,7 +32,10 @@ public class CategoryController {
         return ResponseEntity.ok(response);
     }
 
-
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> deleteCategory(@PathVariable int id) {
+        Map<String, Object> response = categoryService.deleteCategory(id);
+        return ResponseEntity.ok(response);
+    }
 
 }

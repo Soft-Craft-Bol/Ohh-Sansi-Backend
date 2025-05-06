@@ -1,6 +1,5 @@
 CREATE OR REPLACE FUNCTION insertOlimpiada(
     anio INTEGER,
-    estadoOlimpiada BOOLEAN DEFAULT FALSE,
     precioOlimpiada DECIMAL DEFAULT NULL
 )
     RETURNS TABLE (
@@ -11,27 +10,20 @@ CREATE OR REPLACE FUNCTION insertOlimpiada(
                   ) AS $$
     DECLARE
         anio_actual INTEGER := EXTRACT(YEAR FROM CURRENT_DATE);
+        estadoOlimpiada BOOLEAN := (anio = anio_actual);
 BEGIN
-    -- 1. 🔍 Check for duplicates BEFORE inserting
     IF EXISTS (
         SELECT 1 FROM olimpiada WHERE olimpiada.nombre_olimpiada = CONCAT('Periodo Olímpico ', anio)
     ) THEN
         RAISE EXCEPTION 'El período % ya existe', anio;
     END IF;
 
-    -- 2. 🔄 Deactivate existing active periods if new one is TRUE
-    IF estadoOlimpiada AND anio < anio_actual THEN
-        RAISE EXCEPTION 'No se pueden activar períodos de años anteriores (%).', anio;
-    END IF;
-
-    -- 2. Desactivar períodos activos si el nuevo período es del año en curso y está activo
-    IF estadoOlimpiada AND anio = anio_actual THEN
+    IF estadoOlimpiada THEN
         UPDATE olimpiada
         SET estado_olimpiada = FALSE
-        WHERE estado_olimpiada = TRUE AND EXTRACT(YEAR FROM CURRENT_DATE) = anio_actual;
+        WHERE olimpiada.estado_olimpiada = TRUE;
     END IF;
 
-    -- 3. ✅ Insert new period
     RETURN QUERY
         INSERT INTO olimpiada (
                                nombre_olimpiada,
@@ -47,8 +39,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM insertOlimpiada(2021, FALSE, 100.00);
-SELECT * FROM insertOlimpiada(2025, TRUE, NULL);
+SELECT * FROM insertOlimpiada(2023, 100.00);
+SELECT * FROM insertOlimpiada(2025, NULL);
 ---------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION updateOlimpiada(
     idOlimpiada INTEGER,

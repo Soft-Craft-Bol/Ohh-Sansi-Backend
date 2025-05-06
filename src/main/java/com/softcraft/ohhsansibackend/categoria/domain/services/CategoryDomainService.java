@@ -1,8 +1,6 @@
 package com.softcraft.ohhsansibackend.categoria.domain.services;
 
-
 import com.softcraft.ohhsansibackend.categoria.domain.models.Category;
-import com.softcraft.ohhsansibackend.categoria.domain.repository.abstraction.ICategoryRepository;
 import com.softcraft.ohhsansibackend.categoria.domain.repository.implementation.CategoryDomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,12 +20,12 @@ public class CategoryDomainService {
         return categoryDomainRepository.save(category);
     }
 
-    public Category getCategory(int id) {
-        return categoryDomainRepository.findById(id);
-    }
-
     public List<Category> listCategory() {
         return categoryDomainRepository.findAll();
+    }
+
+    public Category getCategory(int id) {
+        return categoryDomainRepository.findById(id);
     }
 
     public boolean updateCategory(Category category) {
