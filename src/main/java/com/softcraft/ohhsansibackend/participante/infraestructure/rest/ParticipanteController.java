@@ -1,12 +1,13 @@
 package com.softcraft.ohhsansibackend.participante.infraestructure.rest;
 
+import com.softcraft.ohhsansibackend.participante.application.ports.ParticipanteAdapter;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteCatalogoInscriptionService;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteTutorService;
 import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteAreasDTO;
+import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteResumenDTO;
 import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteTutorAreaDTO;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
-import com.softcraft.ohhsansibackend.participante.domain.models.ParticipanteTutor;
 import com.softcraft.ohhsansibackend.participante.infraestructure.request.AreaCatalogoDTO;
 import com.softcraft.ohhsansibackend.participante.infraestructure.request.ParticipanteVerifyDTO;
 import jakarta.validation.Valid;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/participante")
@@ -24,12 +26,14 @@ public class ParticipanteController {
     private final ParticipanteService participanteService;
     private final ParticipanteTutorService participanteTutorService;
     private final ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService;
+    private final ParticipanteAdapter participanteAdapter;
 
     @Autowired
-    public ParticipanteController(ParticipanteService participanteService, ParticipanteTutorService participanteTutorService, ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService) {
+    public ParticipanteController(ParticipanteService participanteService, ParticipanteTutorService participanteTutorService, ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService, ParticipanteAdapter participanteAdapter) {
         this.participanteService = participanteService;
         this.participanteTutorService = participanteTutorService;
         this.participanteCatalogoInscriptionService = participanteCatalogoInscriptionService;
+        this.participanteAdapter = participanteAdapter;
     }
 
     @PostMapping("/register-participant")
@@ -101,5 +105,8 @@ public class ParticipanteController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
+    @GetMapping("/carnet/{carnetIdentidad}/datos")
+    public Optional<ParticipanteResumenDTO> getAreasResumenByCarnet(@PathVariable int carnetIdentidad) {
+        return participanteAdapter.obtenerParticipanteResumenPorCi(carnetIdentidad);
+    }
 }

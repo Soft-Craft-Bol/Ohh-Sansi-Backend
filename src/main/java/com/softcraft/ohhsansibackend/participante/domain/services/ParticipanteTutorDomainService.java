@@ -15,11 +15,12 @@ public class ParticipanteTutorDomainService {
         this.participanteTutorRepository = participanteTutorRepository;
     }
 
-    public ParticipanteTutor createParticipanteTutor(int idTutor, int idInscripcion, int idParticipante) {
+    public ParticipanteTutor createParticipanteTutor(int idTutor, int idInscripcion, int idParticipante, int idTutorParentesco) {
         ParticipanteTutor participanteTutor = new ParticipanteTutor();
         participanteTutor.setIdTutor(idTutor);
         participanteTutor.setIdInscripcion(idInscripcion);
         participanteTutor.setIdParticipante(idParticipante);
+        participanteTutor.setIdTutorParentesco(idTutorParentesco);
         return participanteTutorRepository.save(participanteTutor);
     }
     public boolean existsByTutorAndParticipante(int idTutor, int idParticipante) {
