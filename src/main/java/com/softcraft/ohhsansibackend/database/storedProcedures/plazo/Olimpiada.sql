@@ -213,3 +213,65 @@ BEGIN
     RETURN rows_updated > 0;
 END;
 $$ LANGUAGE plpgsql;
+----------------------------------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION validar_modificacion_olimpiada()
+    RETURNS TRIGGER AS $$
+DECLARE
+    estado_actual VARCHAR(50);
+BEGIN
+    SELECT nombre_estado INTO estado_actual
+    FROM estado_olimpiada
+    WHERE id_estado = NEW.id_estado;
+
+    IF TG_OP = 'UPDATE' THEN
+        -- Bloquear modificación si es olimpiada pasada
+        IF OLD.anio < EXTRACT(YEAR FROM CURRENT_DATE) THEN
+            RAISE EXCEPTION 'No se pueden modificar olimpiadas de años anteriores';
+        END IF;
+
+        -- Bloquear cambios si está en estado finalizado/cancelado
+        IF OLD.id_estado IN (
+            SELECT id_estado
+            FROM estado_olimpiada
+            WHERE nombre_estado IN ('FINALIZADO','CANCELADO')
+        ) THEN
+            RAISE EXCEPTION 'Olimpiada en estado % - Modificaciones bloqueadas', estado_actual;
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+----------------------------------------------------------------------------------------------------------------------------
+-- Trigger para tabla olimpiada
+CREATE TRIGGER trg_bloquear_modificaciones_olimpiada
+    BEFORE UPDATE ON olimpiada
+    FOR EACH ROW EXECUTE FUNCTION validar_modificacion_olimpiada();
+
+-- Trigger para periodos
+CREATE TRIGGER trg_bloquear_modificaciones_periodos
+    BEFORE UPDATE ON periodos_olimpiada
+    FOR EACH ROW EXECUTE FUNCTION validar_modificacion_olimpiada();
+
+-- Trigger para catálogo
+CREATE TRIGGER trg_bloquear_modificaciones_catalogo
+    BEFORE UPDATE ON catalogo_olimpiada
+    FOR EACH ROW EXECUTE FUNCTION validar_modificacion_olimpiada();
+
+ALTER TABLE olimpiada
+    ADD COLUMN fecha_creacion TIMESTAMP DEFAULT NOW(),
+    ADD COLUMN fecha_actualizacion TIMESTAMP DEFAULT NOW();
+
+-- Trigger automático de actualización
+CREATE OR REPLACE FUNCTION actualizar_timestamp()
+    RETURNS TRIGGER AS $$
+BEGIN
+    NEW.fecha_actualizacion = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_actualizar_timestamp
+    BEFORE UPDATE ON olimpiada
+    FOR EACH ROW EXECUTE FUNCTION actualizar_timestamp();
