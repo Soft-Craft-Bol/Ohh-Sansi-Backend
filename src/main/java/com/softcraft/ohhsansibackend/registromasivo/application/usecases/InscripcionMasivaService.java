@@ -115,7 +115,7 @@ public class InscripcionMasivaService {
     }
 
     private Tutor mapRowToTutorLegal(Row row) {
-        // Verificar que los campos mínimos del tutor estén presentes
+
         if (isEmptyCell(row.getCell(14)) || // email_tutor
                 isEmptyCell(row.getCell(15)) || // nombres_tutor
                 isEmptyCell(row.getCell(16)) || // apellidos_tutor
