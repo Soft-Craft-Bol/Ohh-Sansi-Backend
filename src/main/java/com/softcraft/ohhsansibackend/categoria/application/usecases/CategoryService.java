@@ -28,11 +28,13 @@ public class CategoryService {
     private final Validator validator;
 
     @Autowired
-    public CategoryService(CategoryDomainRepository categoryDomainRepository, CategoryAdapter categoryAdapter, Validator validator) {
+    public CategoryService(CategoryDomainRepository categoryDomainRepository, CategoryAdapter categoryAdapter,
+            Validator validator) {
         this.categoryDomainRepository = categoryDomainRepository;
         this.categoryAdapter = categoryAdapter;
         this.validator = validator;
     }
+
     @Operation(summary = "Save a new category", description = "Validates and saves a new category")
     public Map<String, Object> saveCategory(Category category) {
         validateCategory(category);
@@ -43,6 +45,7 @@ public class CategoryService {
         }
         return Map.of("success", true, "message", "Categoria creada exitosamente");
     }
+
     private void validateCategory(Category category) {
         Set<ConstraintViolation<Category>> violations = validator.validate(category);
         if (!violations.isEmpty()) {
@@ -50,6 +53,10 @@ public class CategoryService {
         }
     }
 
+    public Map<String, Object> findAll(Category category) {
+        List<Category> categories = categoryAdapter.findAll();
+        return Map.of("success", true, "message", "Categorias encontradas", "data", categories);
+    }
 
     public Map<String, Object> deleteCategory(int id) {
         if (!categoryDomainRepository.delete(id)) {
@@ -58,8 +65,4 @@ public class CategoryService {
         return Map.of("success", true, "message", "Categoria eliminada exitosamente");
     }
 
-    public Map<String, Object> findAll(Category category) {
-        List<Category> categories = categoryAdapter.findAll();
-        return Map.of("success", true, "message", "Categorias encontradas", "data", categories);
-    }
 }

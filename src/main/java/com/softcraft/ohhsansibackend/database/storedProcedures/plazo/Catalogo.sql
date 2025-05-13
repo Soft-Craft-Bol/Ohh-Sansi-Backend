@@ -111,3 +111,9 @@ $$ LANGUAGE plpgsql;
 SELECT * FROM obtener_catalogo_por_periodo();
 
 select * from catalogo_olimpiada;
+
+
+-- -----------------------------------------------------------------------------------------------------------------------
+ALTER TABLE catalogo_olimpiada
+    ADD CONSTRAINT chk_estado_permitido
+        CHECK (permitido_desde_estado <= 2);

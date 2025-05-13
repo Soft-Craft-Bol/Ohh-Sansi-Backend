@@ -1,6 +1,5 @@
 CREATE OR REPLACE FUNCTION insertOlimpiada(
     anio INTEGER,
-    estadoOlimpiada BOOLEAN DEFAULT FALSE,
     precioOlimpiada DECIMAL DEFAULT NULL
 )
     RETURNS TABLE (
@@ -11,27 +10,20 @@ CREATE OR REPLACE FUNCTION insertOlimpiada(
                   ) AS $$
     DECLARE
         anio_actual INTEGER := EXTRACT(YEAR FROM CURRENT_DATE);
+        estadoOlimpiada BOOLEAN := (anio = anio_actual);
 BEGIN
-    -- 1. 🔍 Check for duplicates BEFORE inserting
     IF EXISTS (
         SELECT 1 FROM olimpiada WHERE olimpiada.nombre_olimpiada = CONCAT('Periodo Olímpico ', anio)
     ) THEN
         RAISE EXCEPTION 'El período % ya existe', anio;
     END IF;
 
-    -- 2. 🔄 Deactivate existing active periods if new one is TRUE
-    IF estadoOlimpiada AND anio < anio_actual THEN
-        RAISE EXCEPTION 'No se pueden activar períodos de años anteriores (%).', anio;
-    END IF;
-
-    -- 2. Desactivar períodos activos si el nuevo período es del año en curso y está activo
-    IF estadoOlimpiada AND anio = anio_actual THEN
+    IF estadoOlimpiada THEN
         UPDATE olimpiada
         SET estado_olimpiada = FALSE
-        WHERE estado_olimpiada = TRUE AND EXTRACT(YEAR FROM CURRENT_DATE) = anio_actual;
+        WHERE olimpiada.estado_olimpiada = TRUE;
     END IF;
 
-    -- 3. ✅ Insert new period
     RETURN QUERY
         INSERT INTO olimpiada (
                                nombre_olimpiada,
@@ -47,8 +39,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM insertOlimpiada(2021, FALSE, 100.00);
-SELECT * FROM insertOlimpiada(2025, TRUE, NULL);
+SELECT * FROM insertOlimpiada(2023, 100.00);
+SELECT * FROM insertOlimpiada(2025, NULL);
 ---------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION updateOlimpiada(
     idOlimpiada INTEGER,
@@ -213,3 +205,65 @@ BEGIN
     RETURN rows_updated > 0;
 END;
 $$ LANGUAGE plpgsql;
+----------------------------------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION validar_modificacion_olimpiada()
+    RETURNS TRIGGER AS $$
+DECLARE
+    estado_actual VARCHAR(50);
+BEGIN
+    SELECT nombre_estado INTO estado_actual
+    FROM estado_olimpiada
+    WHERE id_estado = NEW.id_estado;
+
+    IF TG_OP = 'UPDATE' THEN
+        -- Bloquear modificación si es olimpiada pasada
+        IF OLD.anio < EXTRACT(YEAR FROM CURRENT_DATE) THEN
+            RAISE EXCEPTION 'No se pueden modificar olimpiadas de años anteriores';
+        END IF;
+
+        -- Bloquear cambios si está en estado finalizado/cancelado
+        IF OLD.id_estado IN (
+            SELECT id_estado
+            FROM estado_olimpiada
+            WHERE nombre_estado IN ('FINALIZADO','CANCELADO')
+        ) THEN
+            RAISE EXCEPTION 'Olimpiada en estado % - Modificaciones bloqueadas', estado_actual;
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+----------------------------------------------------------------------------------------------------------------------------
+-- Trigger para tabla olimpiada
+CREATE TRIGGER trg_bloquear_modificaciones_olimpiada
+    BEFORE UPDATE ON olimpiada
+    FOR EACH ROW EXECUTE FUNCTION validar_modificacion_olimpiada();
+
+-- Trigger para periodos
+CREATE TRIGGER trg_bloquear_modificaciones_periodos
+    BEFORE UPDATE ON periodos_olimpiada
+    FOR EACH ROW EXECUTE FUNCTION validar_modificacion_olimpiada();
+
+-- Trigger para catálogo
+CREATE TRIGGER trg_bloquear_modificaciones_catalogo
+    BEFORE UPDATE ON catalogo_olimpiada
+    FOR EACH ROW EXECUTE FUNCTION validar_modificacion_olimpiada();
+
+ALTER TABLE olimpiada
+    ADD COLUMN fecha_creacion TIMESTAMP DEFAULT NOW(),
+    ADD COLUMN fecha_actualizacion TIMESTAMP DEFAULT NOW();
+
+-- Trigger automático de actualización
+CREATE OR REPLACE FUNCTION actualizar_timestamp()
+    RETURNS TRIGGER AS $$
+BEGIN
+    NEW.fecha_actualizacion = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_actualizar_timestamp
+    BEFORE UPDATE ON olimpiada
+    FOR EACH ROW EXECUTE FUNCTION actualizar_timestamp();

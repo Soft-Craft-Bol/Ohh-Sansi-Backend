@@ -21,10 +21,9 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
 
     @Override
     public Olimpiada saveOlimpiada(Olimpiada olimpiada) {
-        String sql = "SELECT * FROM insertOlimpiada(?, ?, ?)";
+        String sql = "SELECT * FROM insertOlimpiada(?, ?)";
         return jdbcTemplate.queryForObject(sql, new Object[]{
                 olimpiada.getAnio(),
-                olimpiada.getEstadoOlimpiada(),
                 olimpiada.getPrecioOlimpiada()
         }, new BeanPropertyRowMapper<>(Olimpiada.class));
     }
