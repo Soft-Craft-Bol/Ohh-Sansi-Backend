@@ -37,17 +37,16 @@ public class InscripcionMasivaService {
                 .bufferSize(4096)
                 .open(fileInputStream)) {
 
-            Sheet sheet = workbook.getSheetAt(1); // Índice 1 para la segunda hoja
-            System.out.println("Procesando hoja oculta: " + sheet.getSheetName());
+            Sheet sheet = workbook.getSheetAt(1);
+            System.out.println("Procesando hoja: " + sheet.getSheetName());
 
-            boolean firstRow = true;
+            Iterator<Row> rowIterator = sheet.iterator();
+            if (rowIterator.hasNext()) {
+                rowIterator.next(); // Saltar la fila de encabezados
+            }
 
-            for (Row row : sheet) {
-                if (firstRow) {
-                    firstRow = false;
-                    continue;
-                }
-
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
                 totalRegistros++;
                 Map<String, Object> resultado = new LinkedHashMap<>();
                 resultado.put("fila", row.getRowNum() + 1);
@@ -63,30 +62,36 @@ public class InscripcionMasivaService {
                         continue;
                     }
 
-                    // 1. Registrar participante primero
+                    // 1. Registrar participante
                     Participante participante = mapRowToParticipanteHoja2(row);
                     Map<String, Object> saveResult = participanteService.save(participante);
                     resultado.putAll(saveResult);
 
-                    // 2. Verificar si necesita tutor y procesar tutores
+                    // 2. Procesar tutor si es requerido
                     if (participante.isTutorRequerido()) {
-                        List<Tutor> tutores = new ArrayList<>();
-
-                        // Procesar tutor legal (si existe en la fila)
-                        if (!isEmptyCell(row.getCell(13))) { // Verificar si hay datos de tutor
+                        try {
                             Tutor tutorLegal = mapRowToTutorLegal(row);
                             if (tutorLegal != null) {
+                                List<Tutor> tutores = new ArrayList<>();
                                 tutores.add(tutorLegal);
 
-                                // Registrar el tutor
+                                // Validar parentesco
+                                int parentescoId = (int)getSafeIntValue(row.getCell(20));
+                                if (parentescoId == 0) {
+                                    throw new IllegalArgumentException("Parentesco del tutor es obligatorio");
+                                }
+
+                                // Registrar tutor
                                 Map<String, Object> tutorResult = tutorService.save(
                                         tutores,
                                         participante.getCarnetIdentidadParticipante(),
-                                        (int) getNumericCellValue(row.getCell(20)) // parentescoId
+                                        parentescoId
                                 );
-
                                 resultado.put("tutorResult", tutorResult);
                             }
+                        } catch (Exception e) {
+                            resultado.put("tutorError", "Error al procesar tutor: " + e.getMessage());
+                            // Continuar aunque falle el tutor, pero marcarlo en el resultado
                         }
                     }
 
@@ -96,7 +101,7 @@ public class InscripcionMasivaService {
                 } catch (Exception e) {
                     resultado.put("success", false);
                     resultado.put("error", e.getMessage());
-                    e.printStackTrace(); // Para depuración
+                    e.printStackTrace();
                 }
 
                 resultados.add(resultado);
@@ -114,26 +119,90 @@ public class InscripcionMasivaService {
         return resultados;
     }
 
-    private Tutor mapRowToTutorLegal(Row row) {
 
-        if (isEmptyCell(row.getCell(14)) || // email_tutor
-                isEmptyCell(row.getCell(15)) || // nombres_tutor
-                isEmptyCell(row.getCell(16)) || // apellidos_tutor
-                isEmptyCell(row.getCell(18))) { // carnet_identidad_tutor
+    private Tutor mapRowToTutorLegal(Row row) {
+        try {
+            // Validar campos obligatorios del tutor
+            if (isEmptyCell(row.getCell(13)) || // id_tipo_tutor
+                    isEmptyCell(row.getCell(14)) || // email_tutor
+                    isEmptyCell(row.getCell(15)) || // nombres_tutor
+                    isEmptyCell(row.getCell(16)) || // apellidos_tutor
+                    isEmptyCell(row.getCell(18))) { // carnet_identidad_tutor
+                return null;
+            }
+
+            Tutor tutor = new Tutor();
+            tutor.setIdTipoTutor(getSafeIntValue(row.getCell(13)));
+            tutor.setEmailTutor(getSafeStringValue(row.getCell(14)));
+            tutor.setNombresTutor(getSafeStringValue(row.getCell(15)));
+            tutor.setApellidosTutor(getSafeStringValue(row.getCell(16)));
+            tutor.setTelefono(getSafeIntValue(row.getCell(17)));
+            tutor.setCarnetIdentidadTutor(getSafeIntValue(row.getCell(18)));
+            tutor.setComplementoCiTutor(getSafeStringValue(row.getCell(19)));
+
+
+            return tutor;
+        } catch (Exception e) {
+            System.err.println("Error al mapear tutor: " + e.getMessage());
             return null;
         }
+    }
 
-        Tutor tutor = new Tutor();
-        tutor.setIdTipoTutor((int) getNumericCellValue(row.getCell(13)));
-        tutor.setEmailTutor(getStringCellValue(row.getCell(14)));
-        tutor.setNombresTutor(getStringCellValue(row.getCell(15)));
-        tutor.setApellidosTutor(getStringCellValue(row.getCell(16)));
-        tutor.setTelefono((int) getNumericCellValue(row.getCell(17)));
-        tutor.setCarnetIdentidadTutor((int) getNumericCellValue(row.getCell(18)));
-        tutor.setComplementoCiTutor(getStringCellValue(row.getCell(19)));
+    private String getSafeStringValue(Cell cell) {
+        if (cell == null) return null;  // Cambiado de "" a null
 
+        try {
+            String value;
+            switch (cell.getCellType()) {
+                case STRING:
+                    value = cell.getStringCellValue().trim();
+                    return value.isEmpty() ? null : value;
+                case NUMERIC:
+                    return String.valueOf((int) cell.getNumericCellValue());
+                case FORMULA:
+                    switch (cell.getCachedFormulaResultType()) {
+                        case STRING:
+                            value = cell.getStringCellValue().trim();
+                            return value.isEmpty() ? null : value;
+                        case NUMERIC:
+                            return String.valueOf((int) cell.getNumericCellValue());
+                        default:
+                            return null;  // Cambiado de "" a null
+                    }
+                default:
+                    return null;  // Cambiado de "" a null
+            }
+        } catch (Exception e) {
+            System.err.println("Error al leer valor de celda como string: " + e.getMessage());
+            return null;  // Cambiado de "" a null
+        }
+    }
 
-        return tutor;
+    private int getSafeIntValue(Cell cell) {
+        if (cell == null) return 0;
+
+        try {
+            switch (cell.getCellType()) {
+                case NUMERIC:
+                    return (int) cell.getNumericCellValue();
+                case FORMULA:
+                    if (cell.getCachedFormulaResultType() == CellType.NUMERIC) {
+                        return (int) cell.getNumericCellValue();
+                    }
+                    return 0;
+                case STRING:
+                    try {
+                        return Integer.parseInt(cell.getStringCellValue().trim());
+                    } catch (NumberFormatException e) {
+                        return 0;
+                    }
+                default:
+                    return 0;
+            }
+        } catch (Exception e) {
+            System.err.println("Error al leer valor de celda como entero: " + e.getMessage());
+            return 0;
+        }
     }
 
     private boolean esFilaValida(Row row) {
@@ -258,24 +327,26 @@ public class InscripcionMasivaService {
     }
 
     private String getStringCellValue(Cell cell) {
-        if (cell == null) return "";
+        if (cell == null) return null;  // Cambiado de "" a null
 
         switch (cell.getCellType()) {
             case STRING:
-                return cell.getStringCellValue().trim();
+                String value = cell.getStringCellValue().trim();
+                return value.isEmpty() ? null : value;
             case NUMERIC:
                 return String.valueOf((int)cell.getNumericCellValue());
             case FORMULA:
                 switch (cell.getCachedFormulaResultType()) {
                     case STRING:
-                        return cell.getStringCellValue().trim();
+                        value = cell.getStringCellValue().trim();
+                        return value.isEmpty() ? null : value;
                     case NUMERIC:
                         return String.valueOf((int)cell.getNumericCellValue());
                     default:
-                        return "";
+                        return null;  // Cambiado de "" a null
                 }
             default:
-                return "";
+                return null;  // Cambiado de "" a null
         }
     }
 
@@ -297,6 +368,6 @@ public class InscripcionMasivaService {
 
     private boolean getBooleanCellValue(Cell cell) {
         if (cell == null) return false;
-        return cell.getCellType() == CellType.BOOLEAN ? cell.getBooleanCellValue() : false;
+        return cell.getCellType() == CellType.BOOLEAN ? cell.getBooleanCellValue() : true;
     }
 }
