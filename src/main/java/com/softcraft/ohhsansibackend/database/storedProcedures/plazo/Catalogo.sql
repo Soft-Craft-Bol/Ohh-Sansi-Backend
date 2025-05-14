@@ -114,6 +114,69 @@ select * from catalogo_olimpiada;
 
 
 -- -----------------------------------------------------------------------------------------------------------------------
-ALTER TABLE catalogo_olimpiada
-    ADD CONSTRAINT chk_estado_permitido
-        CHECK (permitido_desde_estado <= 2);
+-- Validación de fechas superpuestas
+CREATE OR REPLACE FUNCTION validar_fechas_periodo()
+    RETURNS TRIGGER AS $$
+DECLARE
+    v_conflicting_start DATE;
+    v_conflicting_end DATE;
+BEGIN
+    -- Skip overlap check if this is an update that doesn't change dates
+    IF TG_OP = 'UPDATE' AND
+       OLD.fecha_inicio = NEW.fecha_inicio AND
+       OLD.fecha_fin = NEW.fecha_fin THEN
+        RETURN NEW;
+    END IF;
+
+    -- Check for overlaps excluding the current record (for updates)
+    SELECT fecha_inicio, fecha_fin INTO v_conflicting_start, v_conflicting_end
+    FROM periodos_olimpiada
+    WHERE id_olimpiada = NEW.id_olimpiada
+      AND (NEW.fecha_inicio, NEW.fecha_fin) OVERLAPS (fecha_inicio, fecha_fin)
+      AND (TG_OP = 'INSERT' OR periodos_olimpiada.id_fecha_olimpiada != NEW.id_fecha_olimpiada)
+    LIMIT 1;
+
+    IF FOUND THEN
+        RAISE EXCEPTION 'No se puede % el periodo: las fechas se superponen con otro periodo existente (% a %)',
+            TG_OP,
+            v_conflicting_start,
+            v_conflicting_end;
+    END IF;
+
+    -- Validate date order
+    IF NEW.fecha_fin < NEW.fecha_inicio THEN
+        RAISE EXCEPTION 'La fecha de fin (%) no puede ser anterior a la fecha de inicio (%)',
+            NEW.fecha_fin,
+            NEW.fecha_inicio;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+----------------------------------------------------------------------------------------------------------------------------
+
+CREATE TRIGGER tg_validar_fechas
+    BEFORE INSERT OR UPDATE ON periodos_olimpiada
+    FOR EACH ROW EXECUTE FUNCTION validar_fechas_periodo();
+
+-- Validación de catalogo solo en PLANIFICACION
+CREATE OR REPLACE FUNCTION validar_catalogo()
+    RETURNS TRIGGER AS $$
+DECLARE
+    v_estado_actual VARCHAR(50);
+BEGIN
+    SELECT nombre_estado INTO v_estado_actual
+    FROM estado_olimpiada
+    WHERE id_estado = (SELECT id_estado FROM olimpiada WHERE id_olimpiada = NEW.id_olimpiada);
+
+    IF v_estado_actual NOT IN ('PLANIFICACION', 'HISTORICO') THEN
+        RAISE EXCEPTION 'Solo se puede modificar el catálogo en estado PLANIFICACION o HISTORICO';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_validar_catalogo
+    BEFORE INSERT OR UPDATE ON catalogo_olimpiada
+    FOR EACH ROW EXECUTE FUNCTION validar_catalogo();
