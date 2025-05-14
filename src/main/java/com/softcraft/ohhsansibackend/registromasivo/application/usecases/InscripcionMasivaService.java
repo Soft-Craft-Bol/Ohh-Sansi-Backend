@@ -145,6 +145,7 @@ public class InscripcionMasivaService {
 
                     // También agregar al resultado del body
                     resultado.put("ci_participante_excel", participanteExcel.getCarnetIdentidadParticipante());
+                    resultado.put("id_inscripcion", participanteExcel.getIdInscripcion());
 
 
 
