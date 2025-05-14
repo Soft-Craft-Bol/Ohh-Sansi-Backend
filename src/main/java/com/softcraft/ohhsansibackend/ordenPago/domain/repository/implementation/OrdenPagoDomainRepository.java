@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -112,4 +113,36 @@ public class OrdenPagoDomainRepository {
         Boolean exists = jdbcTemplate.queryForObject(sql, new Object[]{idInscripcion}, Boolean.class);
         return (exists != null) ? exists : false;
     }
+
+    public List<OrdenDePago> findOrdenesNoVencidasEnRango(Date fechaInicio, Date fechaFin) {
+        String sql = """
+                SELECT * 
+                FROM orden_de_pago 
+                WHERE fecha_vencimiento NOT BETWEEN ? AND ?
+                """;
+
+        return jdbcTemplate.query(sql, new Object[]{fechaInicio, fechaFin}, new RowMapper<OrdenDePago>() {
+            @Override
+            public OrdenDePago mapRow(ResultSet rs, int rowNum) throws SQLException {
+                OrdenDePago ordenDePago = new OrdenDePago();
+                ordenDePago.setIdOrdenPago(rs.getInt("id_orden_pago"));
+                ordenDePago.setIdInscripcion(rs.getInt("id_inscripcion"));
+                ordenDePago.setIdMetodoPago(rs.getInt("id_metodo_pago"));
+                ordenDePago.setIdEstado(rs.getInt("id_estado"));
+                ordenDePago.setFechaEmisionOrdenPago(rs.getDate("fecha_emision_orden_pago"));
+                ordenDePago.setFechaVencimiento(rs.getDate("fecha_vencimiento"));
+                ordenDePago.setMontoTotalPago(rs.getBigDecimal("monto_total_pago"));
+                ordenDePago.setCodOrdenPago(rs.getString("cod_orden_pago"));
+                ordenDePago.setEmisor(rs.getString("emisor"));
+                ordenDePago.setPrecioLiteral(rs.getString("precio_literal"));
+                ordenDePago.setResponsablePago(rs.getString("responsable_pago"));
+                ordenDePago.setCantidad(rs.getInt("cantidad"));
+                ordenDePago.setConcepto(rs.getString("concepto"));
+                ordenDePago.setPrecio_unitario(rs.getBigDecimal("precio_unitario"));
+                return ordenDePago;
+            }
+        });
+    }
+
+
 }
