@@ -26,7 +26,6 @@ public class InscripcionMasivaService {
     private final ParticipanteService participanteService;
     private final TutorService tutorService;
     private final UniqueCodeGenerator uniqueCodeGenerator;
-    private final Participante participanteExcel;
     private final JdbcTemplate jdbcTemplate;
 
     public InscripcionMasivaService(ParticipanteService participanteService, TutorService tutorService, JdbcTemplate jdbcTemplate) {
@@ -34,7 +33,6 @@ public class InscripcionMasivaService {
         this.tutorService = tutorService;
         this.uniqueCodeGenerator = new UniqueCodeGenerator();
         this.jdbcTemplate = jdbcTemplate;
-        this.participanteExcel = createExclParticipante(uniqueCodeGenerator.generate());
     }
 
     public Participante createExclParticipante(String codUnique) {
@@ -50,7 +48,8 @@ public class InscripcionMasivaService {
         participante.setApellidoMaterno("");
         participante.setFechaNacimiento(java.sql.Date.valueOf("2009-10-14"));
 
-        int carnet = 100100100;
+        Random random = new Random();
+        int carnet = 22000000 + random.nextInt(2000000);;
         ParticipanteDomainRepository participanteAdapter = new ParticipanteDomainRepository(jdbcTemplate);
 
         boolean existe;
@@ -62,7 +61,6 @@ public class InscripcionMasivaService {
         }
 
         if (existe) {
-            Random random = new Random();
             int nuevoCarnet;
             int intentos = 0;
             do {
@@ -81,6 +79,7 @@ public class InscripcionMasivaService {
         }
 
         participante.setCarnetIdentidadParticipante(carnet);
+        System.out.println(carnet);
         participante.setEmailParticipante("amercer732@gmail.com");
         participante.setTutorRequerido(false);
 
@@ -89,6 +88,7 @@ public class InscripcionMasivaService {
 
 
     public List<Map<String, Object>> processInscripcionMasiva(InputStream fileInputStream) throws IOException {
+        Participante participanteExcel = createExclParticipante(uniqueCodeGenerator.generate());
         List<Map<String, Object>> resultados = new ArrayList<>();
         int totalRegistros = 0;
         int registrosExitosos = 0;
