@@ -1,11 +1,16 @@
 package com.softcraft.ohhsansibackend.registromasivo.application.usecases;
 
+import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
+import com.softcraft.ohhsansibackend.participante.application.ports.ParticipanteAdapter;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
 import com.monitorjbl.xlsx.StreamingReader;
+import com.softcraft.ohhsansibackend.participante.domain.repository.implementation.ParticipanteDomainRepository;
 import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorService;
 import com.softcraft.ohhsansibackend.tutor.domain.models.Tutor;
+import com.softcraft.ohhsansibackend.utils.UniqueCodeGenerator;
 import org.apache.poi.ss.usermodel.*;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,17 +25,75 @@ public class InscripcionMasivaService {
 
     private final ParticipanteService participanteService;
     private final TutorService tutorService;
+    private final UniqueCodeGenerator uniqueCodeGenerator;
+    private final Participante participanteExcel;
+    private final JdbcTemplate jdbcTemplate;
 
-    public InscripcionMasivaService(ParticipanteService participanteService, TutorService tutorService) {
+    public InscripcionMasivaService(ParticipanteService participanteService, TutorService tutorService, JdbcTemplate jdbcTemplate) {
         this.participanteService = participanteService;
         this.tutorService = tutorService;
+        this.uniqueCodeGenerator = new UniqueCodeGenerator();
+        this.jdbcTemplate = jdbcTemplate;
+        this.participanteExcel = createExclParticipante(uniqueCodeGenerator.generate());
     }
+
+    public Participante createExclParticipante(String codUnique) {
+        Participante participante = new Participante();
+        // Datos por defecto para el participante Excel
+        participante.setIdDepartamento(2541);
+        participante.setIdMunicipio(11427);
+        participante.setIdColegio(11383);
+        participante.setIdGrado(15);
+        participante.setParticipanteHash(codUnique);
+        participante.setNombreParticipante("Excel");
+        participante.setApellidoPaterno("Inscription");
+        participante.setApellidoMaterno("");
+        participante.setFechaNacimiento(java.sql.Date.valueOf("2009-10-14"));
+
+        int carnet = 100100100;
+        ParticipanteDomainRepository participanteAdapter = new ParticipanteDomainRepository(jdbcTemplate);
+
+        boolean existe;
+        try {
+            participanteAdapter.findByCarnetIdentidad(carnet);
+            existe = true;
+        } catch (ResourceNotFoundException ex) {
+            existe = false;
+        }
+
+        if (existe) {
+            Random random = new Random();
+            int nuevoCarnet;
+            int intentos = 0;
+            do {
+                nuevoCarnet = 22000000 + random.nextInt(2000000); // genera entre 22000000 y 23999999
+                intentos++;
+                if (intentos > 100) {
+                    throw new RuntimeException("No se pudo generar un CI único después de múltiples intentos.");
+                }
+                try {
+                    participanteAdapter.findByCarnetIdentidad(nuevoCarnet);
+                } catch (ResourceNotFoundException ex) {
+                    carnet = nuevoCarnet;
+                    break; // CI único encontrado
+                }
+            } while (true);
+        }
+
+        participante.setCarnetIdentidadParticipante(carnet);
+        participante.setEmailParticipante("amercer732@gmail.com");
+        participante.setTutorRequerido(false);
+
+        return participante;
+    }
+
 
     public List<Map<String, Object>> processInscripcionMasiva(InputStream fileInputStream) throws IOException {
         List<Map<String, Object>> resultados = new ArrayList<>();
         int totalRegistros = 0;
         int registrosExitosos = 0;
         int registrosOmitidos = 0;
+        participanteService.save(participanteExcel);
 
         try (Workbook workbook = StreamingReader.builder()
                 .rowCacheSize(100)
@@ -75,6 +138,13 @@ public class InscripcionMasivaService {
                     Participante participante = mapRowToParticipanteHoja2(row);
                     Map<String, Object> saveResult = participanteService.save(participante);
                     resultado.putAll(saveResult);
+
+                    // Asociar participanteExcel con el nuevo participante
+                    String insertSql = "INSERT INTO excel_association (id_excel, ci_participante) VALUES (?, ?)";
+                    jdbcTemplate.update(insertSql, participanteExcel.getCarnetIdentidadParticipante(), participante.getCarnetIdentidadParticipante());
+
+                    // También agregar al resultado del body
+                    resultado.put("ci_participante_excel", participanteExcel.getCarnetIdentidadParticipante());
 
 
 

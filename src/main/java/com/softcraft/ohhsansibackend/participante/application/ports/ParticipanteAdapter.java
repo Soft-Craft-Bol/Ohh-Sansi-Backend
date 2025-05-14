@@ -12,10 +12,14 @@ import java.util.Optional;
 @Repository
 public class ParticipanteAdapter {
     private final ParticipanteDomainService participanteDomainService;
+
     @Autowired
     public ParticipanteAdapter(ParticipanteDomainService participanteDomainService) {
         this.participanteDomainService = participanteDomainService;
     }
+
+
+
     public Participante save(Participante participante){
         return participanteDomainService.save(participante);
     }
