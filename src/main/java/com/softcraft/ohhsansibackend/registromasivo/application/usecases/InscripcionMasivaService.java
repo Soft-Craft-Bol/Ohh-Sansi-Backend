@@ -1,11 +1,16 @@
 package com.softcraft.ohhsansibackend.registromasivo.application.usecases;
 
+import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
+import com.softcraft.ohhsansibackend.participante.application.ports.ParticipanteAdapter;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
 import com.monitorjbl.xlsx.StreamingReader;
+import com.softcraft.ohhsansibackend.participante.domain.repository.implementation.ParticipanteDomainRepository;
 import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorService;
 import com.softcraft.ohhsansibackend.tutor.domain.models.Tutor;
+import com.softcraft.ohhsansibackend.utils.UniqueCodeGenerator;
 import org.apache.poi.ss.usermodel.*;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,17 +25,75 @@ public class InscripcionMasivaService {
 
     private final ParticipanteService participanteService;
     private final TutorService tutorService;
+    private final UniqueCodeGenerator uniqueCodeGenerator;
+    private final JdbcTemplate jdbcTemplate;
 
-    public InscripcionMasivaService(ParticipanteService participanteService, TutorService tutorService) {
+    public InscripcionMasivaService(ParticipanteService participanteService, TutorService tutorService, JdbcTemplate jdbcTemplate) {
         this.participanteService = participanteService;
         this.tutorService = tutorService;
+        this.uniqueCodeGenerator = new UniqueCodeGenerator();
+        this.jdbcTemplate = jdbcTemplate;
     }
 
+    public Participante createExclParticipante(String codUnique) {
+        Participante participante = new Participante();
+        // Datos por defecto para el participante Excel
+        participante.setIdDepartamento(2541);
+        participante.setIdMunicipio(11427);
+        participante.setIdColegio(11383);
+        participante.setIdGrado(15);
+        participante.setParticipanteHash(codUnique);
+        participante.setNombreParticipante("Excel");
+        participante.setApellidoPaterno("Inscription");
+        participante.setApellidoMaterno("");
+        participante.setFechaNacimiento(java.sql.Date.valueOf("2009-10-14"));
+
+        Random random = new Random();
+        int carnet = 22000000 + random.nextInt(2000000);;
+        ParticipanteDomainRepository participanteAdapter = new ParticipanteDomainRepository(jdbcTemplate);
+
+        boolean existe;
+        try {
+            participanteAdapter.findByCarnetIdentidad(carnet);
+            existe = true;
+        } catch (ResourceNotFoundException ex) {
+            existe = false;
+        }
+
+        if (existe) {
+            int nuevoCarnet;
+            int intentos = 0;
+            do {
+                nuevoCarnet = 22000000 + random.nextInt(2000000); // genera entre 22000000 y 23999999
+                intentos++;
+                if (intentos > 100) {
+                    throw new RuntimeException("No se pudo generar un CI único después de múltiples intentos.");
+                }
+                try {
+                    participanteAdapter.findByCarnetIdentidad(nuevoCarnet);
+                } catch (ResourceNotFoundException ex) {
+                    carnet = nuevoCarnet;
+                    break; // CI único encontrado
+                }
+            } while (true);
+        }
+
+        participante.setCarnetIdentidadParticipante(carnet);
+        System.out.println(carnet);
+        participante.setEmailParticipante("amercer732@gmail.com");
+        participante.setTutorRequerido(false);
+
+        return participante;
+    }
+
+
     public List<Map<String, Object>> processInscripcionMasiva(InputStream fileInputStream) throws IOException {
+        Participante participanteExcel = createExclParticipante(uniqueCodeGenerator.generate());
         List<Map<String, Object>> resultados = new ArrayList<>();
         int totalRegistros = 0;
         int registrosExitosos = 0;
         int registrosOmitidos = 0;
+        participanteService.save(participanteExcel);
 
         try (Workbook workbook = StreamingReader.builder()
                 .rowCacheSize(100)
@@ -39,7 +102,14 @@ public class InscripcionMasivaService {
 
             Sheet sheet = workbook.getSheetAt(1);
             System.out.println("Procesando hoja: " + sheet.getSheetName());
+            Sheet hoja4 = workbook.getSheetAt(5);
+            System.out.println("Procesando hoja: " + hoja4.getSheetName());
 
+
+            Iterator<Row> rowIteratorHoja4 = hoja4.iterator();
+            if (rowIteratorHoja4.hasNext()) {
+                rowIteratorHoja4.next();
+            }
             Iterator<Row> rowIterator = sheet.iterator();
             if (rowIterator.hasNext()) {
                 rowIterator.next(); // Saltar la fila de encabezados
@@ -47,6 +117,8 @@ public class InscripcionMasivaService {
 
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
+                Row rowArea = rowIteratorHoja4.next();
+
                 totalRegistros++;
                 Map<String, Object> resultado = new LinkedHashMap<>();
                 resultado.put("fila", row.getRowNum() + 1);
@@ -67,16 +139,30 @@ public class InscripcionMasivaService {
                     Map<String, Object> saveResult = participanteService.save(participante);
                     resultado.putAll(saveResult);
 
+                    // Asociar participanteExcel con el nuevo participante
+                    String insertSql = "INSERT INTO excel_association (id_excel, ci_participante) VALUES (?, ?)";
+                    jdbcTemplate.update(insertSql, participanteExcel.getCarnetIdentidadParticipante(), participante.getCarnetIdentidadParticipante());
+
+                    // También agregar al resultado del body
+                    resultado.put("ci_participante_excel", participanteExcel.getCarnetIdentidadParticipante());
+                    resultado.put("id_inscripcion", participanteExcel.getIdInscripcion());
+
+
+
                     // 2. Procesar tutor si es requerido
                     if (participante.isTutorRequerido()) {
                         try {
                             Tutor tutorLegal = mapRowToTutorLegal(row);
+                            Tutor profesor1 = mapRowToProfesor(rowArea,0);
+                            Tutor profesor2 = mapRowToProfesor(rowArea,7);
                             if (tutorLegal != null) {
                                 List<Tutor> tutores = new ArrayList<>();
                                 tutores.add(tutorLegal);
 
                                 // Validar parentesco
                                 int parentescoId = (int)getSafeIntValue(row.getCell(20));
+                                int area1 = (int)getSafeIntValue(rowArea.getCell(2));
+                                int area2 = (int)getSafeIntValue(rowArea.getCell(9));
                                 if (parentescoId == 0) {
                                     throw new IllegalArgumentException("Parentesco del tutor es obligatorio");
                                 }
@@ -88,6 +174,32 @@ public class InscripcionMasivaService {
                                         parentescoId
                                 );
                                 resultado.put("tutorResult", tutorResult);
+
+
+                                // Registrar profesor 1 si es válido
+                                if (area1 > 0 && profesor1 != null) {
+                                    Map<String, Object> profe1Result = tutorService.registrarTutorAcademico(
+                                            profesor1,
+                                            participante.getCarnetIdentidadParticipante(),
+                                            area1
+                                    );
+                                    resultado.put("Profesor1 result", profe1Result);
+                                } else {
+                                    resultado.put("Profesor1 error", "No se registró: area1 inválida o profesor1 nulo");
+                                }
+
+                                // Registrar profesor 2 si es válido
+                                if (area2 > 0 && profesor2 != null) {
+                                    Map<String, Object> profe2Result = tutorService.registrarTutorAcademico(
+                                            profesor2,
+                                            participante.getCarnetIdentidadParticipante(),
+                                            area2
+                                    );
+                                    resultado.put("Profesor2 result", profe2Result);
+                                } else {
+                                    resultado.put("Profesor2 error", "No se registró: area2 inválida o profesor2 nulo");
+                                }
+
                             }
                         } catch (Exception e) {
                             resultado.put("tutorError", "Error al procesar tutor: " + e.getMessage());
@@ -139,6 +251,35 @@ public class InscripcionMasivaService {
             tutor.setTelefono(getSafeIntValue(row.getCell(17)));
             tutor.setCarnetIdentidadTutor(getSafeIntValue(row.getCell(18)));
             tutor.setComplementoCiTutor(getSafeStringValue(row.getCell(19)));
+
+
+            return tutor;
+        } catch (Exception e) {
+            System.err.println("Error al mapear tutor: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private Tutor mapRowToProfesor(Row row, int index) {
+        try {
+            // Validar campos obligatorios del tutor
+            if (isEmptyCell(row.getCell(1 )) || // id_tipo_tutor
+                    isEmptyCell(row.getCell(index+2)) || // id_area
+                    isEmptyCell(row.getCell(index+3)) || // email_tutor
+                    isEmptyCell(row.getCell(index+4)) || // nombres_tutor
+                    isEmptyCell(row.getCell(index+5)) || // apellidos_tutor
+                    isEmptyCell(row.getCell(index+7))) { // carnet_identidad_tutor
+                return null;
+            }
+
+            Tutor tutor = new Tutor();
+            tutor.setIdTipoTutor(getSafeIntValue(row.getCell(index+1)));
+            tutor.setEmailTutor(getSafeStringValue(row.getCell(index+3)));
+            tutor.setNombresTutor(getSafeStringValue(row.getCell(index+4)));
+            tutor.setApellidosTutor(getSafeStringValue(row.getCell(index+5)));
+            tutor.setTelefono(getSafeIntValue(row.getCell(index+6)));
+            tutor.setCarnetIdentidadTutor(getSafeIntValue(row.getCell(index+7)));
+            tutor.setComplementoCiTutor(getSafeStringValue(row.getCell(index+8)));
 
 
             return tutor;
@@ -232,7 +373,8 @@ public class InscripcionMasivaService {
             case BLANK:
                 return true;
             case STRING:
-                return cell.getStringCellValue().trim().isEmpty();
+                String value = cell.getStringCellValue().trim();
+                return value.isEmpty() || value.equals("0");
             case NUMERIC:
                 // Considerar 0 como vacío si es necesario
                 return cell.getNumericCellValue() == 0;
@@ -267,11 +409,13 @@ public class InscripcionMasivaService {
         }
 
         try {
+
             System.out.println("Tipo de celda: " + cell.getCellType());
 
             // Caso 1: Celda es una fórmula
             if (cell.getCellType() == CellType.FORMULA) {
                 System.out.println("Celda es fórmula. Evaluando...");
+                System.out.println("su formula"+ cell.getCellFormula());
 
                 // Obtener el valor calculado de la fórmula
                 switch (cell.getCachedFormulaResultType()) {
