@@ -1,17 +1,13 @@
-CREATE OR REPLACE FUNCTION insertLevelEscolar(
-    nombreNivelEscolar VARCHAR
+CREATE OR REPLACE FUNCTION insertGrado(
+    nombreGrado VARCHAR
 )
-RETURNS BOOLEAN AS $$
+    RETURNS BOOLEAN AS $$
 DECLARE
     newId INTEGER;
-    codigoNivel VARCHAR;
 BEGIN
-    codigoNivel :- regexp_replace(nombreNivelEscolar, '[^0-9A-Za-z]', '', 'g';
-    codigoNivel :- left(codigoNivel, 2);
-
-    INSERT INTO nivel_escolar (codigo_nivel, nombre_nivel_escolar)
-    VALUES (codigoNivel, nombreNivelEscolar)
-    RETURNING id_nivel INTO newId;
+    INSERT INTO grado (nombre_grado)
+    VALUES (nombreGrado)
+    RETURNING id_grado INTO newId;
 
     IF newId IS NOT NULL THEN
         RETURN TRUE;
@@ -22,21 +18,24 @@ EXCEPTION
     WHEN OTHERS THEN
         RETURN FALSE;
 END;
+
 $$ LANGUAGE plpgsql;
 
-SELECT insertLevelEscolar('1ro Secundaria');
-SELECT insertLevelEscolar('3ro Primaria');
+SELECT insertGrado('1ro Secundaria');
+SELECT insertGrado('3ro Primaria');
 -----------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION updateLevelEscolar(
-    idLevel INTEGER,
-    nombreNivelEscolar VARCHAR
+CREATE OR REPLACE FUNCTION updateGrado(
+    idGrado INTEGER,
+    nombreGrado VARCHAR
 )
 RETURNS BOOLEAN AS $$
 DECLARE
     codigoNivel VARCHAR;
 BEGIN
-    codigoNivel :- regexp_replace(nombreNivelEscolar, '[^0-9A-Za-z]', '', 'g';
-    codigoNivel :- left(codigoNivel, 2);
+    codigoNivel := (
+        SELECT STRING_AGG(LEFT(word, 1), '')
+        FROM unnest(string_to_array(nombreNivelEscolar, ' ')) AS word
+    );
 
     UPDATE nivel_escolar
     SET codigo_nivel = codigoNivel,
@@ -54,12 +53,12 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT updateLevelEscolar(1, '2do Secundaria');
+SELECT updateNivelEscolar(1, '2do Secundaria');
 -----------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION deleteLevelEscolar(idLevel INTEGER)
+CREATE OR REPLACE FUNCTION deleteGrado(idGrado INTEGER)
 RETURNS BOOLEAN AS $$
 BEGIN
-    DELETE FROM nivel_escolar WHERE id_nivel = idLevel;
+    DELETE FROM grado WHERE id_grado = idGrado;
     IF FOUND THEN
         RETURN TRUE;
     ELSE
@@ -71,29 +70,47 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT deleteLevelEscolar(2);
+SELECT deleteNivelEscolar(2);
 -----------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION selectLevelEscolarById(idLevel INTEGER)
-RETURNS TABLE (id_nivel INTEGER, codigo_nivel VARCHAR, nombre_nivel_escolar VARCHAR) AS $$
+CREATE OR REPLACE FUNCTION selectGradoById(idGrado INTEGER)
+RETURNS TABLE (id_grado INTEGER, nombre_grado VARCHAR) AS $$
 BEGIN
     RETURN QUERY
-    SELECT nivel_escolar.id_nivel, nivel_escolar.codigo_nivel, nivel_escolar.nombre_nivel_escolar
-    FROM nivel_escolar
-    WHERE nivel_escolar.id_nivel = idLevel;
+    SELECT g.id_grado, g.nombre_grado
+    FROM grado g
+    WHERE g.id_grado = idGrado;
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM selectLevelEscolarById(1);
+SELECT * FROM selectNivelEscolarById(1);
 -----------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION selectAllLevelEscolar()
-RETURNS TABLE (id_nivel INTEGER, codigo_nivel VARCHAR, nombre_nivel_escolar VARCHAR) AS $$
+CREATE OR REPLACE FUNCTION selectAllGrados()
+RETURNS TABLE (id_grado INTEGER, nombre_grado VARCHAR) AS $$
 BEGIN
     RETURN QUERY
-    SELECT nivel_escolar.id_nivel, nivel_escolar.codigo_nivel, nivel_escolar.nombre_nivel_escolar
-    FROM nivel_escolar;
+    SELECT g.id_grado, g.nombre_grado
+    FROM grado g;
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM selectAllLevelEscolar();
+SELECT * FROM selectAllGrados();
 -----------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION obtener_grados_por_categoria()
+    RETURNS TABLE(id_categoria INTEGER, nombre_categoria VARCHAR(100), grados INTEGER[]) AS $$
+BEGIN
+    RETURN QUERY
+        SELECT
+            c.id_categoria,
+            c.nombre_categoria,
+            array_agg(g.id_grado ORDER BY g.id_grado)
+        FROM grado_categoria gc
+                 JOIN categorias c ON gc.id_categoria = c.id_categoria
+                 JOIN grado g ON gc.id_grado = g.id_grado
+        GROUP BY c.nombre_categoria, c.id_categoria
+        ORDER BY c.nombre_categoria;
+END;
+$$ LANGUAGE plpgsql;
 
+
+SELECT * FROM obtener_grados_por_categoria();
+DROP FUNCTION IF EXISTS obtener_grados_por_categoria();

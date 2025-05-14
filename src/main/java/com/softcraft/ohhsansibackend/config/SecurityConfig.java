@@ -2,8 +2,8 @@ package com.softcraft.ohhsansibackend.config;
 
 import com.softcraft.ohhsansibackend.config.filter.JwtTokenValidator;
 import com.softcraft.ohhsansibackend.config.filter.JwtUtils;
-import com.softcraft.ohhsansibackend.domain.models.Usuario;
-import com.softcraft.ohhsansibackend.domain.repository.implementation.UsuarioDomainRepository;
+import com.softcraft.ohhsansibackend.usuario.domain.models.Usuario;
+import com.softcraft.ohhsansibackend.usuario.domain.repository.implementation.UsuarioDomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,7 +41,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("https://www.inpasep.com", "http://localhost:5173"));
+        configuration.setAllowedOrigins(Arrays.asList("https://www.inpasep.com", "http://localhost:5173", "http://localhost:5174"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowCredentials(true);
