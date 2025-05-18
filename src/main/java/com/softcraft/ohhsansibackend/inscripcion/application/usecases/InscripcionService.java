@@ -5,8 +5,6 @@ import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.application.ports.InscripcionAdapter;
 import com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementation.InscripcionDomainRepository;
 import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionDomainService;
-import com.softcraft.ohhsansibackend.ordenPago.application.usecases.OrdenPagoService;
-import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.utils.UniqueCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;

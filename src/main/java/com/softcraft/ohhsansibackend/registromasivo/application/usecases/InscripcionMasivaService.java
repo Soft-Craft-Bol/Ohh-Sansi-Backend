@@ -25,24 +25,23 @@ public class InscripcionMasivaService {
 
     private final ParticipanteService participanteService;
     private final TutorService tutorService;
-    private final UniqueCodeGenerator uniqueCodeGenerator;
     private final JdbcTemplate jdbcTemplate;
+    private int counterFaileds = 0;
 
     public InscripcionMasivaService(ParticipanteService participanteService, TutorService tutorService, JdbcTemplate jdbcTemplate) {
         this.participanteService = participanteService;
         this.tutorService = tutorService;
-        this.uniqueCodeGenerator = new UniqueCodeGenerator();
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Participante createExclParticipante(String codUnique) {
+    public Participante createExclParticipante() {
         Participante participante = new Participante();
         // Datos por defecto para el participante Excel
         participante.setIdDepartamento(2541);
         participante.setIdMunicipio(11427);
         participante.setIdColegio(11383);
         participante.setIdGrado(15);
-        participante.setParticipanteHash(codUnique);
+        participante.setParticipanteHash("XcelLinscRiption");
         participante.setNombreParticipante("Excel");
         participante.setApellidoPaterno("Inscription");
         participante.setApellidoMaterno("");
@@ -88,11 +87,12 @@ public class InscripcionMasivaService {
 
 
     public List<Map<String, Object>> processInscripcionMasiva(InputStream fileInputStream) throws IOException {
-        Participante participanteExcel = createExclParticipante(uniqueCodeGenerator.generate());
+        Participante participanteExcel = createExclParticipante();
         List<Map<String, Object>> resultados = new ArrayList<>();
         int totalRegistros = 0;
         int registrosExitosos = 0;
         int registrosOmitidos = 0;
+        int omitidosSeguidos = 0;
         participanteService.save(participanteExcel);
 
         try (Workbook workbook = StreamingReader.builder()
@@ -102,7 +102,7 @@ public class InscripcionMasivaService {
 
             Sheet sheet = workbook.getSheetAt(1);
             System.out.println("Procesando hoja: " + sheet.getSheetName());
-            Sheet hoja4 = workbook.getSheetAt(5);
+            Sheet hoja4 = workbook.getSheetAt(4);
             System.out.println("Procesando hoja: " + hoja4.getSheetName());
 
 
@@ -126,12 +126,19 @@ public class InscripcionMasivaService {
                 try {
                     // Validar campos obligatorios del participante
                     if (!esFilaValida(row)) {
+                        registrosOmitidos++;
+                        omitidosSeguidos++;
+                        if(omitidosSeguidos >= 2){
+                            System.out.println("Se llego al final de la tabla, detendiendo ejecución");//Si ya son 2 seguidos, final de la tabla
+                            break;
+                        }
                         resultado.put("success", false);
                         resultado.put("error", "Fila omitida - Campos obligatorios vacíos");
                         resultado.put("omitido", true);
-                        registrosOmitidos++;
                         resultados.add(resultado);
                         continue;
+                    }else{
+                        omitidosSeguidos = 0;
                     }
 
                     // 1. Registrar participante
@@ -140,8 +147,8 @@ public class InscripcionMasivaService {
                     resultado.putAll(saveResult);
 
                     // Asociar participanteExcel con el nuevo participante
-                    String insertSql = "INSERT INTO excel_association (id_excel, ci_participante) VALUES (?, ?)";
-                    jdbcTemplate.update(insertSql, participanteExcel.getCarnetIdentidadParticipante(), participante.getCarnetIdentidadParticipante());
+                    String insertSql = "INSERT INTO excel_association (id_excel, ci_participante, id_inscripcion_excel) VALUES (?, ?, ?)";
+                    jdbcTemplate.update(insertSql, participanteExcel.getCarnetIdentidadParticipante(), participante.getCarnetIdentidadParticipante(), participanteExcel.getIdInscripcion());
 
                     // También agregar al resultado del body
                     resultado.put("ci_participante_excel", participanteExcel.getCarnetIdentidadParticipante());
@@ -185,7 +192,7 @@ public class InscripcionMasivaService {
                                     );
                                     resultado.put("Profesor1 result", profe1Result);
                                 } else {
-                                    resultado.put("Profesor1 error", "No se registró: area1 inválida o profesor1 nulo");
+                                    resultado.put("Profesor1 error", "No se registró: área o datos de profesor inválidos");
                                 }
 
                                 // Registrar profesor 2 si es válido
@@ -197,7 +204,7 @@ public class InscripcionMasivaService {
                                     );
                                     resultado.put("Profesor2 result", profe2Result);
                                 } else {
-                                    resultado.put("Profesor2 error", "No se registró: area2 inválida o profesor2 nulo");
+                                    resultado.put("Profesor2 error", "No se registró: área o datos de profesor inválidos");
                                 }
 
                             }
@@ -361,27 +368,43 @@ public class InscripcionMasivaService {
     }
 
 
-
-
-
     private boolean isEmptyCell(Cell cell) {
         if (cell == null) {
             return true;
         }
 
-        switch (cell.getCellType()) {
+        CellType cellType = cell.getCellType();
+
+        // Si es una fórmula, evaluamos su resultado
+        if (cellType == CellType.FORMULA) {
+            cellType = cell.getCachedFormulaResultType();
+        }
+
+        switch (cellType) {
             case BLANK:
                 return true;
+
             case STRING:
-                String value = cell.getStringCellValue().trim();
-                return value.isEmpty() || value.equals("0");
+                String strValue = cell.getStringCellValue().trim();
+                return strValue.isEmpty() || strValue.equals("0");
+
             case NUMERIC:
-                // Considerar 0 como vacío si es necesario
-                return cell.getNumericCellValue() == 0;
+                double numValue = cell.getNumericCellValue();
+                // Validamos 0 y valores de fecha tipo 1899-12-31
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    Date date = cell.getDateCellValue();
+                    return date.getTime() == DateUtil.getJavaDate(0).getTime();
+                }
+                return numValue == 0;
+
+            case BOOLEAN:
+                return false; // booleanos no deberían ser vacíos normalmente
+
             default:
                 return false;
         }
     }
+
 
     private Participante mapRowToParticipanteHoja2(Row row) {
         Participante participante = new Participante();
@@ -409,8 +432,6 @@ public class InscripcionMasivaService {
         }
 
         try {
-
-            System.out.println("Tipo de celda: " + cell.getCellType());
 
             // Caso 1: Celda es una fórmula
             if (cell.getCellType() == CellType.FORMULA) {
