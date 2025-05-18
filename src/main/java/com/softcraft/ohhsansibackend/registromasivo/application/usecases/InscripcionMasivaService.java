@@ -26,6 +26,7 @@ public class InscripcionMasivaService {
     private final ParticipanteService participanteService;
     private final TutorService tutorService;
     private final JdbcTemplate jdbcTemplate;
+    private int counterFaileds = 0;
 
     public InscripcionMasivaService(ParticipanteService participanteService, TutorService tutorService, JdbcTemplate jdbcTemplate) {
         this.participanteService = participanteService;
@@ -91,6 +92,7 @@ public class InscripcionMasivaService {
         int totalRegistros = 0;
         int registrosExitosos = 0;
         int registrosOmitidos = 0;
+        int omitidosSeguidos = 0;
         participanteService.save(participanteExcel);
 
         try (Workbook workbook = StreamingReader.builder()
@@ -124,12 +126,19 @@ public class InscripcionMasivaService {
                 try {
                     // Validar campos obligatorios del participante
                     if (!esFilaValida(row)) {
+                        registrosOmitidos++;
+                        omitidosSeguidos++;
+                        if(omitidosSeguidos >= 2){
+                            System.out.println("Se llego al final de la tabla, detendiendo ejecución");//Si ya son 2 seguidos, final de la tabla
+                            break;
+                        }
                         resultado.put("success", false);
                         resultado.put("error", "Fila omitida - Campos obligatorios vacíos");
                         resultado.put("omitido", true);
-                        registrosOmitidos++;
                         resultados.add(resultado);
                         continue;
+                    }else{
+                        omitidosSeguidos = 0;
                     }
 
                     // 1. Registrar participante
@@ -183,7 +192,7 @@ public class InscripcionMasivaService {
                                     );
                                     resultado.put("Profesor1 result", profe1Result);
                                 } else {
-                                    resultado.put("Profesor1 error", "No se registró: area1 "+area1+" o profesor1" + profesor1);
+                                    resultado.put("Profesor1 error", "No se registró: área o datos de profesor inválidos");
                                 }
 
                                 // Registrar profesor 2 si es válido
@@ -195,7 +204,7 @@ public class InscripcionMasivaService {
                                     );
                                     resultado.put("Profesor2 result", profe2Result);
                                 } else {
-                                    resultado.put("Profesor2 error", "No se registró: area2 "+area2+" o profesor1" + profesor2);
+                                    resultado.put("Profesor2 error", "No se registró: área o datos de profesor inválidos");
                                 }
 
                             }
@@ -364,19 +373,38 @@ public class InscripcionMasivaService {
             return true;
         }
 
-        switch (cell.getCellType()) {
+        CellType cellType = cell.getCellType();
+
+        // Si es una fórmula, evaluamos su resultado
+        if (cellType == CellType.FORMULA) {
+            cellType = cell.getCachedFormulaResultType();
+        }
+
+        switch (cellType) {
             case BLANK:
                 return true;
+
             case STRING:
-                String value = cell.getStringCellValue().trim();
-                return value.isEmpty() || value.equals("0");
+                String strValue = cell.getStringCellValue().trim();
+                return strValue.isEmpty() || strValue.equals("0");
+
             case NUMERIC:
-                // Considerar 0 como vacío si es necesario
-                return cell.getNumericCellValue() == 0;
+                double numValue = cell.getNumericCellValue();
+                // Validamos 0 y valores de fecha tipo 1899-12-31
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    Date date = cell.getDateCellValue();
+                    return date.getTime() == DateUtil.getJavaDate(0).getTime();
+                }
+                return numValue == 0;
+
+            case BOOLEAN:
+                return false; // booleanos no deberían ser vacíos normalmente
+
             default:
                 return false;
         }
     }
+
 
     private Participante mapRowToParticipanteHoja2(Row row) {
         Participante participante = new Participante();
@@ -404,8 +432,6 @@ public class InscripcionMasivaService {
         }
 
         try {
-
-            System.out.println("Tipo de celda: " + cell.getCellType());
 
             // Caso 1: Celda es una fórmula
             if (cell.getCellType() == CellType.FORMULA) {
