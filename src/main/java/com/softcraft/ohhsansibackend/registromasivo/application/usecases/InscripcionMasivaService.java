@@ -25,24 +25,22 @@ public class InscripcionMasivaService {
 
     private final ParticipanteService participanteService;
     private final TutorService tutorService;
-    private final UniqueCodeGenerator uniqueCodeGenerator;
     private final JdbcTemplate jdbcTemplate;
 
     public InscripcionMasivaService(ParticipanteService participanteService, TutorService tutorService, JdbcTemplate jdbcTemplate) {
         this.participanteService = participanteService;
         this.tutorService = tutorService;
-        this.uniqueCodeGenerator = new UniqueCodeGenerator();
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Participante createExclParticipante(String codUnique) {
+    public Participante createExclParticipante() {
         Participante participante = new Participante();
         // Datos por defecto para el participante Excel
         participante.setIdDepartamento(2541);
         participante.setIdMunicipio(11427);
         participante.setIdColegio(11383);
         participante.setIdGrado(15);
-        participante.setParticipanteHash(codUnique);
+        participante.setParticipanteHash("XcelLinscRiption");
         participante.setNombreParticipante("Excel");
         participante.setApellidoPaterno("Inscription");
         participante.setApellidoMaterno("");
@@ -88,7 +86,7 @@ public class InscripcionMasivaService {
 
 
     public List<Map<String, Object>> processInscripcionMasiva(InputStream fileInputStream) throws IOException {
-        Participante participanteExcel = createExclParticipante(uniqueCodeGenerator.generate());
+        Participante participanteExcel = createExclParticipante();
         List<Map<String, Object>> resultados = new ArrayList<>();
         int totalRegistros = 0;
         int registrosExitosos = 0;
@@ -102,7 +100,7 @@ public class InscripcionMasivaService {
 
             Sheet sheet = workbook.getSheetAt(1);
             System.out.println("Procesando hoja: " + sheet.getSheetName());
-            Sheet hoja4 = workbook.getSheetAt(5);
+            Sheet hoja4 = workbook.getSheetAt(4);
             System.out.println("Procesando hoja: " + hoja4.getSheetName());
 
 
@@ -140,8 +138,8 @@ public class InscripcionMasivaService {
                     resultado.putAll(saveResult);
 
                     // Asociar participanteExcel con el nuevo participante
-                    String insertSql = "INSERT INTO excel_association (id_excel, ci_participante) VALUES (?, ?)";
-                    jdbcTemplate.update(insertSql, participanteExcel.getCarnetIdentidadParticipante(), participante.getCarnetIdentidadParticipante());
+                    String insertSql = "INSERT INTO excel_association (id_excel, ci_participante, id_inscripcion_excel) VALUES (?, ?, ?)";
+                    jdbcTemplate.update(insertSql, participanteExcel.getCarnetIdentidadParticipante(), participante.getCarnetIdentidadParticipante(), participanteExcel.getIdInscripcion());
 
                     // También agregar al resultado del body
                     resultado.put("ci_participante_excel", participanteExcel.getCarnetIdentidadParticipante());
@@ -185,7 +183,7 @@ public class InscripcionMasivaService {
                                     );
                                     resultado.put("Profesor1 result", profe1Result);
                                 } else {
-                                    resultado.put("Profesor1 error", "No se registró: area1 inválida o profesor1 nulo");
+                                    resultado.put("Profesor1 error", "No se registró: area1 "+area1+" o profesor1" + profesor1);
                                 }
 
                                 // Registrar profesor 2 si es válido
@@ -197,7 +195,7 @@ public class InscripcionMasivaService {
                                     );
                                     resultado.put("Profesor2 result", profe2Result);
                                 } else {
-                                    resultado.put("Profesor2 error", "No se registró: area2 inválida o profesor2 nulo");
+                                    resultado.put("Profesor2 error", "No se registró: area2 "+area2+" o profesor1" + profesor2);
                                 }
 
                             }
@@ -359,9 +357,6 @@ public class InscripcionMasivaService {
         }
         return true;
     }
-
-
-
 
 
     private boolean isEmptyCell(Cell cell) {
