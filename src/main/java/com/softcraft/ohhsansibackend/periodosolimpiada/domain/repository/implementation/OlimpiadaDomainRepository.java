@@ -22,11 +22,13 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
 
     @Override
     public Olimpiada saveOlimpiada(Olimpiada olimpiada) {
-        String sql = "SELECT * FROM crear_olimpiada(?, ?, ?)";
+        String sql = "SELECT * FROM crear_olimpiada(?, ?, ?, ?, ?)";
         return jdbcTemplate.queryForObject(sql, new Object[]{
                 olimpiada.getAnio(),
                 olimpiada.getNombreOlimpiada(),
-                olimpiada.getPrecioOlimpiada()
+                olimpiada.getPrecioOlimpiada(),
+                olimpiada.getFechaInicio(),
+                olimpiada.getFechaFin()
         }, new BeanPropertyRowMapper<>(Olimpiada.class));
     }
 

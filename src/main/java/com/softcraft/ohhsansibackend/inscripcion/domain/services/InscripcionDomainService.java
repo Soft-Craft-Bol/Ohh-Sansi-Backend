@@ -35,6 +35,10 @@ public class InscripcionDomainService {
         return inscripcionDomainRepository.findIdByCodigoUnico(codigoUnico);
     }
 
+    public Map<String, Object> getInscripcionDetails(String codigoUnico) {
+        return inscripcionDomainRepository.getDetalleInscripcion(codigoUnico);
+    }
+
     //askldjakls
     public List<Map<String, Object>> getInscripcionById(int idInscripcion) {
         return inscripcionDomainRepository.findInscripcionById(idInscripcion);

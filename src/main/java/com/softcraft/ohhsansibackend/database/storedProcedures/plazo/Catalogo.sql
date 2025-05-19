@@ -79,7 +79,7 @@ $$ LANGUAGE plpgsql;
 
 
 
-SELECT * FROM insertCatalogo(18, 100, 1);
+SELECT * FROM insertCatalogo(18, 100, 69);
 -- -----------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION obtener_catalogo_por_periodo()
     RETURNS TABLE (
