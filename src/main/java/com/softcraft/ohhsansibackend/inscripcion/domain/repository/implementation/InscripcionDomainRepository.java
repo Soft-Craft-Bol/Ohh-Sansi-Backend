@@ -113,9 +113,9 @@ public class InscripcionDomainRepository {
     public List<Map<String, Object>> findOlimapiada() {
         String sql =
                 """
-                    select *
-                    from olimpiada
-                    where olimpiada.estado_olimpiada = true;
+                    select o.*
+                    from olimpiada o, estado_olimpiada eo
+                    where o.id_estado = eo.id_estado and eo.nombre_estado='INSCRIPCION';
                 """
                 ;
         return jdbcTemplate.queryForList(sql);
