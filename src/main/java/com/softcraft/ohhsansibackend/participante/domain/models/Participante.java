@@ -183,4 +183,25 @@ public class Participante {
     public void setTutorRequerido(boolean tutorRequerido) {
         this.tutorRequerido = tutorRequerido;
     }
+
+    @Override
+    public String toString() {
+        return "Participante{" +
+                "idInscripcion=" + idInscripcion +
+                ", idParticipante=" + idParticipante +
+                ", idDepartamento=" + idDepartamento +
+                ", idMunicipio=" + idMunicipio +
+                ", idColegio=" + idColegio +
+                ", idGrado=" + idGrado +
+                ", participanteHash='" + participanteHash + '\'' +
+                ", nombreParticipante='" + nombreParticipante + '\'' +
+                ", apellidoPaterno='" + apellidoPaterno + '\'' +
+                ", apellidoMaterno='" + apellidoMaterno + '\'' +
+                ", fechaNacimiento=" + fechaNacimiento +
+                ", carnetIdentidadParticipante=" + carnetIdentidadParticipante +
+                ", complementoCiParticipante='" + complementoCiParticipante + '\'' +
+                ", emailParticipante='" + emailParticipante + '\'' +
+                ", tutorRequerido=" + tutorRequerido +
+                '}';
+    }
 }
