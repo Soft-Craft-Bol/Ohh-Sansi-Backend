@@ -41,7 +41,9 @@ CREATE OR REPLACE FUNCTION selectOlimpiada()
                       anio INTEGER,
                       nombre_olimpiada VARCHAR,
                       nombre_estado VARCHAR,
-                      precio_olimpiada DECIMAL
+                      precio_olimpiada DECIMAL,
+                        fecha_inicio DATE,
+                        fecha_fin DATE
                   ) AS $$
 BEGIN
     RETURN QUERY
@@ -50,7 +52,9 @@ BEGIN
             o.anio,
             o.nombre_olimpiada,
             e.nombre_estado,
-            o.precio_olimpiada
+            o.precio_olimpiada,
+            o.fecha_inicio,
+            o.fecha_fin
         FROM
             olimpiada o
                 JOIN
@@ -204,3 +208,29 @@ CREATE TRIGGER trg_actualizar_estado_automatico
     BEFORE UPDATE ON public.olimpiada
     FOR EACH ROW
 EXECUTE FUNCTION public.actualizar_estado_automatico();
+
+----------------------
+CREATE OR REPLACE FUNCTION public.validar_olimpiadas_no_solapados()
+    RETURNS trigger AS $$
+DECLARE
+    solapado boolean;
+BEGIN
+    -- Verifica si hay cualquier olimpiada existente (sin importar estado) que se solape
+    SELECT EXISTS (
+        SELECT 1 FROM public.olimpiada
+        WHERE id_olimpiada != COALESCE(NEW.id_olimpiada, 0)  -- Excluye el registro actual en updates
+          AND (fecha_inicio, fecha_fin) OVERLAPS (NEW.fecha_inicio, NEW.fecha_fin)
+    ) INTO solapado;
+
+    IF solapado THEN
+        RAISE EXCEPTION 'Ya existe una olimpiada registrada entre este rango de fechas: % - %',
+            NEW.fecha_inicio, NEW.fecha_fin;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_validar_solapamiento_global
+    BEFORE INSERT OR UPDATE ON public.olimpiada
+    FOR EACH ROW EXECUTE FUNCTION public.validar_olimpiadas_no_solapados();

@@ -189,3 +189,5 @@ $$;
 
 
 SELECT * FROM obtener_detalle_inscripcion('O3UXY6');
+
+TRUNCATE neondb.public.inscripcion

@@ -72,8 +72,10 @@ public class OlimpiadaService {
 
         if (rootCause.contains("no se pueden activar") || rootCause.contains("año anterior")) {
             return "No puedes activar una olimpiada de un año anterior al actual";
-        } else if (rootCause.contains("ya existe") || rootCause.contains("duplicate")) {
-            return "Este período olímpico ya ha sido registrado anteriormente";
+        } else if (rootCause.contains("ya existe")) {
+            return "Ya existe una olimpiada registrada con el mismo nombre";
+        } else if (rootCause.contains("existe una olimpiada registrada entre este rango de fechas")) {
+            return "Esta olimpiada se solapa con sus fechas con otra ya registrada";
         } else if (rootCause.contains("año futuro")) {
             return "Solo se pueden crear olimpiadas para el año actual o futuros";
         } else {
