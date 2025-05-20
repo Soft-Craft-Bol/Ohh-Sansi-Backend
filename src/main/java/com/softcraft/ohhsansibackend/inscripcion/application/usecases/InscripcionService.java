@@ -91,28 +91,7 @@ public class InscripcionService {
         return inscripcionDomainService.getTutoresByInscripcionId(idInscripcion);
     }
     public Map<String, Object> getInscripcionDetails(String codigoUnico) {
-        int idInscripcion = findIdByCodigoUnico(codigoUnico).intValue();
-        Participante participante = inscripcionAdapter.findParticipanteByIdInscripcion(idInscripcion);
-        int edadParticipante = inscripcionAdapter.calculateEdad(participante);
-        List<Map<String,Object>> areas = getAreasByInscripcionId(idInscripcion);
-        if (areas.isEmpty()) {
-            throw new ResourceNotFoundException("No se encontraron áreas para la inscripción con código único: " + codigoUnico);
-        }
-        List<Map<String,Object>> tutores = getTutoresByInscripcionId(idInscripcion);
-        if(tutores.isEmpty() && edadParticipante<15){
-            throw new ResourceNotFoundException("No se puede generar la orden de pago, necesitas al menos un tutor para terminar el registro, edad menor a 15 años: " + codigoUnico);
-        }
-
-
-        return Map.of(
-                "inscripcion", getInscripcionById(idInscripcion),
-                "participantes", getParticipantesByInscripcionId(idInscripcion),
-                "areas", areas,
-                "tutores", tutores,
-                "olimpiadas", inscripcionDomainRepository.findOlimapiada(),
-                "edadParticipante", edadParticipante,
-                "ordenDePagoGenerada",inscripcionAdapter.verificarEstadoOrdenPago(idInscripcion)
-        );
+        return inscripcionDomainService.getInscripcionDetails(codigoUnico);
     }
     public boolean deleteInscripcionById(int idInscripcion) {
         return inscripcionAdapter.deleteInscripcionById(idInscripcion);

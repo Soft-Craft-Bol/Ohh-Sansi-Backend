@@ -5,6 +5,7 @@ import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -60,10 +61,23 @@ public class InscripcionDomainRepository {
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Inscripcion.class));
     }
 
+    public Map<String, Object> getDetalleInscripcion(String codigoUnico) {
+        String sql = "SELECT * FROM obtener_detalle_inscripcion(?)";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{codigoUnico}, new ColumnMapRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResourceNotFoundException("Inscripción no encontrada");
+        }
+    }
+
 
     public Long findIdByCodigoUnico(String codigoUnicoInscripcion) {
         String sql = "SELECT id_inscripcion FROM inscripcion WHERE codigo_unico_inscripcion = ?";
-        return jdbcTemplate.queryForObject(sql, new Object[]{codigoUnicoInscripcion}, Long.class);
+        try {
+            return jdbcTemplate.queryForObject(sql, Long.class, codigoUnicoInscripcion);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
     public List<Map<String, Object>> findInscripcionById(int idInscripcion) {
         String sql = "SELECT * FROM inscripcion WHERE id_inscripcion = ?";

@@ -34,6 +34,10 @@ public class CatalogoOlimpiadaService {
                 errorMessage = "La categoría seleccionada no tiene grados asociados.";
             } else if (errorMessage.contains("Conflicto: Esta categoría comparte grados")) {
                 errorMessage = "Esta categoría comparte grados con otra categoría ya registrada en esta área y olimpiada.";
+            } else if (errorMessage.contains("Solo se puede modificar el catálogo en estado PLANIFICACION o HISTORICO")) {
+                errorMessage = "Solo se puede modificar el catálogo cuando la olimpiada está en estado 'PLANIFICACION'.";
+            } else if (errorMessage.contains("No se puede eliminar el catálogo")) {
+                errorMessage = "No se puede eliminar el catálogo porque ya tiene inscripciones asociadas.";
             } else {
                 errorMessage = "Error al guardar el catálogo. Intenta de nuevo.";
             }
@@ -44,7 +48,6 @@ public class CatalogoOlimpiadaService {
             );
         }
     }
-
     public List<CatalogoOlimpiadaDTO> findAll() {
         return catalogoOlimpiadaAdapter.findAll();
     }

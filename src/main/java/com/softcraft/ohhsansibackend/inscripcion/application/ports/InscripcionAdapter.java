@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 
 
 @Repository
@@ -43,7 +44,9 @@ public class InscripcionAdapter {
         return inscripcionDomainService.listInscripcion();
     }
 
-
+    public Map<String, Object> getDetalleInscripcion(String codigoUnico) {
+        return inscripcionDomainService.getInscripcionDetails(codigoUnico);
+    }
 
     public Long findIdByCodigoUnico(String codigoUnico) {
         return inscripcionDomainService.findIdByCodigoUnico(codigoUnico);
