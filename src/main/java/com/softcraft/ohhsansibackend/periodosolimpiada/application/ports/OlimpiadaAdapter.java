@@ -37,4 +37,8 @@ public class OlimpiadaAdapter {
     public Optional<Olimpiada> findById(int idOlimpiada) {
         return olimpiadaDomainService.findById(idOlimpiada);
     }
+
+    public Olimpiada findOlimpiadaById(int idOlimpiada){
+        return olimpiadaDomainService.findOlimpiadaById(idOlimpiada);
+    }
 }

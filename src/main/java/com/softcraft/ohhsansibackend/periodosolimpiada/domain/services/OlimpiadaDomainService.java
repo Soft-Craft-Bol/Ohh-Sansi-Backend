@@ -2,6 +2,7 @@ package com.softcraft.ohhsansibackend.periodosolimpiada.domain.services;
 
 import com.softcraft.ohhsansibackend.periodosolimpiada.domain.models.Olimpiada;
 import com.softcraft.ohhsansibackend.periodosolimpiada.domain.repository.abstraction.IOlimpiadaRepository;
+import com.softcraft.ohhsansibackend.periodosolimpiada.domain.repository.implementation.OlimpiadaDomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +13,12 @@ import java.util.Optional;
 @Service
 public class OlimpiadaDomainService {
     private final IOlimpiadaRepository olimpiadaRepository;
+    private final OlimpiadaDomainRepository olimpiadaDomainRepository;
 
     @Autowired
-    public OlimpiadaDomainService(IOlimpiadaRepository olimpiadaRepository) {
+    public OlimpiadaDomainService(IOlimpiadaRepository olimpiadaRepository, OlimpiadaDomainRepository olimpiadaDomainRepository) {
         this.olimpiadaRepository = olimpiadaRepository;
+        this.olimpiadaDomainRepository = olimpiadaDomainRepository;
     }
 
     public Olimpiada saveOlimpiada(Olimpiada olimpiada) {
@@ -38,4 +41,7 @@ public class OlimpiadaDomainService {
         return olimpiadaRepository.findById(idOlimpiada);
     }
 
+    public Olimpiada findOlimpiadaById(int idOlimpiada) {
+        return olimpiadaDomainRepository.findOlimpiadaById(idOlimpiada);
+    }
 }

@@ -144,4 +144,7 @@ public class OlimpiadaService {
         }
         return response;
     }
+    public Olimpiada findOlimpiadaById(int idOlimpiada) {
+        return olimpiadaAdapter.findOlimpiadaById(idOlimpiada);
+    }
 }

@@ -59,4 +59,11 @@ public class PeriodoOlimpiadaController {
         List<OlimpiadaEventosDTO> response = periodoOlimpiadaService.getOlimpiadasconEventos();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @GetMapping("/periodo-inscripcion-actual")
+    public ResponseEntity<Map<String, Object>> buscarPeriodoInscripcionActual() {
+        Map<String, Object> response = periodoOlimpiadaService.encontrarPeriodoInscripcionActualMap();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 }

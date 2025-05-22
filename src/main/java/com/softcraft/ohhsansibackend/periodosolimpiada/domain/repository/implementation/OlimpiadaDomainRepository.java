@@ -66,4 +66,8 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
             return Optional.empty();
         }
     }
+    public Olimpiada findOlimpiadaById(int idOlimpiada){
+        String sql = "select * from olimpiada where id_olimpiada = ?";
+        return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Olimpiada.class), idOlimpiada);
+    }
 }
