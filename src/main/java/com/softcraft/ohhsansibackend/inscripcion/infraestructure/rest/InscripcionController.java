@@ -50,4 +50,10 @@ public class InscripcionController {
         return ResponseEntity.ok(details);
     }
 
+    @GetMapping("/reporte-por-area/{idArea}")
+    public ResponseEntity<List<Map<String, Object>>> getInscripcionByArea(@PathVariable int idArea) {
+        List<Map<String, Object>> inscripciones = inscripcionService.getReporteInscripcionByArea(idArea);
+        return ResponseEntity.ok(inscripciones);
+    }
+
 }

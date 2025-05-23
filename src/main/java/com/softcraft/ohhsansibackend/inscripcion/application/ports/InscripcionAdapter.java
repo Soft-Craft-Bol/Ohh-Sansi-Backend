@@ -71,4 +71,8 @@ public class InscripcionAdapter {
     public boolean verificarEstadoOrdenPago(int idInscripcion) {
         return ordenPagoService.verificarExistenciaDeInscripcionEnOrdenPago(idInscripcion);
     }
+
+    public List<Map<String, Object>> getReporteInscripcionByArea(int idArea){
+        return inscripcionDomainService.getReporteInscripcionByArea(idArea);
+    }
 }

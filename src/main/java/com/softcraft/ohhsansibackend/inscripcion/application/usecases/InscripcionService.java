@@ -119,5 +119,13 @@ public class InscripcionService {
         return inscripcionAdapter.deleteInscripcionById(idInscripcion);
     }
 
+    public List<Map<String, Object>> getReporteInscripcionByArea(int idArea){
+        try {
+            return inscripcionDomainRepository.getReporteInscripcionByArea(idArea);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener el reporte de inscripción por área: " + e.getMessage());
+        }
+    }
+
 
 }

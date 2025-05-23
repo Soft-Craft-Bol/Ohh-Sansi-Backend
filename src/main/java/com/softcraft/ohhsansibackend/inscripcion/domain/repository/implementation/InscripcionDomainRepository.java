@@ -126,4 +126,20 @@ public class InscripcionDomainRepository {
         return rowsAffected > 0;
     }
 
+    public List<Map<String, Object>> getReporteInscripcionByArea(int idArea) {
+        String sql = """
+                    select distinct p.apellido_paterno, p.apellido_materno, p.nombre_participante, p.id_inscripcion, c.nombre_colegio, m.nombre_municipio, d.nombre_departamento
+                    from orden_de_pago op, participante p, inscripcion i, olimpiada o, catalogo_olimpiada co,
+                         area a, estado_orden_de_pago eop, participante_catalogo pc,
+                         municipio m, colegio c, departamento d
+                    where eop.estado = 'PAGADO' and eop.id_estado = op.id_estado
+                      and op.id_inscripcion = i.id_inscripcion and p.id_inscripcion = i.id_inscripcion
+                      and p.id_participante = pc.id_participante and pc.id_catalogo = co.id_catalogo
+                      and pc.id_catalogo = co.id_catalogo and a.id_area = ?
+                      and p.id_colegio = c.id_colegio and c.id_municipio = m.id_municipio
+                      and m.id_departamento = d.id_departamento
+                """;
+        return jdbcTemplate.queryForList(sql, idArea);
+    }
+
 }
