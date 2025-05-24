@@ -19,7 +19,7 @@ public class InscripcionMasivaDetailDomain implements IInscripcionMasivaDetail {
     }
 
     public InscripcionMasivaDetail getAllDetails(String codUnico) {
-        String sql = "SELECT nombre_tutor, apellido_tutor,email,ci_tutor,cantidad_areas " +
+        String sql = "SELECT nombre_tutor, apellido_tutor,email,ci_tutor,cantidad_areas, cantidad_participantes " +
                 "FROM obtener_info_tutor_con_areas(?)";
         return jdbcTemplate.queryForObject(sql, new Object[]{codUnico}, new InscripcionAsignedRowMapper());
     }
@@ -33,6 +33,7 @@ public class InscripcionMasivaDetailDomain implements IInscripcionMasivaDetail {
             inscription.setApellidoTut(rs.getString("apellido_tutor"));
             inscription.setCiTut(rs.getLong("ci_tutor"));
             inscription.setCantAreas(rs.getInt("cantidad_areas"));
+            inscription.setCantPaticipantes(rs.getInt("cantidad_participantes"));
             return inscription;
         }
     }

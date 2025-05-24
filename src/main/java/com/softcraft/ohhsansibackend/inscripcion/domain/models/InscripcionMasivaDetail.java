@@ -6,16 +6,18 @@ public class InscripcionMasivaDetail {
     private String correoTut;
     private Long ciTut;
     private Integer cantAreas;
+    private Integer cantPaticipantes;
 
     public InscripcionMasivaDetail() {
     }
 
-    public InscripcionMasivaDetail( String nombreTut, String apellidoTut,String correoTut,  Long ciTut, Integer cantAreas) {
+    public InscripcionMasivaDetail( String nombreTut, String apellidoTut,String correoTut,  Long ciTut, Integer cantAreas, Integer cantPaticipantes) {
         this.correoTut = correoTut;
         this.nombreTut = nombreTut;
         this.apellidoTut = apellidoTut;
         this.ciTut = ciTut;
         this.cantAreas = cantAreas;
+        this.cantPaticipantes = cantPaticipantes;
     }
 
     public String getCorreoTut() {return correoTut;}
@@ -37,4 +39,8 @@ public class InscripcionMasivaDetail {
     public Integer getCantAreas() {return cantAreas;}
 
     public void setCantAreas(Integer cantAreas) {this.cantAreas = cantAreas;}
+
+    public Integer getCantPaticipantes(){return this.cantPaticipantes;}
+
+    public void setCantPaticipantes(Integer cantPaticipantes){this.cantPaticipantes = cantPaticipantes;}
 }
