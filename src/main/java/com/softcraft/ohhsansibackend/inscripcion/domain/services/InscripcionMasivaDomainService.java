@@ -26,7 +26,7 @@ public class InscripcionMasivaDomainService {
                 return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "No se encontraron detalles o no es inscripcion masiva"));
             }
 
-            return ResponseEntity.status(HttpStatus.OK).body(Map.of("Responsable de pago", inscription));
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of("Responsable", inscription));
 
         } catch (Exception e) {
             e.printStackTrace(); // Considera usar un logger adecuado
