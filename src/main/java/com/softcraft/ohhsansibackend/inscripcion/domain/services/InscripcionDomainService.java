@@ -63,4 +63,8 @@ public class InscripcionDomainService {
         return inscripcionDomainRepository.deleteInscripcionById(idInscripcion);
     }
 
+    public List<Map<String, Object>> getReporteInscripcionByArea(int idArea, int idOlimpiada) {
+        return inscripcionDomainRepository.getReporteInscripcionByArea(idArea, idOlimpiada);
+    }
+
 }

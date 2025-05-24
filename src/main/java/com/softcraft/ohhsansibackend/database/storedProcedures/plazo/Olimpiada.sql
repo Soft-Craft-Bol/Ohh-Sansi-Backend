@@ -41,7 +41,9 @@ CREATE OR REPLACE FUNCTION selectOlimpiada()
                       anio INTEGER,
                       nombre_olimpiada VARCHAR,
                       nombre_estado VARCHAR,
-                      precio_olimpiada DECIMAL
+                      precio_olimpiada DECIMAL,
+                        fecha_inicio DATE,
+                        fecha_fin DATE
                   ) AS $$
 BEGIN
     RETURN QUERY
@@ -50,7 +52,9 @@ BEGIN
             o.anio,
             o.nombre_olimpiada,
             e.nombre_estado,
-            o.precio_olimpiada
+            o.precio_olimpiada,
+            o.fecha_inicio,
+            o.fecha_fin
         FROM
             olimpiada o
                 JOIN
@@ -204,3 +208,62 @@ CREATE TRIGGER trg_actualizar_estado_automatico
     BEFORE UPDATE ON public.olimpiada
     FOR EACH ROW
 EXECUTE FUNCTION public.actualizar_estado_automatico();
+
+----------------------
+CREATE OR REPLACE FUNCTION public.validar_olimpiadas_no_solapados()
+    RETURNS trigger AS $$
+DECLARE
+    solapado boolean;
+BEGIN
+    -- Verifica si hay cualquier olimpiada existente (sin importar estado) que se solape
+    SELECT EXISTS (
+        SELECT 1 FROM public.olimpiada
+        WHERE id_olimpiada != COALESCE(NEW.id_olimpiada, 0)  -- Excluye el registro actual en updates
+          AND (fecha_inicio, fecha_fin) OVERLAPS (NEW.fecha_inicio, NEW.fecha_fin)
+    ) INTO solapado;
+
+    IF solapado THEN
+        RAISE EXCEPTION 'Ya existe una olimpiada registrada entre este rango de fechas: % - %',
+            NEW.fecha_inicio, NEW.fecha_fin;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_validar_solapamiento_global
+    BEFORE INSERT OR UPDATE ON public.olimpiada
+    FOR EACH ROW EXECUTE FUNCTION public.validar_olimpiadas_no_solapados();
+
+
+----------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION actualizar_olimpiada(
+    p_id_olimpiada INTEGER,
+    p_anio INTEGER,
+    p_nombre VARCHAR(100),
+    p_precio NUMERIC(10,2),
+    p_fecha_inicio DATE,
+    p_fecha_fin DATE
+) RETURNS public.olimpiada AS $$
+DECLARE
+    v_olimpiada public.olimpiada;
+BEGIN
+    -- Validar año futuro
+    IF p_anio < EXTRACT(YEAR FROM CURRENT_DATE) THEN
+        RAISE EXCEPTION 'Solo se pueden actualizar olimpiadas para el año actual o futuros';
+    END IF;
+
+    UPDATE public.olimpiada
+    SET anio = p_anio,
+        nombre_olimpiada = p_nombre,
+        precio_olimpiada = p_precio,
+        fecha_inicio = p_fecha_inicio,
+        fecha_fin = p_fecha_fin
+    WHERE id_olimpiada = p_id_olimpiada
+    RETURNING * INTO v_olimpiada;
+
+    RETURN v_olimpiada;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT * FROM public.actualizar_olimpiada(1, 2024, 'Olimpiada Nacional de Ciencias', 50.00, '2024-01-01', '2024-12-31');

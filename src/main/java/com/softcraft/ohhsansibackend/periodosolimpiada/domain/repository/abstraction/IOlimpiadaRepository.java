@@ -9,11 +9,9 @@ import java.util.Optional;
 public interface IOlimpiadaRepository {
     Olimpiada saveOlimpiada(Olimpiada olimpiada);
 
-    boolean deleteOlimpiada(int idOlimpiada);
+    Olimpiada updateOlimpiada(Olimpiada olimpiada);
 
     List<Olimpiada> getOlimpiadas();
-
-    boolean updatePrecioOlimpiada(int idOlimpiada, BigDecimal precioOlimpiada);
 
     Optional<Olimpiada> findById(Integer idOlimpiada);
 }

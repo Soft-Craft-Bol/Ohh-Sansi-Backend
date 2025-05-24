@@ -1,21 +1,13 @@
 package com.softcraft.ohhsansibackend.inscripcion.infraestructure.rest;
 
-import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.application.usecases.InscripcionService;
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
 import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionMasivaDomainService;
-import com.softcraft.ohhsansibackend.inscripcion.infraestructure.dto.FechaRangeRequest;
-import jakarta.validation.Valid;
-import org.hibernate.type.descriptor.java.ObjectJavaType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Date;
-import java.sql.Time;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +49,12 @@ public class InscripcionController {
     @GetMapping("/masivo/details/{codUnique}")
     public ResponseEntity<Map<String, Object>> getInscripcionMasivaDetails(@PathVariable String codUnique){
         return inscripcionMasiva.getDetailsInscription(codUnique);
+    }
+
+    @GetMapping("/reporte-por-area/{idArea}/{idOlimpiada}")
+    public ResponseEntity<List<Map<String, Object>>> getInscripcionByArea(@PathVariable int idArea, @PathVariable int idOlimpiada) {
+        List<Map<String, Object>> inscripciones = inscripcionService.getReporteInscripcionByArea(idArea, idOlimpiada);
+        return ResponseEntity.ok(inscripciones);
     }
 
 }

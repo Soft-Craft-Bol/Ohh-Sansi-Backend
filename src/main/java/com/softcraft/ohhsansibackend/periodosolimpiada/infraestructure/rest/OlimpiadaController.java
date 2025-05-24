@@ -25,10 +25,9 @@ public class OlimpiadaController {
         return olimpiadaService.saveOlimpiada(olimpiada);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> deleteOlimpiada(@PathVariable int id) {
-        Map<String, Object> response = olimpiadaService.deleteOlimpiada(id);
-        return ResponseEntity.ok(response);
+    @PutMapping("/update-olimpiada")
+    public ResponseEntity<Map<String, Object>> updateOlimpiada(@RequestBody Olimpiada olimpiada) {
+        return olimpiadaService.updateOlimpiada(olimpiada);
     }
 
     @GetMapping
@@ -36,14 +35,4 @@ public class OlimpiadaController {
         Map<String, Object> response = olimpiadaService.getOlimpiada();
         return ResponseEntity.ok(response);
     }
-
-    @PutMapping("/update-precio")
-    public ResponseEntity<Map<String, Object>> updatePrecioOlimpiada(@RequestBody UpdatePrecio request) {
-        Map<String, Object> response = olimpiadaService.updatePrecioOlimpiada(
-                request.getIdOlimpiada(), request.getPrecioOlimpiada()
-        );
-        return ResponseEntity.ok(response);
-    }
-
-
 }
