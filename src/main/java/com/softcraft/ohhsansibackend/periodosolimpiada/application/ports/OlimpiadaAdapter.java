@@ -22,16 +22,12 @@ public class OlimpiadaAdapter {
         return olimpiadaDomainService.saveOlimpiada(olimpiada);
     }
 
-    public boolean deleteOlimpiada(int id) {
-        return olimpiadaDomainService.deleteOlimpiada(id);
+    public Olimpiada updateOlimpiada(Olimpiada olimpiada) {
+        return olimpiadaDomainService.updateOlimpiada(olimpiada);
     }
 
     public List<Olimpiada> getAllOlimpiadas() {
         return olimpiadaDomainService.getAllOlimpiadas();
-    }
-
-    public boolean updatePrecioOlimpiada(int idOlimpiada, BigDecimal precioOlimpiada) {
-        return olimpiadaDomainService.updatePrecioOlimpiada(idOlimpiada, precioOlimpiada);
     }
 
     public Optional<Olimpiada> findById(int idOlimpiada) {

@@ -25,16 +25,12 @@ public class OlimpiadaDomainService {
         return olimpiadaRepository.saveOlimpiada(olimpiada);
     }
 
-    public boolean deleteOlimpiada(int idOlimpiada) {
-        return olimpiadaRepository.deleteOlimpiada(idOlimpiada);
+    public Olimpiada updateOlimpiada(Olimpiada olimpiada) {
+        return olimpiadaRepository.updateOlimpiada(olimpiada);
     }
 
     public List<Olimpiada> getAllOlimpiadas() {
         return olimpiadaRepository.getOlimpiadas();
-    }
-
-    public boolean updatePrecioOlimpiada(int idOlimpiada, BigDecimal precioOlimpiada) {
-        return olimpiadaRepository.updatePrecioOlimpiada(idOlimpiada, precioOlimpiada);
     }
 
     public Optional<Olimpiada> findById(int idOlimpiada) {

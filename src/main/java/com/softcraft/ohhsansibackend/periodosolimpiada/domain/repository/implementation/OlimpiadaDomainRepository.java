@@ -33,23 +33,21 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
     }
 
     @Override
-    public boolean deleteOlimpiada(int idOlimpiada) {
-        String sql = "SELECT deleteOlimpiada(?)";
-        Boolean response = jdbcTemplate.queryForObject(sql, Boolean.class, idOlimpiada);
-        return response != null && response;
+    public Olimpiada updateOlimpiada(Olimpiada olimpiada) {
+        String sql = "SELECT * FROM actualizar_olimpiada(?, ?, ?, ?, ?)";
+        return jdbcTemplate.queryForObject(sql, new Object[]{
+                olimpiada.getAnio(),
+                olimpiada.getNombreOlimpiada(),
+                olimpiada.getPrecioOlimpiada(),
+                olimpiada.getFechaInicio(),
+                olimpiada.getFechaFin()
+        }, new BeanPropertyRowMapper<>(Olimpiada.class));
     }
 
     @Override
     public List<Olimpiada> getOlimpiadas() {
         String sql = "SELECT * FROM selectOlimpiada()";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Olimpiada.class));
-    }
-
-    @Override
-    public boolean updatePrecioOlimpiada(int idOlimpiada, BigDecimal nuevoPrecio) {
-        String sql = "SELECT updatePrecioOlimpiada(?, ?)";
-        Boolean result = jdbcTemplate.queryForObject(sql, Boolean.class, idOlimpiada, nuevoPrecio);
-        return result != null && result;
     }
 
     @Override

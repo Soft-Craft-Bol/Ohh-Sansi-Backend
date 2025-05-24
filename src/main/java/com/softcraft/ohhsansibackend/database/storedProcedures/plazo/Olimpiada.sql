@@ -234,3 +234,36 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_validar_solapamiento_global
     BEFORE INSERT OR UPDATE ON public.olimpiada
     FOR EACH ROW EXECUTE FUNCTION public.validar_olimpiadas_no_solapados();
+
+
+----------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION actualizar_olimpiada(
+    p_id_olimpiada INTEGER,
+    p_anio INTEGER,
+    p_nombre VARCHAR(100),
+    p_precio NUMERIC(10,2),
+    p_fecha_inicio DATE,
+    p_fecha_fin DATE
+) RETURNS public.olimpiada AS $$
+DECLARE
+    v_olimpiada public.olimpiada;
+BEGIN
+    -- Validar año futuro
+    IF p_anio < EXTRACT(YEAR FROM CURRENT_DATE) THEN
+        RAISE EXCEPTION 'Solo se pueden actualizar olimpiadas para el año actual o futuros';
+    END IF;
+
+    UPDATE public.olimpiada
+    SET anio = p_anio,
+        nombre_olimpiada = p_nombre,
+        precio_olimpiada = p_precio,
+        fecha_inicio = p_fecha_inicio,
+        fecha_fin = p_fecha_fin
+    WHERE id_olimpiada = p_id_olimpiada
+    RETURNING * INTO v_olimpiada;
+
+    RETURN v_olimpiada;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT * FROM public.actualizar_olimpiada(1, 2024, 'Olimpiada Nacional de Ciencias', 50.00, '2024-01-01', '2024-12-31');
