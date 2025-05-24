@@ -17,28 +17,5 @@ public class OpenApiConfig {
                         .version("1.0")
                         .description("Documentación de la API para Ohh-Sansi Backend"));
     }
-//
-//    @Bean
-//    public GroupedOpenApi controllerApi() {
-//        return GroupedOpenApi.builder()
-//                .group("controllers")
-//                .packagesToScan("com.softcraft.ohhsansibackend.categoria.infraestructure.rest")
-//                .build();
-//    }
-//
-//    @Bean
-//    public GroupedOpenApi serviceApi() {
-//        return GroupedOpenApi.builder()
-//                .group("services")
-//                .packagesToScan("com.softcraft.ohhsansibackend.categoria.application.usecases")
-//                .build();
-//    }
-//
-//    @Bean
-//    public GroupedOpenApi repositoryApi() {
-//        return GroupedOpenApi.builder()
-//                .group("repositories")
-//                .packagesToScan("com.softcraft.ohhsansibackend.categoria.domain.repository.implementation")
-//                .build();
-//    }
+
 }

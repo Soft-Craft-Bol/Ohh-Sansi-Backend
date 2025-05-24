@@ -72,7 +72,7 @@ public class InscripcionAdapter {
         return ordenPagoService.verificarExistenciaDeInscripcionEnOrdenPago(idInscripcion);
     }
 
-    public List<Map<String, Object>> getReporteInscripcionByArea(int idArea){
-        return inscripcionDomainService.getReporteInscripcionByArea(idArea);
+    public List<Map<String, Object>> getReporteInscripcionByArea(int idArea, int idOlimpiada) {
+        return inscripcionDomainService.getReporteInscripcionByArea(idArea, idOlimpiada);
     }
 }
