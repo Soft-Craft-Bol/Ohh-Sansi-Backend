@@ -113,4 +113,14 @@ public class PeriodoOlimpiadaDomainRepository implements IPeriodoOlimpiadaReposi
         }
         return null;
     }
+    public PeriodoOlimpiada encontrarPeriodoInscripcionActual() {
+        String sql = """
+                select po.*
+                from olimpiada o, estado_olimpiada eo, periodos_olimpiada po
+                where o.id_estado = eo.id_estado
+                  and eo.nombre_estado = 'INSCRIPCION'
+                  and CURRENT_DATE between DATE(po.fecha_inicio) and DATE(po.fecha_fin);
+            """;
+        return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(PeriodoOlimpiada.class));
+    }
 }

@@ -90,4 +90,23 @@ public class PeriodoOlimpiadaService {
     public List<OlimpiadaEventosDTO> getOlimpiadasconEventos() {
         return periodoOlimpiadaAdapter.getOlimpiadasconEventos();
     }
+    public Map<String, Object> encontrarPeriodoInscripcionActualMap(){
+        Map<String, Object> response = new HashMap<>();
+        try {
+            PeriodoOlimpiada periodoOlimpiada = periodoOlimpiadaAdapter.encontrarPeriodoInscripcionActual();
+            if (periodoOlimpiada == null) {
+                response.put("status", "error");
+                response.put("message", "No se encontró un período de inscripción actual");
+            } else {
+                Olimpiada olimpiada = olimpiadaService.findOlimpiadaById(periodoOlimpiada.getIdOlimpiada());
+                response.put("status", "success");
+                response.put("olimpiada", olimpiada);
+                response.put("periodoOlimpiada", periodoOlimpiada);
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "Error al encontrar el período de inscripción actual: " + e.getMessage());
+        }
+        return response;
+    }
 }

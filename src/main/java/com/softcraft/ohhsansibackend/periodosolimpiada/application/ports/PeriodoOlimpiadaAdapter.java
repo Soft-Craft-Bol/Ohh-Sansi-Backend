@@ -24,4 +24,7 @@ public class PeriodoOlimpiadaAdapter {
     public List<OlimpiadaEventosDTO> getOlimpiadasconEventos() {
         return periodoOlimpiadaDomainService.getOlimpiadasconEventos();
     }
+    public PeriodoOlimpiada encontrarPeriodoInscripcionActual(){
+        return periodoOlimpiadaDomainService.encontrarPeriodoInscripcionActual();
+    }
 }

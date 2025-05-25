@@ -22,32 +22,33 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
 
     @Override
     public Olimpiada saveOlimpiada(Olimpiada olimpiada) {
-        String sql = "SELECT * FROM crear_olimpiada(?, ?, ?)";
+        String sql = "SELECT * FROM crear_olimpiada(?, ?, ?, ?, ?)";
         return jdbcTemplate.queryForObject(sql, new Object[]{
                 olimpiada.getAnio(),
                 olimpiada.getNombreOlimpiada(),
-                olimpiada.getPrecioOlimpiada()
+                olimpiada.getPrecioOlimpiada(),
+                olimpiada.getFechaInicio(),
+                olimpiada.getFechaFin()
         }, new BeanPropertyRowMapper<>(Olimpiada.class));
     }
 
     @Override
-    public boolean deleteOlimpiada(int idOlimpiada) {
-        String sql = "SELECT deleteOlimpiada(?)";
-        Boolean response = jdbcTemplate.queryForObject(sql, Boolean.class, idOlimpiada);
-        return response != null && response;
+    public Olimpiada updateOlimpiada(Olimpiada olimpiada) {
+        String sql = "SELECT * FROM actualizar_olimpiada(?, ?, ?, ?, ?, ?)";
+        return jdbcTemplate.queryForObject(sql, new Object[]{
+                olimpiada.getIdOlimpiada(),
+                olimpiada.getAnio(),
+                olimpiada.getNombreOlimpiada(),
+                olimpiada.getPrecioOlimpiada(),
+                olimpiada.getFechaInicio(),
+                olimpiada.getFechaFin()
+        }, new BeanPropertyRowMapper<>(Olimpiada.class));
     }
 
     @Override
     public List<Olimpiada> getOlimpiadas() {
         String sql = "SELECT * FROM selectOlimpiada()";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Olimpiada.class));
-    }
-
-    @Override
-    public boolean updatePrecioOlimpiada(int idOlimpiada, BigDecimal nuevoPrecio) {
-        String sql = "SELECT updatePrecioOlimpiada(?, ?)";
-        Boolean result = jdbcTemplate.queryForObject(sql, Boolean.class, idOlimpiada, nuevoPrecio);
-        return result != null && result;
     }
 
     @Override
@@ -63,5 +64,9 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
         } catch (Exception e) {
             return Optional.empty();
         }
+    }
+    public Olimpiada findOlimpiadaById(int idOlimpiada){
+        String sql = "select * from olimpiada where id_olimpiada = ?";
+        return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Olimpiada.class), idOlimpiada);
     }
 }

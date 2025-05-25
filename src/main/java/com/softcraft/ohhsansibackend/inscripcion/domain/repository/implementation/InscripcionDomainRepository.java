@@ -5,6 +5,7 @@ import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -60,10 +61,23 @@ public class InscripcionDomainRepository {
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Inscripcion.class));
     }
 
+    public Map<String, Object> getDetalleInscripcion(String codigoUnico) {
+        String sql = "SELECT * FROM obtener_detalle_inscripcion(?)";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{codigoUnico}, new ColumnMapRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResourceNotFoundException("Inscripción no encontrada");
+        }
+    }
+
 
     public Long findIdByCodigoUnico(String codigoUnicoInscripcion) {
         String sql = "SELECT id_inscripcion FROM inscripcion WHERE codigo_unico_inscripcion = ?";
-        return jdbcTemplate.queryForObject(sql, new Object[]{codigoUnicoInscripcion}, Long.class);
+        try {
+            return jdbcTemplate.queryForObject(sql, Long.class, codigoUnicoInscripcion);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
     public List<Map<String, Object>> findInscripcionById(int idInscripcion) {
         String sql = "SELECT * FROM inscripcion WHERE id_inscripcion = ?";
@@ -99,9 +113,9 @@ public class InscripcionDomainRepository {
     public List<Map<String, Object>> findOlimapiada() {
         String sql =
                 """
-                    select *
-                    from olimpiada
-                    where olimpiada.estado_olimpiada = true;
+                    select o.*
+                    from olimpiada o, estado_olimpiada eo
+                    where o.id_estado = eo.id_estado and eo.nombre_estado='INSCRIPCION';
                 """
                 ;
         return jdbcTemplate.queryForList(sql);
@@ -110,6 +124,24 @@ public class InscripcionDomainRepository {
         String sql = "DELETE FROM inscripcion WHERE id_inscripcion = ?";
         int rowsAffected = jdbcTemplate.update(sql, idInscripcion);
         return rowsAffected > 0;
+    }
+
+    public List<Map<String, Object>> getReporteInscripcionByArea(int idArea, int idOlimpiada) {
+        String sql = """
+                    select distinct p.apellido_paterno, p.apellido_materno, p.nombre_participante, p.id_inscripcion, c.nombre_colegio, m.nombre_municipio, d.nombre_departamento, g.nombre_grado
+                    from orden_de_pago op, participante p, inscripcion i, olimpiada o, catalogo_olimpiada co,
+                         area a, estado_orden_de_pago eop, participante_catalogo pc,
+                         municipio m, colegio c, departamento d, grado g
+                    where eop.estado = 'PAGADO' and eop.id_estado = op.id_estado
+                      and op.id_inscripcion = i.id_inscripcion and p.id_inscripcion = i.id_inscripcion
+                      and p.id_participante = pc.id_participante and pc.id_catalogo = co.id_catalogo
+                      and pc.id_catalogo = co.id_catalogo and a.id_area = ?
+                      and p.id_colegio = c.id_colegio and c.id_municipio = m.id_municipio
+                      and m.id_departamento = d.id_departamento and o.id_olimpiada = ?
+                      and g.id_grado = p.id_grado
+                    order by (g.nombre_grado);
+                """;
+        return jdbcTemplate.queryForList(sql, idArea, idOlimpiada);
     }
 
 }
