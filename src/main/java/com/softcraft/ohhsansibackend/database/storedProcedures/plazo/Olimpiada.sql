@@ -1,215 +1,269 @@
-CREATE OR REPLACE FUNCTION insertOlimpiada(
-    anio INTEGER,
-    estadoOlimpiada BOOLEAN DEFAULT FALSE,
-    precioOlimpiada DECIMAL DEFAULT NULL
-)
-    RETURNS TABLE (
-                      id_olimpiada INT,
-                      nombre_olimpiada VARCHAR,
-                      estado_olimpiada BOOLEAN,
-                      precio_olimpiada DECIMAL
-                  ) AS $$
-    DECLARE
-        anio_actual INTEGER := EXTRACT(YEAR FROM CURRENT_DATE);
-BEGIN
-    -- 1. 🔍 Check for duplicates BEFORE inserting
-    IF EXISTS (
-        SELECT 1 FROM olimpiada WHERE olimpiada.nombre_olimpiada = CONCAT('Periodo Olímpico ', anio)
-    ) THEN
-        RAISE EXCEPTION 'El período % ya existe', anio;
-    END IF;
-
-    -- 2. 🔄 Deactivate existing active periods if new one is TRUE
-    IF estadoOlimpiada AND anio < anio_actual THEN
-        RAISE EXCEPTION 'No se pueden activar períodos de años anteriores (%).', anio;
-    END IF;
-
-    -- 2. Desactivar períodos activos si el nuevo período es del año en curso y está activo
-    IF estadoOlimpiada AND anio = anio_actual THEN
-        UPDATE olimpiada
-        SET estado_olimpiada = FALSE
-        WHERE estado_olimpiada = TRUE AND EXTRACT(YEAR FROM CURRENT_DATE) = anio_actual;
-    END IF;
-
-    -- 3. ✅ Insert new period
-    RETURN QUERY
-        INSERT INTO olimpiada (
-                               nombre_olimpiada,
-                               estado_olimpiada,
-                               precio_olimpiada
-            )
-            VALUES (
-                       CONCAT('Periodo Olímpico ', anio),
-                       estadoOlimpiada,
-                       precioOlimpiada
-                   )
-            RETURNING *;
-END;
-$$ LANGUAGE plpgsql;
-
-SELECT * FROM insertOlimpiada(2021, FALSE, 100.00);
-SELECT * FROM insertOlimpiada(2025, TRUE, NULL);
----------------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION updateOlimpiada(
-    idOlimpiada INTEGER,
-    nombreOlimpiada VARCHAR,
-    estadoOlimpiada BOOLEAN,
-    precioOlimpiada DECIMAL
-) RETURNS BOOLEAN AS $$
+CREATE OR REPLACE FUNCTION public.crear_olimpiada(
+    p_anio INTEGER,
+    p_nombre VARCHAR(100),
+    p_precio NUMERIC(10,2),
+    p_fecha_inicio DATE,
+    p_fecha_fin DATE
+) RETURNS public.olimpiada AS $$
 DECLARE
-    rows_updated INT;
+    v_olimpiada public.olimpiada;
 BEGIN
-    UPDATE olimpiada
-    SET nombre_olimpiada = nombreOlimpiada,
-        estado_olimpiada = estadoOlimpiada,
-        precio_olimpiada = precioOlimpiada
-    WHERE id_olimpiada = idOlimpiada;
+    -- Validar año futuro
+    IF p_anio < EXTRACT(YEAR FROM CURRENT_DATE) THEN
+        RAISE EXCEPTION 'Solo se pueden crear olimpiadas para el año actual o futuros';
+    END IF;
 
-    GET DIAGNOSTICS rows_updated = ROW_COUNT;
+    INSERT INTO public.olimpiada (
+        nombre_olimpiada,
+        precio_olimpiada,
+        anio,
+        id_estado,
+        fecha_inicio,
+        fecha_fin
+    ) VALUES (
+                 p_nombre,
+                 p_precio,
+                 p_anio,
+                 (SELECT id_estado FROM public.estado_olimpiada WHERE nombre_estado = 'PLANIFICACION'),
+                p_fecha_inicio,
+                p_fecha_fin
+             ) RETURNING * INTO v_olimpiada;
 
-    RETURN rows_updated > 0;
+    RETURN v_olimpiada;
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM olimpiada;
-SELECT updateOlimpiada(1, 'Olimpiada de Ciencias', TRUE, 150.00);
----------------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION deleteOlimpiada(idOlimpiada INTEGER)
-    RETURNS INT AS $$
-DECLARE
-    affected_rows INT;
-BEGIN
-    DELETE FROM olimpiada WHERE id_olimpiada = idOlimpiada RETURNING 1 INTO affected_rows;
-    RETURN affected_rows;
-END;
-$$ LANGUAGE plpgsql;
-SELECT deleteOlimpiada(11);
-SELECT * FROM olimpiada;
----------------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION selectOlimpiadaById(idOlimpiada INTEGER)
-    RETURNS TABLE (id_olimpiada INTEGER, nombre_olimpiada VARCHAR, estado_olimpiada BOOLEAN, precio_olimpiada DECIMAL) AS $$
-BEGIN
-    RETURN QUERY SELECT olimpiada.id_olimpiada, olimpiada.nombre_olimpiada, olimpiada.estado_olimpiada, olimpiada.precio_olimpiada
-    FROM olimpiada
-    WHERE id_olimpiada = idOlimpiada;
-END;
-$$ LANGUAGE plpgsql;
-SELECT * FROM selectOlimpiadaById(1);
-
+SELECT * FROM public.crear_olimpiada(2024, 'Olimpiada Nacional de Ciencias', 50.00, '2024-01-01', '2024-12-31');
 ---------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION selectOlimpiada()
-    RETURNS TABLE (id_olimpiada INTEGER, nombre_olimpiada VARCHAR, estado_olimpiada BOOLEAN, precio_olimpiada DECIMAL) AS $$
+    RETURNS TABLE (
+                      id_olimpiada INTEGER,
+                      anio INTEGER,
+                      nombre_olimpiada VARCHAR,
+                      nombre_estado VARCHAR,
+                      precio_olimpiada DECIMAL,
+                        fecha_inicio DATE,
+                        fecha_fin DATE
+                  ) AS $$
 BEGIN
-    RETURN QUERY SELECT olimpiada.id_olimpiada, olimpiada.nombre_olimpiada, olimpiada.estado_olimpiada, olimpiada.precio_olimpiada
-    FROM olimpiada;
+    RETURN QUERY
+        SELECT
+            o.id_olimpiada,
+            o.anio,
+            o.nombre_olimpiada,
+            e.nombre_estado,
+            o.precio_olimpiada,
+            o.fecha_inicio,
+            o.fecha_fin
+        FROM
+            olimpiada o
+                JOIN
+            estado_olimpiada e ON o.id_estado = e.id_estado;
 END;
 $$ LANGUAGE plpgsql;
+
 SELECT * FROM selectOlimpiada();
 ---------------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION selectOlimpiadaByEstado(estadoOlimpiada BOOLEAN)
-    RETURNS TABLE (id_olimpiada INTEGER, nombre_olimpiada VARCHAR, estado_olimpiada BOOLEAN, precio_olimpiada DECIMAL) AS $$
+CREATE OR REPLACE FUNCTION public.cambiar_estado_olimpiada(
+    p_id_olimpiada INTEGER,
+    p_nuevo_estado VARCHAR(50))
+    RETURNS BOOLEAN AS $$
 BEGIN
-    RETURN QUERY SELECT olimpiada.id_olimpiada, olimpiada.nombre_olimpiada, olimpiada.estado_olimpiada, olimpiada.precio_olimpiada
-    FROM olimpiada
-    WHERE estado_olimpiada = estadoOlimpiada;
+    UPDATE public.olimpiada
+    SET id_estado = (SELECT id_estado FROM public.estado_olimpiada WHERE nombre_estado = p_nuevo_estado)
+    WHERE id_olimpiada = p_id_olimpiada;
+
+    RETURN FOUND;
 END;
 $$ LANGUAGE plpgsql;
-SELECT * FROM selectOlimpiadaByEstado(TRUE);
----------------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION updatePrecioOlimpiada(
-    idOlimpiada INT,
-    nuevoPrecio DECIMAL
-)
-    RETURNS BOOLEAN AS
-$$
+------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.acciones_permitidas_olimpiada(
+    p_id_olimpiada INTEGER
+) RETURNS JSON AS $$
 DECLARE
-    rows_updated INT;
+    v_result JSON;
+    v_estado VARCHAR;
 BEGIN
-    -- Primero verificamos si la olimpiada existe
-    IF NOT EXISTS (SELECT 1 FROM olimpiada WHERE id_olimpiada = idOlimpiada) THEN
-        RAISE EXCEPTION 'Olimpiada con ID % no encontrada', idOlimpiada;
-    END IF;
+    SELECT e.nombre_estado INTO v_estado
+    FROM public.olimpiada o
+             JOIN public.estado_olimpiada e ON o.id_estado = e.id_estado
+    WHERE o.id_olimpiada = p_id_olimpiada;
 
-    -- Verificamos si la olimpiada está activa
-    IF EXISTS (SELECT 1 FROM olimpiada WHERE id_olimpiada = idOlimpiada AND estado_olimpiada = true) THEN
-        RAISE EXCEPTION 'No se puede actualizar el precio de una olimpiada activa (ID: %)', idOlimpiada;
-    END IF;
+    SELECT json_build_object(
+                   'editar', v_estado IN ('PLANIFICACION', 'PRE_INSCRIPCION'),
+                   'cambiar_precio', v_estado IN ('PLANIFICACION', 'PRE_INSCRIPCION'),
+                   'eliminar', v_estado = 'PLANIFICACION',
+                   'avanzar_estado', v_estado IN ('PLANIFICACION', 'PRE_INSCRIPCION', 'INSCRIPCION', 'EN_CURSO'),
+                   'retroceder_estado', v_estado IN ('PRE_INSCRIPCION', 'INSCRIPCION', 'EN_CURSO', 'FINALIZADA')
+           ) INTO v_result;
 
-    -- Realizamos la actualización
-    UPDATE olimpiada
-    SET precio_olimpiada = nuevoPrecio
-    WHERE id_olimpiada = idOlimpiada
-      AND estado_olimpiada = false;
-
-    GET DIAGNOSTICS rows_updated = ROW_COUNT;
-    RETURN rows_updated > 0;
+    RETURN v_result;
 END;
 $$ LANGUAGE plpgsql;
-
-SELECT updatePrecioOlimpiada(1, 200.00);
----------------------------------------------------------------------------------------------------------------------------
--- Función para insertar un nuevo período
-CREATE OR REPLACE FUNCTION insertOlimpiada(
-    anio INTEGER,
-    estadoOlimpiada BOOLEAN DEFAULT FALSE,
-    precioOlimpiada DECIMAL DEFAULT NULL
-)
-    RETURNS TABLE (
-        id_olimpiada INT,
-        nombre_olimpiada VARCHAR,
-        estado_olimpiada BOOLEAN,
-        precio_olimpiada DECIMAL
-    ) AS $$
+-------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.actualizar_estados_olimpiadas()
+    RETURNS VOID AS $$
 BEGIN
-    -- Desactivar períodos activos si el nuevo período está activo
-    IF estadoOlimpiada THEN
-        UPDATE olimpiada
-        SET estado_olimpiada = FALSE
-        WHERE estado_olimpiada = TRUE;
-    END IF;
+    -- Actualizar olimpiadas en PRE_INSCRIPCION que deben pasar a INSCRIPCION
+    UPDATE public.olimpiada o
+    SET id_estado = (SELECT id_estado FROM estado_olimpiada WHERE nombre_estado = 'INSCRIPCION')
+    WHERE o.id_estado = (SELECT id_estado FROM estado_olimpiada WHERE nombre_estado = 'PRE_INSCRIPCION')
+      AND EXISTS (
+        SELECT 1 FROM periodos_olimpiada p
+        WHERE p.id_olimpiada = o.id_olimpiada
+          AND p.nombre_evento = 'INSCRIPCION'
+          AND CURRENT_DATE BETWEEN p.fecha_inicio AND p.fecha_fin
+    );
 
-    -- Insertar el nuevo período
-    RETURN QUERY
-        INSERT INTO olimpiada (
-            nombre_olimpiada,
-            estado_olimpiada,
-            precio_olimpiada
-        )
-        VALUES (
-            CONCAT('Periodo Olímpico ', anio),
-            estadoOlimpiada,
-            precioOlimpiada
-        )
-        RETURNING *;
+    -- Actualizar olimpiadas en INSCRIPCION que deben pasar a EN_CURSO
+    UPDATE public.olimpiada o
+    SET id_estado = (SELECT id_estado FROM estado_olimpiada WHERE nombre_estado = 'EN_CURSO')
+    WHERE o.id_estado = (SELECT id_estado FROM estado_olimpiada WHERE nombre_estado = 'INSCRIPCION')
+      AND EXISTS (
+        SELECT 1 FROM periodos_olimpiada p
+        WHERE p.id_olimpiada = o.id_olimpiada
+          AND p.nombre_evento = 'EVALUACION'
+          AND CURRENT_DATE >= p.fecha_inicio
+    );
+
+    -- Actualizar olimpiadas en EN_CURSO que deben finalizar
+    UPDATE public.olimpiada o
+    SET id_estado = (SELECT id_estado FROM estado_olimpiada WHERE nombre_estado = 'FINALIZADA')
+    WHERE o.id_estado = (SELECT id_estado FROM estado_olimpiada WHERE nombre_estado = 'EN_CURSO')
+      AND NOT EXISTS (
+        SELECT 1 FROM periodos_olimpiada p
+        WHERE p.id_olimpiada = o.id_olimpiada
+          AND (p.fecha_fin IS NULL OR p.fecha_fin > CURRENT_DATE)
+    );
 END;
 $$ LANGUAGE plpgsql;
+-------------------------------------------------------------------------------------------
 
--- Función para actualizar un período existente
-CREATE OR REPLACE FUNCTION updateOlimpiada(
-    idOlimpiada INTEGER,
-    nombreOlimpiada VARCHAR,
-    estadoOlimpiada BOOLEAN,
-    precioOlimpiada DECIMAL
-) RETURNS BOOLEAN AS $$
+CREATE OR REPLACE FUNCTION public.actualizar_estado_automatico()
+    RETURNS TRIGGER AS $$
 DECLARE
-    rows_updated INT;
+    v_estado_actual VARCHAR;
+    v_hay_periodos_activos BOOLEAN;
+    v_todos_periodos_completados BOOLEAN;
 BEGIN
-    -- Desactivar períodos activos si el período actualizado está activo
-    IF estadoOlimpiada THEN
-        UPDATE olimpiada
-        SET estado_olimpiada = FALSE
-        WHERE estado_olimpiada = TRUE AND id_olimpiada != idOlimpiada;
+    -- Obtener estado actual
+    SELECT e.nombre_estado INTO v_estado_actual
+    FROM estado_olimpiada e
+    WHERE e.id_estado = NEW.id_estado;
+
+    -- Lógica para estado PRE_INSCRIPCION
+    IF v_estado_actual = 'PLANIFICACION' THEN
+        -- Verificar si existe al menos un período de PRE_INSCRIPCION activo
+        SELECT EXISTS (
+            SELECT 1 FROM periodos_olimpiada
+            WHERE id_olimpiada = NEW.id_olimpiada
+              AND nombre_evento = 'PRE_INSCRIPCION'
+              AND CURRENT_DATE BETWEEN fecha_inicio AND fecha_fin
+        ) INTO v_hay_periodos_activos;
+
+        IF v_hay_periodos_activos THEN
+            NEW.id_estado = (SELECT id_estado FROM estado_olimpiada WHERE nombre_estado = 'PRE_INSCRIPCION');
+        END IF;
+
+        -- Lógica para estado INSCRIPCION
+    ELSIF v_estado_actual = 'PRE_INSCRIPCION' THEN
+        -- Verificar si existe período de INSCRIPCION activo
+        SELECT EXISTS (
+            SELECT 1 FROM periodos_olimpiada
+            WHERE id_olimpiada = NEW.id_olimpiada
+              AND nombre_evento = 'INSCRIPCION'
+              AND CURRENT_DATE BETWEEN fecha_inicio AND fecha_fin
+        ) INTO v_hay_periodos_activos;
+
+        IF v_hay_periodos_activos THEN
+            NEW.id_estado = (SELECT id_estado FROM estado_olimpiada WHERE nombre_estado = 'INSCRIPCION');
+        END IF;
+
+        -- Lógica para estado FINALIZADA
+    ELSIF v_estado_actual = 'EN_CURSO' THEN
+        -- Verificar si todos los períodos han finalizado
+        SELECT NOT EXISTS (
+            SELECT 1 FROM periodos_olimpiada
+            WHERE id_olimpiada = NEW.id_olimpiada
+              AND fecha_fin > CURRENT_DATE
+        ) INTO v_todos_periodos_completados;
+
+        IF v_todos_periodos_completados THEN
+            NEW.id_estado = (SELECT id_estado FROM estado_olimpiada WHERE nombre_estado = 'FINALIZADA');
+        END IF;
     END IF;
 
-    -- Actualizar el período
-    UPDATE olimpiada
-    SET nombre_olimpiada = nombreOlimpiada,
-        estado_olimpiada = estadoOlimpiada,
-        precio_olimpiada = precioOlimpiada
-    WHERE id_olimpiada = idOlimpiada;
-
-    GET DIAGNOSTICS rows_updated = ROW_COUNT;
-
-    RETURN rows_updated > 0;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+---------------------------------------------------------------------------------------------
+-- Necesitas extensión pg_cron instalada
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+
+-- Programar ejecución diaria a medianoche
+SELECT cron.schedule('actualizar_estados_olimpiadas', '0 0 * * *',
+                     $$SELECT public.actualizar_estados_olimpiadas()$$);
+-------------------------------------------------------------------------------------------------
+CREATE TRIGGER trg_actualizar_estado_automatico
+    BEFORE UPDATE ON public.olimpiada
+    FOR EACH ROW
+EXECUTE FUNCTION public.actualizar_estado_automatico();
+
+----------------------
+CREATE OR REPLACE FUNCTION public.validar_olimpiadas_no_solapados()
+    RETURNS trigger AS $$
+DECLARE
+    solapado boolean;
+BEGIN
+    -- Verifica si hay cualquier olimpiada existente (sin importar estado) que se solape
+    SELECT EXISTS (
+        SELECT 1 FROM public.olimpiada
+        WHERE id_olimpiada != COALESCE(NEW.id_olimpiada, 0)  -- Excluye el registro actual en updates
+          AND (fecha_inicio, fecha_fin) OVERLAPS (NEW.fecha_inicio, NEW.fecha_fin)
+    ) INTO solapado;
+
+    IF solapado THEN
+        RAISE EXCEPTION 'Ya existe una olimpiada registrada entre este rango de fechas: % - %',
+            NEW.fecha_inicio, NEW.fecha_fin;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_validar_solapamiento_global
+    BEFORE INSERT OR UPDATE ON public.olimpiada
+    FOR EACH ROW EXECUTE FUNCTION public.validar_olimpiadas_no_solapados();
+
+
+----------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION actualizar_olimpiada(
+    p_id_olimpiada INTEGER,
+    p_anio INTEGER,
+    p_nombre VARCHAR(100),
+    p_precio NUMERIC(10,2),
+    p_fecha_inicio DATE,
+    p_fecha_fin DATE
+) RETURNS public.olimpiada AS $$
+DECLARE
+    v_olimpiada public.olimpiada;
+BEGIN
+    -- Validar año futuro
+    IF p_anio < EXTRACT(YEAR FROM CURRENT_DATE) THEN
+        RAISE EXCEPTION 'Solo se pueden actualizar olimpiadas para el año actual o futuros';
+    END IF;
+
+    UPDATE public.olimpiada
+    SET anio = p_anio,
+        nombre_olimpiada = p_nombre,
+        precio_olimpiada = p_precio,
+        fecha_inicio = p_fecha_inicio,
+        fecha_fin = p_fecha_fin
+    WHERE id_olimpiada = p_id_olimpiada
+    RETURNING * INTO v_olimpiada;
+
+    RETURN v_olimpiada;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT * FROM public.actualizar_olimpiada(1, 2024, 'Olimpiada Nacional de Ciencias', 50.00, '2024-01-01', '2024-12-31');

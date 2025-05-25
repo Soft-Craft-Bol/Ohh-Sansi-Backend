@@ -34,6 +34,15 @@ public class AreaService {
         return response;
     }
 
+    public Map<String, Object> getAreas() {
+        try {
+            Map<String, Object> response = new HashMap<>();
+            response.put("areas", areaAdapter.getAreas());
+            return response;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener la lista de areas");
+        }
+    }
 
     public Map<String, Object> updateArea(Area area) {
         Map<String, Object> response = new HashMap<>();
@@ -51,8 +60,8 @@ public class AreaService {
         Map<String, Object> response = new HashMap<>();
         boolean deleted = areaAdapter.deleteArea(id);
         if (deleted) {
-            response.put("message","Area eliminada exitosamente");
-        }else {
+            response.put("message", "Area eliminada exitosamente");
+        } else {
             throw new ResourceNotFoundException("Area no encontrada");
         }
         return response;
@@ -68,15 +77,4 @@ public class AreaService {
         return response;
     }
 
-    public Map<String, Object> getAreas() {
-        try {
-            Map<String, Object> response = new HashMap<>();
-            response.put("areas", areaAdapter.getAreas());
-            return response;
-        } catch (Exception e) {
-        throw new RuntimeException("Error al obtener la lista de areas");
-        }
-    }
-
 }
-

@@ -1,0 +1,32 @@
+package com.softcraft.ohhsansibackend.comprobantepago.infraesstructure;
+
+import com.softcraft.ohhsansibackend.comprobantepago.application.ComprobantePagoAppService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/comprobante-pago")
+public class ComprobantePagoAppController {
+    private final ComprobantePagoAppService comprobantePagoService;
+    @Autowired
+    public ComprobantePagoAppController(ComprobantePagoAppService comprobantePagoService) {
+        this.comprobantePagoService = comprobantePagoService;
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Map<String,Object>>> getComprobantesPago() {
+        return ResponseEntity.ok(comprobantePagoService.getComprobantesPago());
+    }
+
+    @PutMapping("/{idComprobantePago}/estado")
+    public ResponseEntity<Map<String, Object>> cambiarEstadoComprobantePago(
+            @PathVariable int idComprobantePago,
+            @RequestParam("nuevoEstado") int nuevoEstadoId) {
+        Map<String, Object> response = comprobantePagoService.cambiarEstadoComprobantePago(idComprobantePago, nuevoEstadoId);
+        return ResponseEntity.ok(response);
+    }
+}

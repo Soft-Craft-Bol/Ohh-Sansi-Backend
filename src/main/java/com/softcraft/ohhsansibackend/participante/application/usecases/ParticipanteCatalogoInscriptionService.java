@@ -3,7 +3,10 @@ package com.softcraft.ohhsansibackend.participante.application.usecases;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.application.CatalogoService;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.model.ParticipanteCatalogo;
 import com.softcraft.ohhsansibackend.participante.application.ports.ParticipanteAdapter;
+import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteAreasDTO;
+import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteTutorAreaDTO;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
+import com.softcraft.ohhsansibackend.participante.domain.services.ParticipanteDomainService;
 import com.softcraft.ohhsansibackend.participante.infraestructure.request.AreaCatalogoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,17 +14,20 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class ParticipanteCatalogoInscriptionService {
     private final ParticipanteService participanteService;
     private final CatalogoService catalogoService;
     private final ParticipanteAdapter participanteAdapter;
+    private final ParticipanteDomainService participanteDomainService;
     @Autowired
-    public ParticipanteCatalogoInscriptionService(ParticipanteService participanteService, CatalogoService catalogoService, ParticipanteAdapter participanteAdapter) {
+    public ParticipanteCatalogoInscriptionService(ParticipanteService participanteService, CatalogoService catalogoService, ParticipanteAdapter participanteAdapter, ParticipanteDomainService participanteDomainService) {
         this.participanteService = participanteService;
         this.catalogoService = catalogoService;
         this.participanteAdapter = participanteAdapter;
+        this.participanteDomainService = participanteDomainService;
     }
 
 
@@ -80,5 +86,12 @@ public class ParticipanteCatalogoInscriptionService {
         return 1;
     }
 
+    public Optional<ParticipanteAreasDTO> execute(int carnetIdentidad) {
+        return participanteDomainService.obtenerAreasPorCarnet(carnetIdentidad);
+    }
+
+    public Optional<ParticipanteTutorAreaDTO> getTutorArea(int carnetIdentidad){
+        return participanteDomainService.obtenerTutorAreaPorCarnet(carnetIdentidad);
+    }
 
 }

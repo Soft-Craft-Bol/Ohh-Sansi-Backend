@@ -3,16 +3,12 @@ package com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.repository.imple
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.DTO.CatalogoOlimpiadaDTO;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.model.CatalogoOlimpiada;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.repository.abstraction.ICatalogoOlimpiadaRepository;
-import com.softcraft.ohhsansibackend.grado.infraestructure.request.GradoCategoriaDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Array;
-import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,7 +38,9 @@ public class CatalogoOlimpiadaDomainRepository implements ICatalogoOlimpiadaRepo
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             CatalogoOlimpiadaDTO dto = new CatalogoOlimpiadaDTO();
+            dto.setIdOlimpiada(rs.getInt("id_olimpiada"));
             dto.setNombreOlimpiada(rs.getString("nombre_olimpiada"));
+            dto.setIdArea(rs.getInt("id_area"));
             dto.setNombreArea(rs.getString("nombre_area"));
             dto.setNombreCategoria(rs.getString("nombre_categoria"));
 

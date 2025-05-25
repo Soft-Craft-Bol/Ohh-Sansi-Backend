@@ -5,6 +5,7 @@ public class ParticipanteTutor {
     private int idInscripcion;
     private int idParticipante;
     private int idParticipanteTutor;
+    private int idTutorParentesco;
 
     public int getIdTutor() {
         return idTutor;
@@ -21,6 +22,10 @@ public class ParticipanteTutor {
     public void setIdInscripcion(int idInscripcion) {
         this.idInscripcion = idInscripcion;
     }
+
+    public int getIdTutorParentesco(){return idTutorParentesco;}
+
+    public void setIdTutorParentesco(int idTutorParentesco){this.idTutorParentesco = idTutorParentesco;}
 
     public int getIdParticipante() {
         return idParticipante;

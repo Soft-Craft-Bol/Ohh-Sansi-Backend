@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-
 @Repository
 public class CategoryAdapter {
     private final CategoryDomainService categoryDomainService;
@@ -21,12 +20,12 @@ public class CategoryAdapter {
         return categoryDomainService.createCategory(category);
     }
 
-    public Category findById(int idCategoria) {
-        return categoryDomainService.getCategory(idCategoria);
-    }
-
     public List<Category> findAll() {
         return categoryDomainService.listCategory();
+    }
+
+    public Category findById(int idCategoria) {
+        return categoryDomainService.getCategory(idCategoria);
     }
 
     public boolean updateCategory(Category category) {

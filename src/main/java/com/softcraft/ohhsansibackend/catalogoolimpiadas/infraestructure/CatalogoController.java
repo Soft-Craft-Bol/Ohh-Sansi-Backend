@@ -20,7 +20,7 @@ public class CatalogoController {
     }
     @GetMapping("/ci-participante/{ciParticipante}")
     public ResponseEntity<List<Map<String, Object>>> getAreasByGrado(@PathVariable int ciParticipante) {
-        List<Map<String, Object>> areas = catalogoService.getUnregisteredAreasByGrado(ciParticipante);
+        List<Map<String, Object>> areas = catalogoService.getAreasByGradoParticipante(ciParticipante);
         return ResponseEntity.ok(areas);
     }
 }

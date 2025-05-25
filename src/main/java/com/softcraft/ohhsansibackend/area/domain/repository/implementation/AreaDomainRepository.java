@@ -21,15 +21,22 @@ public class AreaDomainRepository implements IAreaRepository {
     @Override
     public Area save(Area area) {
         String sql = "SELECT insertarea(?, ? , ?)";
-        return jdbcTemplate.queryForObject(sql, new Object[]{area.getNombreArea(),area.getNombreCortoArea(),area.getDescripcionArea()
-        }, new BeanPropertyRowMapper<>(Area.class));
+        return jdbcTemplate.queryForObject(sql,
+                new Object[] { area.getNombreArea(), area.getNombreCortoArea(), area.getDescripcionArea()
+                }, new BeanPropertyRowMapper<>(Area.class));
     }
 
+    @Override
+    public List<Area> findAll() {
+        String sql = "SELECT * FROM SelectAllAreas()";
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Area.class));
+    }
 
     @Override
     public boolean update(Area area) {
         String sql = "SELECT UpdateArea(?, ?, ?, ?)";
-        Boolean rowsAffected = jdbcTemplate.queryForObject(sql, Boolean.class, area.getIdArea(), area.getNombreArea(), area.getNombreCortoArea(), area.getDescripcionArea());
+        Boolean rowsAffected = jdbcTemplate.queryForObject(sql, Boolean.class, area.getIdArea(), area.getNombreArea(),
+                area.getNombreCortoArea(), area.getDescripcionArea());
         return rowsAffected != null && rowsAffected;
     }
 
@@ -43,14 +50,7 @@ public class AreaDomainRepository implements IAreaRepository {
     @Override
     public Area findById(int idArea) {
         String sql = "SELECT * FROM SelectAreaById(?)";
-        return jdbcTemplate.queryForObject(sql, new Object[]{idArea}, new
-                BeanPropertyRowMapper<>(Area.class));
-    }
-
-    @Override
-    public List<Area> findAll() {
-        String sql = "SELECT * FROM SelectAllAreas()";
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Area.class));
+        return jdbcTemplate.queryForObject(sql, new Object[] { idArea }, new BeanPropertyRowMapper<>(Area.class));
     }
 
 }

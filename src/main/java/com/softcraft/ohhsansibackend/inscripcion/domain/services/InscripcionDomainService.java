@@ -35,6 +35,10 @@ public class InscripcionDomainService {
         return inscripcionDomainRepository.findIdByCodigoUnico(codigoUnico);
     }
 
+    public Map<String, Object> getInscripcionDetails(String codigoUnico) {
+        return inscripcionDomainRepository.getDetalleInscripcion(codigoUnico);
+    }
+
     //askldjakls
     public List<Map<String, Object>> getInscripcionById(int idInscripcion) {
         return inscripcionDomainRepository.findInscripcionById(idInscripcion);
@@ -57,6 +61,10 @@ public class InscripcionDomainService {
     }
     public boolean deleteInscripcionById(int idInscripcion) {
         return inscripcionDomainRepository.deleteInscripcionById(idInscripcion);
+    }
+
+    public List<Map<String, Object>> getReporteInscripcionByArea(int idArea, int idOlimpiada) {
+        return inscripcionDomainRepository.getReporteInscripcionByArea(idArea, idOlimpiada);
     }
 
 }

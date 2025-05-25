@@ -21,7 +21,6 @@ public class TutorAsignadoController {
 
     @GetMapping("/getTutoresLegales/{ci}")
     public ResponseEntity<Map<String, Object>> getTutoresLegalesByCi(@PathVariable String ci) {
-        Map<String, Object> response = tutorAsignadoService.getTutoresLegales(ci);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return tutorAsignadoService.getTutoresLegales(ci);
     }
 }

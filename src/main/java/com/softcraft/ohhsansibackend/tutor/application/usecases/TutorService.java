@@ -30,8 +30,8 @@ public class TutorService {
         this.participanteTutorService = participanteTutorService;
         this.inscripcionAdapter = inscripcionAdapter;
     }
-    public Map<String, Object> save(List<Tutor> tutors, int carnetParticipante) {
-        if (tutors.size() > 3) {
+    public Map<String, Object> save(List<Tutor> tutors, int carnetParticipante, Integer parentescoId) {
+        if (tutors.size() > 4) { //New implementation: + Responsable Pago (idTipoTutor: 3)
             throw new IllegalArgumentException("No se pueden registrar más de 3 tutores.");
         }
 
@@ -40,12 +40,12 @@ public class TutorService {
 
             int tutoresAcademicos = tutorAdapter.countTutorsAcademicosByParticipanteId(searchParticipante.getIdParticipante());
             int tutoresLegales = tutorAdapter.countTutorsLegalesByParticipanteId(searchParticipante.getIdParticipante());
-            if (tutoresAcademicos+tutoresLegales  >= 3) {
+            if (tutoresAcademicos+tutoresLegales  >= 4) {
                 throw new IllegalArgumentException("El participante ya tiene el número máximo de tutores registrados permitidos (3).");
             }
             if ((tutoresAcademicos) >= 2) {
                 if(inscripcionAdapter.calculateEdad(searchParticipante) >= 15 ){
-                    throw new IllegalArgumentException("El participante ya tiene el número máximo de tutores académicos registrados permitidos (2)." +
+                    throw new IllegalArgumentException("El participante ya tiene el número máximo de profesores registrados permitidos (2)." +
                             "No es obligatorio registrar un tutor Legar");
                 }else{
                     throw new IllegalArgumentException("El participante ya tiene el número máximo de tutores académicos registrados permitidos (2)." +
@@ -59,14 +59,17 @@ public class TutorService {
                     participanteTutorService.createParticipanteTutor(
                             existingTutor.getIdTutor().intValue(),
                             searchParticipante.getIdInscripcion(),
-                            searchParticipante.getIdParticipante()
+                            searchParticipante.getIdParticipante(),
+                            parentescoId
+
                     );
                 } else {
                     Tutor tutorCreated = tutorAdapter.save(tutor);
                     participanteTutorService.createParticipanteTutor(
                             tutorCreated.getIdTutor().intValue(),
                             searchParticipante.getIdInscripcion(),
-                            searchParticipante.getIdParticipante()
+                            searchParticipante.getIdParticipante(),
+                            parentescoId
                     );
                 }
             }
@@ -106,4 +109,18 @@ public class TutorService {
     public int countTutorsLegalesByParticipanteId(int participanteId) {
         return tutorAdapter.countTutorsLegalesByParticipanteId(participanteId);
     }
+
+    public Map<String, Object> registrarTutorAcademico(Tutor tutor, int carnetParticipante, int idArea) {
+        Participante searchParticipante = participanteService.findByCarnetIdentidadService(carnetParticipante);
+
+        int tutoresAcademicos = tutorAdapter.countTutorsAcademicosByParticipanteId(searchParticipante.getIdParticipante());
+        if (tutoresAcademicos >= 2) {
+            throw new IllegalArgumentException("Ya hay 2 tutores académicos registrados");
+        }
+
+        tutorAdapter.guardarTutorAcademico(tutor, searchParticipante.getIdParticipante(), searchParticipante.getIdInscripcion(), idArea);
+
+        return Map.of("message", "Tutor académico registrado exitosamente");
+    }
+
 }

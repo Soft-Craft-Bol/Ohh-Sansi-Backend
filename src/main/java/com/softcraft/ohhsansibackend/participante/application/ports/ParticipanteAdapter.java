@@ -1,19 +1,25 @@
 package com.softcraft.ohhsansibackend.participante.application.ports;
 
+import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteResumenDTO;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.domain.services.ParticipanteDomainService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class ParticipanteAdapter {
     private final ParticipanteDomainService participanteDomainService;
+
     @Autowired
     public ParticipanteAdapter(ParticipanteDomainService participanteDomainService) {
         this.participanteDomainService = participanteDomainService;
     }
+
+
+
     public Participante save(Participante participante){
         return participanteDomainService.save(participante);
     }
@@ -45,4 +51,7 @@ public class ParticipanteAdapter {
         return participanteDomainService.countParticipantesEnCatalogoParticipante(idParticipante);
     }
 
+    public Optional<ParticipanteResumenDTO> obtenerParticipanteResumenPorCi(int carnetIdentidad) {
+        return participanteDomainService.obtenerParticipanteResumenPorCi(carnetIdentidad);
+    }
 }

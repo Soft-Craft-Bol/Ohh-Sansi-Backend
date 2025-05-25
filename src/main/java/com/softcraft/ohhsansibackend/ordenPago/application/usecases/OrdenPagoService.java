@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.softcraft.ohhsansibackend.ordenPago.domain.repository.implementation.OrdenPagoDomainRepository;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -43,4 +44,17 @@ public class OrdenPagoService {
     public boolean verificarExistenciaDeInscripcionEnOrdenPago(int idInscripcion){
         return ordenPagoDomainRepository.verificarExistenciaDeInscripcionEnOrdenPago(idInscripcion);
     }
+    public List<OrdenDePago> obtenerOrdenesNoVencidasEnRango(Date fechaInicio, Date fechaFin) {
+        return ordenPagoDomainRepository.findOrdenesNoVencidasEnRango(fechaInicio, fechaFin);
+    }
+
+    public OrdenDePago findOrdenDePagoByIdOrdenPago(int idOrdenDePago) {
+        try{
+             return ordenPagoDomainRepository.findOrdenPagoByIDOrdenPago(idOrdenDePago);
+        }catch(Exception e){
+            throw new ResourceNotFoundException("Orden de pago con ID " + idOrdenDePago + " no encontrada");
+        }
+    }
+
+
 }

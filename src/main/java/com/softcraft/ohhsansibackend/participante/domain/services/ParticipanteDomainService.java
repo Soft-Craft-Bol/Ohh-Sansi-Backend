@@ -1,11 +1,15 @@
 package com.softcraft.ohhsansibackend.participante.domain.services;
 
+import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteAreasDTO;
+import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteResumenDTO;
+import com.softcraft.ohhsansibackend.participante.domain.dto.ParticipanteTutorAreaDTO;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.domain.repository.implementation.ParticipanteDomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ParticipanteDomainService {
@@ -44,5 +48,14 @@ public class ParticipanteDomainService {
     public int countParticipantesEnCatalogoParticipante(int idParticipante){
         return participanteRepository.countParticipantesEnCatalogoParticipante(idParticipante);
     }
+    public Optional<ParticipanteAreasDTO> obtenerAreasPorCarnet(int carnetIdentidad) {
+        return participanteRepository.findAreasByCarnetIdentidad(carnetIdentidad);
+    }
 
+    public Optional<ParticipanteTutorAreaDTO> obtenerTutorAreaPorCarnet (int carnetIdentidad){
+        return participanteRepository.findParticipanteAreasTutoresById(carnetIdentidad);
+    }
+    public Optional<ParticipanteResumenDTO> obtenerParticipanteResumenPorCi(int carnetIdentidad) {
+        return participanteRepository.findParticipanteResumenByCi(carnetIdentidad);
+    }
 }

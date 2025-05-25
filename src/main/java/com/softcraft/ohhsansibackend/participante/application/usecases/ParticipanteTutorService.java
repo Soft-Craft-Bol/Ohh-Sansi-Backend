@@ -15,7 +15,7 @@ public class ParticipanteTutorService {
         this.participanteTutorAdapter = participanteTutorAdapter;
     }
 
-    public ParticipanteTutor createParticipanteTutor(int idTutor, int idInscripcion, int idParticipante) {
+    public ParticipanteTutor createParticipanteTutor(int idTutor, int idInscripcion, int idParticipante, int idTutorParentesco) {
         if (participanteTutorAdapter.existsByTutorAndParticipante(idTutor, idParticipante)) {
             throw new IllegalArgumentException("El tutor ya está registrado para este participante.");
         }
@@ -25,7 +25,7 @@ public class ParticipanteTutorService {
             if (idTutor <= 0 || idInscripcion <= 0 || idParticipante <= 0) {
                 throw new IllegalArgumentException("Invalid parametros introducidos invalidos");
             }
-            pt = participanteTutorAdapter.saveParticipanteTutor(idTutor, idInscripcion, idParticipante);
+            pt = participanteTutorAdapter.saveParticipanteTutor(idTutor, idInscripcion, idParticipante, idTutorParentesco);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Error en el servicio de ParticipanteTutor: " + e.getMessage());
         }

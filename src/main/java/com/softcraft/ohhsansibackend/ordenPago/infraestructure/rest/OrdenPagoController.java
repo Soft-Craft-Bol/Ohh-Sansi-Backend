@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -30,5 +31,17 @@ public class OrdenPagoController {
     public ResponseEntity<List<OrdenDePago>> obtenerOrdenesPorIdInscripcion(@PathVariable String codUnico) {
         List<OrdenDePago> ordenes = ordenPagoService.obtenerOrdenesPorIdInscripcion(codUnico);
         return ResponseEntity.ok(ordenes);
+    }
+    @GetMapping("/no-vencidas")
+    public ResponseEntity<List<OrdenDePago>> obtenerOrdenesNoVencidasEnRango(
+            @RequestParam("fechaInicio") Date fechaInicio,
+            @RequestParam("fechaFin") Date fechaFin) {
+        List<OrdenDePago> ordenes = ordenPagoService.obtenerOrdenesNoVencidasEnRango(fechaInicio, fechaFin);
+        return ResponseEntity.ok(ordenes);
+    }
+
+    @GetMapping("/find/{idOrdenDePago}")
+    public ResponseEntity<OrdenDePago> findOrdenDePagoById(@PathVariable int idOrdenDePago) {
+        return ResponseEntity.ok(ordenPagoService.findOrdenDePagoByIdOrdenPago(idOrdenDePago));
     }
 }

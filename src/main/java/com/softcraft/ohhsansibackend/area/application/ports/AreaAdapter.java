@@ -20,6 +20,10 @@ public class AreaAdapter {
         return areaDomainService.createArea(area);
     }
 
+    public List<Area> getAreas() {
+        return areaDomainService.getAreas();
+    }
+
     public boolean updateArea(Area area) {
         return areaDomainService.updateArea(area);
     }
@@ -30,10 +34,6 @@ public class AreaAdapter {
 
     public Area findAreaById(int id) {
         return areaDomainService.findAreaById(id);
-    }
-
-    public List<Area> getAreas() {
-        return areaDomainService.getAreas();
     }
 
 }
