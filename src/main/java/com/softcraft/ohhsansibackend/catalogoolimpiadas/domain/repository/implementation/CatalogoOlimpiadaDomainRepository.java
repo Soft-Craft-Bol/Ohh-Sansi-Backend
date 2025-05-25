@@ -38,7 +38,9 @@ public class CatalogoOlimpiadaDomainRepository implements ICatalogoOlimpiadaRepo
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             CatalogoOlimpiadaDTO dto = new CatalogoOlimpiadaDTO();
+            dto.setIdOlimpiada(rs.getInt("id_olimpiada"));
             dto.setNombreOlimpiada(rs.getString("nombre_olimpiada"));
+            dto.setIdArea(rs.getInt("id_area"));
             dto.setNombreArea(rs.getString("nombre_area"));
             dto.setNombreCategoria(rs.getString("nombre_categoria"));
 

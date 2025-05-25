@@ -83,7 +83,9 @@ SELECT * FROM insertCatalogo(18, 100, 69);
 -- -----------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION obtener_catalogo_por_periodo()
     RETURNS TABLE (
+        id_olimpiada INTEGER,
                       nombre_olimpiada VARCHAR,
+                        id_area INTEGER,
                       nombre_area VARCHAR,
                       nombre_categoria VARCHAR,
                       grados VARCHAR[]
@@ -91,7 +93,9 @@ CREATE OR REPLACE FUNCTION obtener_catalogo_por_periodo()
 BEGIN
     RETURN QUERY
         SELECT
+            o.id_olimpiada,
             o.nombre_olimpiada,
+            a.id_area,
             a.nombre_area,
             cat.nombre_categoria,
             ARRAY(

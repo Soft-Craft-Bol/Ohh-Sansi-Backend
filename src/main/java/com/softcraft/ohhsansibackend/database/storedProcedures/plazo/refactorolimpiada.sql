@@ -191,3 +191,21 @@ $$;
 SELECT * FROM obtener_detalle_inscripcion('O3UXY6');
 
 TRUNCATE neondb.public.inscripcion
+
+-- Primero agregamos la columna permitiendo valores nulos temporalmente
+ALTER TABLE neondb.public.comprobante_pago
+    ADD COLUMN id_estado_comprobante INTEGER;
+
+-- Actualizamos los registros existentes con un valor por defecto (ajusta el valor según tu caso)
+UPDATE neondb.public.comprobante_pago
+SET id_estado_comprobante = 1;  -- Ajusta este valor según tu estado inicial
+
+-- Finalmente, agregamos la restricción de llave foránea
+ALTER TABLE neondb.public.comprobante_pago
+    ADD CONSTRAINT fk_estado_comprobante
+        FOREIGN KEY (id_estado_comprobante)
+            REFERENCES neondb.public.estado_comprobante_pago(id_estado_comprobante);
+
+-- Opcionalmente, si quieres hacer la columna NOT NULL después
+ALTER TABLE neondb.public.comprobante_pago
+    ALTER COLUMN id_estado_comprobante SET NOT NULL;
