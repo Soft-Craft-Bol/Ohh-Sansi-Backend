@@ -1,6 +1,7 @@
 package com.softcraft.ohhsansibackend.inscripcion.domain.models;
 
 public class InscripcionMasivaDetail {
+    private Integer idInscripcion;
     private String nombreTut;
     private String apellidoTut;
     private String correoTut;
@@ -11,14 +12,19 @@ public class InscripcionMasivaDetail {
     public InscripcionMasivaDetail() {
     }
 
-    public InscripcionMasivaDetail( String nombreTut, String apellidoTut,String correoTut,  Long ciTut, Integer cantAreas, Integer cantPaticipantes) {
+    public InscripcionMasivaDetail( String nombreTut, String apellidoTut,String correoTut,  Long ciTut, Integer cantAreas, Integer cantPaticipantes, Integer idInscripcion) {
         this.correoTut = correoTut;
         this.nombreTut = nombreTut;
         this.apellidoTut = apellidoTut;
         this.ciTut = ciTut;
         this.cantAreas = cantAreas;
         this.cantPaticipantes = cantPaticipantes;
+        this.idInscripcion = idInscripcion;
     }
+
+    public Integer getIdInscripcion(){return this.idInscripcion;}
+
+    public void setIdInscripcion(Integer idInscripcion){this.idInscripcion = idInscripcion;}
 
     public String getCorreoTut() {return correoTut;}
 

@@ -19,7 +19,7 @@ public class InscripcionMasivaDetailDomain implements IInscripcionMasivaDetail {
     }
 
     public InscripcionMasivaDetail getAllDetails(String codUnico) {
-        String sql = "SELECT nombre_tutor, apellido_tutor,email,ci_tutor,cantidad_areas, cantidad_participantes " +
+        String sql = "SELECT inscripcion_id, nombre_tutor, apellido_tutor,email,ci_tutor,cantidad_areas, cantidad_participantes " +
                 "FROM obtener_info_tutor_con_areas(?)";
         return jdbcTemplate.queryForObject(sql, new Object[]{codUnico}, new InscripcionAsignedRowMapper());
     }
@@ -28,6 +28,7 @@ public class InscripcionMasivaDetailDomain implements IInscripcionMasivaDetail {
         @Override
         public InscripcionMasivaDetail mapRow(ResultSet rs, int rowNum) throws SQLException {
             InscripcionMasivaDetail inscription = new InscripcionMasivaDetail();
+            inscription.setIdInscripcion(rs.getInt("inscripcion_id"));
             inscription.setCorreoTut(rs.getString("email"));
             inscription.setNombreTut(rs.getString("nombre_tutor"));
             inscription.setApellidoTut(rs.getString("apellido_tutor"));
