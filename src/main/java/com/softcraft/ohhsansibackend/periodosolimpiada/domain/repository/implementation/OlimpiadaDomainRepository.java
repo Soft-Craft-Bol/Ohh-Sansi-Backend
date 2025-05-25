@@ -27,8 +27,6 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
                 olimpiada.getAnio(),
                 olimpiada.getNombreOlimpiada(),
                 olimpiada.getPrecioOlimpiada(),
-                olimpiada.getFechaInicio(),
-                olimpiada.getFechaFin()
         }, new BeanPropertyRowMapper<>(Olimpiada.class));
     }
 
@@ -39,9 +37,7 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
                 olimpiada.getIdOlimpiada(),
                 olimpiada.getAnio(),
                 olimpiada.getNombreOlimpiada(),
-                olimpiada.getPrecioOlimpiada(),
-                olimpiada.getFechaInicio(),
-                olimpiada.getFechaFin()
+                olimpiada.getPrecioOlimpiada()
         }, new BeanPropertyRowMapper<>(Olimpiada.class));
     }
 
