@@ -47,7 +47,16 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
 
     @Override
     public List<Olimpiada> getOlimpiadas() {
-        String sql = "SELECT * FROM selectOlimpiada()";
+        String sql = "SELECT\n" +
+                "            o.id_olimpiada,\n" +
+                "            o.anio,\n" +
+                "            o.nombre_olimpiada,\n" +
+                "            e.nombre_estado,\n" +
+                "            o.precio_olimpiada\n" +
+                "        FROM\n" +
+                "            olimpiada o\n" +
+                "                JOIN\n" +
+                "            estado_olimpiada e ON o.id_estado = e.id_estado;";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Olimpiada.class));
     }
 
