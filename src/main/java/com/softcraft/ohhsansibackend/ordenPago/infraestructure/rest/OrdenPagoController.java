@@ -39,4 +39,9 @@ public class OrdenPagoController {
         List<OrdenDePago> ordenes = ordenPagoService.obtenerOrdenesNoVencidasEnRango(fechaInicio, fechaFin);
         return ResponseEntity.ok(ordenes);
     }
+
+    @GetMapping("/find/{idOrdenDePago}")
+    public ResponseEntity<OrdenDePago> findOrdenDePagoById(@PathVariable int idOrdenDePago) {
+        return ResponseEntity.ok(ordenPagoService.findOrdenDePagoByIdOrdenPago(idOrdenDePago));
+    }
 }

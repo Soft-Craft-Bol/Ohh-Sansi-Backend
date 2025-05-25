@@ -48,5 +48,13 @@ public class OrdenPagoService {
         return ordenPagoDomainRepository.findOrdenesNoVencidasEnRango(fechaInicio, fechaFin);
     }
 
+    public OrdenDePago findOrdenDePagoByIdOrdenPago(int idOrdenDePago) {
+        try{
+             return ordenPagoDomainRepository.findOrdenPagoByIDOrdenPago(idOrdenDePago);
+        }catch(Exception e){
+            throw new ResourceNotFoundException("Orden de pago con ID " + idOrdenDePago + " no encontrada");
+        }
+    }
+
 
 }

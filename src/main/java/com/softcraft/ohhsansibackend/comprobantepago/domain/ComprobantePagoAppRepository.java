@@ -14,11 +14,11 @@ public class ComprobantePagoAppRepository {
     public ComprobantePagoAppRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-    public List<Map<String, Object>> getComprobantesPagoRechazados() {
+    public List<Map<String, Object>> getComprobantesPago() {
         String sql = """
-                    select distinct cp.*--, op.*
+                    select distinct cp.*, ecp.nombre_estado_comprobante
                     from comprobante_pago cp, estado_comprobante_pago ecp, orden_de_pago op
-                    where cp.id_estado_comprobante = ecp.id_estado_comprobante and ecp.nombre_estado_comprobante='RECHAZADA';
+                    where cp.id_estado_comprobante = ecp.id_estado_comprobante;
                 """;
         return jdbcTemplate.queryForList(sql);
     }

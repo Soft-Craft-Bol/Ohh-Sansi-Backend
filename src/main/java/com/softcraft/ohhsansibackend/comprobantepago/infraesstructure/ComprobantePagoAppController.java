@@ -19,8 +19,8 @@ public class ComprobantePagoAppController {
         this.comprobantePagoService = comprobantePagoService;
     }
 
-    @GetMapping("/rechazados")
-    public ResponseEntity<List<Map<String,Object>>> getComprobantesPagoRechazados() {
-        return ResponseEntity.ok(comprobantePagoService.getComprobantesPagoRechazados());
+    @GetMapping("/all")
+    public ResponseEntity<List<Map<String,Object>>> getComprobantesPago() {
+        return ResponseEntity.ok(comprobantePagoService.getComprobantesPago());
     }
 }

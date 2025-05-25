@@ -15,11 +15,11 @@ public class ComprobantePagoAppService {
         this.comprobantePagoRepository = comprobantePagoRepository;
     }
 
-    public List<Map<String, Object>> getComprobantesPagoRechazados(){
+    public List<Map<String, Object>> getComprobantesPago(){
         try {
-            return comprobantePagoRepository.getComprobantesPagoRechazados();
+            return comprobantePagoRepository.getComprobantesPago();
         } catch (Exception e) {
-            throw new RuntimeException("Error al obtener los comprobantes de pago rechazados: " + e.getMessage());
+            throw new RuntimeException("Error al obtener los comprobantes de pago: " + e.getMessage());
         }
     }
 
