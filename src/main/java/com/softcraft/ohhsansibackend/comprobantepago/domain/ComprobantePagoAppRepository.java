@@ -23,4 +23,13 @@ public class ComprobantePagoAppRepository {
         return jdbcTemplate.queryForList(sql);
     }
 
+    public void actualizarEstadoComprobantePago(int idComprobantePago, int idEstadoComprobante) {
+        String sql = """
+                UPDATE comprobante_pago
+                SET id_estado_comprobante = ?
+                WHERE id_comprobante_pago = ?
+            """;
+        jdbcTemplate.update(sql, idEstadoComprobante, idComprobantePago);
+    }
+
 }
