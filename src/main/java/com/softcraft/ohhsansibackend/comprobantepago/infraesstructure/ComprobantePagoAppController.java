@@ -29,4 +29,10 @@ public class ComprobantePagoAppController {
         Map<String, Object> response = comprobantePagoService.cambiarEstadoComprobantePago(idComprobantePago, nuevoEstadoId);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/findByOlimpiada/{idOlimpiada}")
+    public ResponseEntity<Map<String, Object>> findComprobantePagoByOlimpiada(@PathVariable int idOlimpiada) {
+        Map<String, Object> response = comprobantePagoService.findComprobantePagoByIdOlimpiada(idOlimpiada);
+        return ResponseEntity.ok(response);
+    }
 }

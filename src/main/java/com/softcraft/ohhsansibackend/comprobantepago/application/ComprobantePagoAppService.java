@@ -14,9 +14,12 @@ import java.util.Map;
 @Service
 public class ComprobantePagoAppService {
     private final ComprobantePagoAppRepository comprobantePagoRepository;
+    private final ComprobantePagoAppRepository comprobantePagoAppRepository;
+
     @Autowired
-    private ComprobantePagoAppService(ComprobantePagoAppRepository comprobantePagoRepository) {
+    private ComprobantePagoAppService(ComprobantePagoAppRepository comprobantePagoRepository, ComprobantePagoAppRepository comprobantePagoAppRepository) {
         this.comprobantePagoRepository = comprobantePagoRepository;
+        this.comprobantePagoAppRepository = comprobantePagoAppRepository;
     }
 
     public List<Map<String, Object>> getComprobantesPago(){
@@ -66,7 +69,23 @@ public class ComprobantePagoAppService {
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener el comprobante de pago por ci participante: " + e.getMessage());
         }
-
+    }
+    public Map<String, Object> findComprobantePagoByIdOlimpiada(int idOlimpiada) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<ComprobantePago> comprobantesPago = comprobantePagoAppRepository.findAllComprobanteByIdOlimpiada(idOlimpiada);
+            if (comprobantesPago.isEmpty()) {
+                response.put("error", "No se encontraron comprobantes de pago para la olimpiada con ID: " + idOlimpiada);
+                return response;
+            }else{
+                List<EstadoComprobantePago> estadosComprobantePago = comprobantePagoAppRepository.findAllEstadosComprobantePago();
+                response.put("estadosComprobantePago", estadosComprobantePago);
+                response.put("comprobantesPago", comprobantesPago);
+            }
+        } catch (Exception e) {
+            response.put("error", "Error al obtener los comprobantes de pago: " + e.getMessage());
+        }
+        return response;
     }
 
 

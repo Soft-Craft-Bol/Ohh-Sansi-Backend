@@ -85,6 +85,41 @@ public class ComprobantePagoAppRepository {
             return comprobantePago;
         });
     }
+    public List<ComprobantePago> findAllComprobanteByIdOlimpiada(int idOlimpiada){
+        String sql=
+                """
+                    select distinct cp.*
+                    from participante_catalogo pc, inscripcion i, orden_de_pago op, comprobante_pago cp
+                    where pc.id_inscripcion = i.id_inscripcion
+                      and op.id_inscripcion = i.id_inscripcion
+                      and cp.id_inscripcion = op.id_inscripcion
+                      and op.id_orden_pago = cp.id_orden_pago
+                      and pc.id_olimpiada = ?;
+                """;
+        return jdbcTemplate.query(sql, new Object[]{idOlimpiada}, (rs, rowNum) -> {
+            ComprobantePago comprobantePago = new ComprobantePago();
+            comprobantePago.setIdInscripcion(rs.getInt("id_inscripcion"));
+            comprobantePago.setIdOrdenPago(rs.getInt("id_orden_pago"));
+            comprobantePago.setIdComprobantePago(rs.getInt("id_comprobante_pago"));
+            comprobantePago.setMontoPagado(rs.getBigDecimal("monto_pagado"));
+            comprobantePago.setFechaPago(rs.getDate("fecha_pago"));
+            comprobantePago.setCodTransaccion(rs.getString("cod_transaccion"));
+            comprobantePago.setImagenComprobante(rs.getString("imagen_comprobante"));
+            comprobantePago.setNombreReceptor(rs.getString("nombre_receptor"));
+            comprobantePago.setNotasAdicionales(rs.getString("notas_adicionales"));
+            comprobantePago.setIdEstadoComprobante(rs.getInt("id_estado_comprobante"));
+            return comprobantePago;
+        });
+    }
+    public List<EstadoComprobantePago> findAllEstadosComprobantePago() {
+        String sql = "SELECT * FROM estado_comprobante_pago";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            EstadoComprobantePago estadoComprobantePago = new EstadoComprobantePago();
+            estadoComprobantePago.setIdEstadoComprobantePago(rs.getInt("id_estado_comprobante"));
+            estadoComprobantePago.setNombreEstadoComprobante(rs.getString("nombre_estado_comprobante"));
+            return estadoComprobantePago;
+        });
+    }
 
 
 }
