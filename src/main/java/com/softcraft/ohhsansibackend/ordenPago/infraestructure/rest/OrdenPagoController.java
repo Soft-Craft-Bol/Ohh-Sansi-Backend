@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/orden-pago")
@@ -43,5 +44,11 @@ public class OrdenPagoController {
     @GetMapping("/find/{idOrdenDePago}")
     public ResponseEntity<OrdenDePago> findOrdenDePagoById(@PathVariable int idOrdenDePago) {
         return ResponseEntity.ok(ordenPagoService.findOrdenDePagoByIdOrdenPago(idOrdenDePago));
+    }
+
+    @GetMapping("/find-by-olimpiada/{idOlimpiada}")
+    public ResponseEntity<Map<String,Object>> findOrdenPagoByOlimpiada(@PathVariable int idOlimpiada) {
+        Map<String, Object> ordenes = ordenPagoService.findOrdenPagoByOlimpiada(idOlimpiada);
+        return ResponseEntity.ok(ordenes);
     }
 }

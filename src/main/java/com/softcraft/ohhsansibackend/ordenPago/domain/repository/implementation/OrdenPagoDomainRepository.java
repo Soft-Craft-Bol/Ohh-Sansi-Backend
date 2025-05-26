@@ -1,4 +1,5 @@
 package com.softcraft.ohhsansibackend.ordenPago.domain.repository.implementation;
+import com.softcraft.ohhsansibackend.ordenPago.domain.models.EstadoOrdenDePago;
 import com.softcraft.ohhsansibackend.ordenPago.domain.models.OrdenDePago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -140,8 +141,8 @@ public class OrdenPagoDomainRepository {
 
     public List<OrdenDePago> findOrdenesNoVencidasEnRango(Date fechaInicio, Date fechaFin) {
         String sql = """
-                SELECT * 
-                FROM orden_de_pago 
+                SELECT *
+                FROM orden_de_pago
                 WHERE fecha_vencimiento NOT BETWEEN ? AND ?
                 """;
 
@@ -167,6 +168,46 @@ public class OrdenPagoDomainRepository {
             }
         });
     }
+    public List<OrdenDePago> findOrdenPagoByOlimpiada(int idOlimpiada) {
+        String sql =
+            """
+                select op.*
+                        from participante_catalogo pc, orden_de_pago op, inscripcion i
+                        where pc.id_inscripcion = i.id_inscripcion
+                        and op.id_inscripcion = i.id_inscripcion
+                        and pc.id_olimpiada = ?
+            """;
+        return jdbcTemplate.query(sql, new Object[]{idOlimpiada}, (rs, rowNum) -> {
+            OrdenDePago ordenDePago = new OrdenDePago();
+            ordenDePago.setIdOrdenPago(rs.getInt("id_orden_pago"));
+            ordenDePago.setIdInscripcion(rs.getInt("id_inscripcion"));
+            ordenDePago.setIdMetodoPago(rs.getInt("id_metodo_pago"));
+            ordenDePago.setIdEstado(rs.getInt("id_estado"));
+            ordenDePago.setFechaEmisionOrdenPago(rs.getDate("fecha_emision_orden_pago"));
+            ordenDePago.setFechaVencimiento(rs.getDate("fecha_vencimiento"));
+            ordenDePago.setMontoTotalPago(rs.getBigDecimal("monto_total_pago"));
+            ordenDePago.setCodOrdenPago(rs.getString("cod_orden_pago"));
+            ordenDePago.setEmisor(rs.getString("emisor"));
+            ordenDePago.setPrecioLiteral(rs.getString("precio_literal"));
+            ordenDePago.setResponsablePago(rs.getString("responsable_pago"));
+            ordenDePago.setCantidad(rs.getInt("cantidad"));
+            ordenDePago.setConcepto(rs.getString("concepto"));
+            ordenDePago.setPrecio_unitario(rs.getBigDecimal("precio_unitario"));
+            return ordenDePago;
+        });
+    }
 
+    public List<EstadoOrdenDePago> getAllEstadoOrdenPago(){
+        String sql =
+                """
+                    Select * from estado_orden_de_pago;
+                """;
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            EstadoOrdenDePago estadoOrdenDePago = new EstadoOrdenDePago();
+            estadoOrdenDePago.setIdEstado(rs.getInt("id_estado"));
+            estadoOrdenDePago.setEstado(rs.getString("estado"));
+            return estadoOrdenDePago;
+        });
+    }
 
 }
