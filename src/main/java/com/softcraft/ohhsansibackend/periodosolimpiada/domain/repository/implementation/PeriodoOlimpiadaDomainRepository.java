@@ -10,8 +10,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Date;
-import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,9 +39,8 @@ public class PeriodoOlimpiadaDomainRepository implements IPeriodoOlimpiadaReposi
             po.setIdOlimpiada(rs.getInt("id_olimpiada"));
             po.setTipoPeriodo(rs.getString("tipo_periodo"));
             po.setNombrePeriodo(rs.getString("nombre_periodo"));
-            po.setFechaInicio(rs.getTimestamp("fecha_inicio").toLocalDateTime().toLocalDate());
-            po.setFechaFin(rs.getTimestamp("fecha_fin").toLocalDateTime().toLocalDate());
-            po.setIdEstado(rs.getInt("id_estado"));
+            po.setFechaInicio(rs.getDate("fecha_inicio"));
+            po.setFechaFin(rs.getDate("fecha_fin"));
             return po;
         });
     }
@@ -59,7 +56,6 @@ public class PeriodoOlimpiadaDomainRepository implements IPeriodoOlimpiadaReposi
         for (Map<String, Object> row : rows) {
             int idOlimpiada = (Integer) row.get("id_olimpiada");
             String nombreOlimpiada = (String) row.get("nombre_olimpiada");
-            String estadoPeriodo = (String) row.get("estado_periodo");
             String estadoActual = (String) row.get("estado_actual");
             int anio = extractYearFromOlympiadName(nombreOlimpiada);
 
@@ -71,7 +67,7 @@ public class PeriodoOlimpiadaDomainRepository implements IPeriodoOlimpiadaReposi
                     idOlimpiada,
                     anio,
                     nombreOlimpiada,
-                    estadoPeriodo,
+                    estadoActual,
                     new ArrayList<>()
             )).getEventos().add(evento);
         }
@@ -89,26 +85,19 @@ public class PeriodoOlimpiadaDomainRepository implements IPeriodoOlimpiadaReposi
 
     private EventoDTO createEventoDTOFromRow(Map<String, Object> row) {
         EventoDTO evento = new EventoDTO();
+        evento.setIdOlimpiada((Integer) row.get("id_olimpiada"));
         evento.setIdPeriodo((Integer) row.get("id_periodo"));
         evento.setNombrePeriodo((String) row.get("nombre_periodo"));
         evento.setTipoPeriodo((String) row.get("tipo_periodo"));
 
-        evento.setFechaInicio(convertToLocalDate(row.get("fecha_inicio")));
-        evento.setFechaFin(convertToLocalDate(row.get("fecha_fin")));
+        evento.setFechaInicio((Date)row.get("fecha_inicio"));
+        evento.setFechaFin((Date)(row.get("fecha_fin")));
 
-        evento.setEstadoPeriodo((String) row.get("estado_periodo"));
         evento.setEstadoActual((String) row.get("estado_actual"));
 
         return evento;
     }
 
-    private LocalDate convertToLocalDate(Object timestamp) {
-        if (timestamp == null) return null;
-        if (timestamp instanceof Timestamp) {
-            return ((Timestamp) timestamp).toLocalDateTime().toLocalDate();
-        }
-        return null;
-    }
     public PeriodoOlimpiada encontrarPeriodoInscripcionActual() {
         String sql = """
                 select po.*

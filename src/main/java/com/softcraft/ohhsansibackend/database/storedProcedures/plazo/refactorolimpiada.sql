@@ -8,3 +8,12 @@ WHERE co.id_olimpiada = o.id_olimpiada
   AND gc.id_grado = g.id_grado
 AND co.id_olimpiada = ?
 order by id_catalogo
+
+
+
+SELECT        o.id_olimpiada,
+                 o.anio,
+                  o.nombre_olimpiada,
+                    e.nombre_estado,
+                       o.precio_olimpiada
+                    FROM    olimpiada o         JOIN     estado_olimpiada e ON o.id_estado = e.id_estado;

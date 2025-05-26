@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,34 +33,19 @@ public class PeriodoOlimpiadaService {
     public Map<String, Object> insertPeriodoOlimpiada(PeriodoOlimpiada periodoOlimpiada) {
         Map<String, Object> response = new HashMap<>();
         try {
-            if (periodoOlimpiada.getFechaInicio().isBefore(LocalDate.now())) {
+            if (periodoOlimpiada.getFechaInicio().before(Calendar.getInstance().getTime())) {
                 response.put("status", "error");
                 response.put("message", "No se pueden crear períodos con fechas anteriores a la fecha actual");
                 return response;
             }
 
-            // Validación de fecha fin anterior a inicio
-            if (periodoOlimpiada.getFechaFin().isBefore(periodoOlimpiada.getFechaInicio())) {
+            if (periodoOlimpiada.getFechaFin().before(periodoOlimpiada.getFechaInicio())) {
                 response.put("status", "error");
                 response.put("message", "La fecha de fin no puede ser anterior a la fecha de inicio");
                 return response;
             }
 
-            // Validación de año de olimpiada
-            Integer anioOlimpiada = olimpiadaService.getAnioOlimpiada(periodoOlimpiada.getIdOlimpiada());
-            if (anioOlimpiada == null) {
-                response.put("status", "error");
-                response.put("message", "La olimpiada especificada no existe");
-                return response;
-            }
-
-            if (periodoOlimpiada.getFechaInicio().getYear() != anioOlimpiada ||
-                    periodoOlimpiada.getFechaFin().getYear() != anioOlimpiada) {
-                response.put("status", "error");
-                response.put("message", "Las fechas del período deben coincidir con el año de la olimpiada (" + anioOlimpiada + ")");
-                return response;
-            }
-
+            // Llamar a la función PostgreSQL que contiene todas las validaciones
             PeriodoOlimpiada inserted = periodoOlimpiadaAdapter.insertPeriodoOlimpiada(periodoOlimpiada);
 
             response.put("status", "success");
@@ -70,24 +56,45 @@ public class PeriodoOlimpiadaService {
             String errorMessage = getFriendlyErrorMessage(dae);
             response.put("status", "error");
             response.put("message", errorMessage);
-
         } catch (Exception e) {
             response.put("status", "error");
             response.put("message", "Error interno al registrar el período: " + e.getMessage());
         }
         return response;
     }
+
     private String getFriendlyErrorMessage(DataAccessException dae) {
         String rootCause = dae.getRootCause() != null ? dae.getRootCause().getMessage() : dae.getMessage();
 
         if (rootCause.contains("solapa")) {
             return "Existe un conflicto con las fechas proporcionadas: " +
-                    rootCause.substring(rootCause.indexOf('"') + 1, rootCause.lastIndexOf('"'));
+                    extractMessageBetweenQuotes(rootCause);
         } else if (rootCause.contains("anterior")) {
             return "La fecha de fin no puede ser anterior a la fecha de inicio";
+        } else if (rootCause.contains("coincidir")) {
+            return extractMessageAfterColon(rootCause);
+        } else if (rootCause.contains("Error al crear el período")) {
+            return extractMessageAfterColon(rootCause);
         } else {
             return "Error al registrar el período. Verifique los datos e intente nuevamente";
         }
+    }
+
+    private String extractMessageBetweenQuotes(String message) {
+        int firstQuote = message.indexOf('"');
+        int lastQuote = message.lastIndexOf('"');
+        if (firstQuote != -1 && lastQuote != -1 && firstQuote < lastQuote) {
+            return message.substring(firstQuote + 1, lastQuote);
+        }
+        return message;
+    }
+
+    private String extractMessageAfterColon(String message) {
+        int colonIndex = message.indexOf(':');
+        if (colonIndex != -1 && colonIndex < message.length() - 1) {
+            return message.substring(colonIndex + 1).trim();
+        }
+        return message;
     }
 
     public List<OlimpiadaEventosDTO> getOlimpiadasconEventos() {
