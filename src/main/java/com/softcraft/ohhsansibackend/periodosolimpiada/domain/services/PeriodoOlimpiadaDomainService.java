@@ -33,4 +33,5 @@ public class PeriodoOlimpiadaDomainService {
     public PeriodoOlimpiada encontrarPeriodoInscripcionActual(){
         return periodoOlimpiadaDomainRepository.encontrarPeriodoInscripcionActual();
     }
+
 }

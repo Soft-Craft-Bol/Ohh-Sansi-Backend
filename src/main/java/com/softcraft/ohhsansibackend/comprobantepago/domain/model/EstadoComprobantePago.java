@@ -1,24 +1,29 @@
 package com.softcraft.ohhsansibackend.comprobantepago.domain.model;
 
-public enum EstadoComprobantePago {
-    ACEPTADA(1),
-    PENDIENTE(2),
-    RECHAZADA(3);
+public class EstadoComprobantePago {
+    private int idEstadoComprobantePago;
+    private String nombreEstadoComprobante;
 
-    private final int id;
+    public int getIdEstadoComprobantePago() {
+        return idEstadoComprobantePago;
+    }
+    public EstadoComprobantePago() {
+    }
 
-    EstadoComprobantePago(int id) {
-        this.id = id;
+    public EstadoComprobantePago(int idEstadoComprobantePago, String nombreEstadoComprobante) {
+        this.idEstadoComprobantePago = idEstadoComprobantePago;
+        this.nombreEstadoComprobante = nombreEstadoComprobante;
     }
-    public int getId() {
-        return id;
+
+    public void setIdEstadoComprobantePago(int idEstadoComprobantePago) {
+        this.idEstadoComprobantePago = idEstadoComprobantePago;
     }
-    public static EstadoComprobantePago fromId(int id) {
-        for (EstadoComprobantePago estado : values()) {
-            if (estado.getId() == id) {
-                return estado;
-            }
-        }
-        throw new IllegalArgumentException("Estado no válido: " + id);
+
+    public String getNombreEstadoComprobante() {
+        return nombreEstadoComprobante;
+    }
+
+    public void setNombreEstadoComprobante(String nombreEstadoComprobante) {
+        this.nombreEstadoComprobante = nombreEstadoComprobante;
     }
 }
