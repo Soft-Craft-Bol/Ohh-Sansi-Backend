@@ -49,4 +49,6 @@ public class CatalogoOlimpiadaController {
     public List<CatalogoOlimpiadaDTO> getCatalogoOlimpiadas() {
         return catalogoOlimpiadaService.findAll();
     }
+
+
 }

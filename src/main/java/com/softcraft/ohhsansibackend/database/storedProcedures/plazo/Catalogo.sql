@@ -118,3 +118,8 @@ select * from catalogo_olimpiada;
 
 
 -- -----------------------------------------------------------------------------------------------------------------------
+select po.*
+from olimpiada o, estado_olimpiada eo, periodos_olimpiada po
+where o.id_estado = eo.id_estado
+  and eo.nombre_estado = 'EN INSCRIPCION'
+  and CURRENT_DATE between DATE(po.fecha_inicio) and DATE(po.fecha_fin);

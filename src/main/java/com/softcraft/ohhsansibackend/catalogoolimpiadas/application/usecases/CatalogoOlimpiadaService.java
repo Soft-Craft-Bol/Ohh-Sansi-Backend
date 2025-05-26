@@ -48,7 +48,13 @@ public class CatalogoOlimpiadaService {
             );
         }
     }
+
     public List<CatalogoOlimpiadaDTO> findAll() {
         return catalogoOlimpiadaAdapter.findAll();
     }
+
+    public List<CatalogoOlimpiadaDTO> getCatalogoOlimpiadaById(Integer idCatalogoOlimpiada) {
+        return catalogoOlimpiadaAdapter.getCatalogoOlimpiadaById(idCatalogoOlimpiada);
+    }
 }
+

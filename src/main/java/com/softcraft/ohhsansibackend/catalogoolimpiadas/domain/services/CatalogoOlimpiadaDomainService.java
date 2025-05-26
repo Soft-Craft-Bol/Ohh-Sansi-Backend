@@ -22,4 +22,8 @@ public class CatalogoOlimpiadaDomainService {
     public List<CatalogoOlimpiadaDTO> findAll() {
         return catalogoOlimpiadaRepository.findAll();
     }
+
+    public List<CatalogoOlimpiadaDTO> getCatalogoOlimpiadaById(Integer idCatalogoOlimpiada) {
+        return catalogoOlimpiadaRepository.getCatalogoOlimpiadaById(idCatalogoOlimpiada);
+    }
 }

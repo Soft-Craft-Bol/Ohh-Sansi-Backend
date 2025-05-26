@@ -44,8 +44,6 @@ public class PeriodoOlimpiadaDomainRepository implements IPeriodoOlimpiadaReposi
             po.setFechaInicio(rs.getTimestamp("fecha_inicio").toLocalDateTime().toLocalDate());
             po.setFechaFin(rs.getTimestamp("fecha_fin").toLocalDateTime().toLocalDate());
             po.setIdEstado(rs.getInt("id_estado"));
-            po.setObligatorio(rs.getBoolean("obligatorio"));
-            po.setOrden(rs.getInt("orden"));
             return po;
         });
     }
@@ -100,8 +98,6 @@ public class PeriodoOlimpiadaDomainRepository implements IPeriodoOlimpiadaReposi
 
         evento.setEstadoPeriodo((String) row.get("estado_periodo"));
         evento.setEstadoActual((String) row.get("estado_actual"));
-        evento.setObligatorio((Boolean) row.get("obligatorio"));
-        evento.setOrden((Integer) row.get("orden"));
 
         return evento;
     }
@@ -118,7 +114,7 @@ public class PeriodoOlimpiadaDomainRepository implements IPeriodoOlimpiadaReposi
                 select po.*
                 from olimpiada o, estado_olimpiada eo, periodos_olimpiada po
                 where o.id_estado = eo.id_estado
-                  and eo.nombre_estado = 'INSCRIPCION'
+                  and eo.nombre_estado = 'EN INSCRIPCION'
                   and CURRENT_DATE between DATE(po.fecha_inicio) and DATE(po.fecha_fin);
             """;
         return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(PeriodoOlimpiada.class));

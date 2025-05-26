@@ -20,9 +20,7 @@ BEGIN
                  p_nombre,
                  p_precio,
                  p_anio,
-                 (SELECT id_estado FROM public.estado_olimpiada WHERE nombre_estado = 'PLANIFICACION'),
-                p_fecha_inicio,
-                p_fecha_fin
+                 (SELECT id_estado FROM public.estado_olimpiada WHERE nombre_estado = 'PLANIFICACION')
              ) RETURNING * INTO v_olimpiada;
 
     RETURN v_olimpiada;
@@ -83,4 +81,4 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM public.actualizar_olimpiada(1, 2024, 'Olimpiada Nacional de Ciencias', 50.00, '2024-01-01', '2024-12-31');
+SELECT * FROM public.actualizar_olimpiada(1, 2024, 'Olimpiada Nacional de Ciencias', 50.00);

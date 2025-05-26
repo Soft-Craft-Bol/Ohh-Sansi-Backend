@@ -1,5 +1,6 @@
 package com.softcraft.ohhsansibackend.periodosolimpiada.application.usecases;
 
+import com.softcraft.ohhsansibackend.catalogoolimpiadas.application.usecases.CatalogoOlimpiadaService;
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.periodosolimpiada.application.ports.PeriodoOlimpiadaAdapter;
 import com.softcraft.ohhsansibackend.periodosolimpiada.domain.models.Olimpiada;
@@ -19,11 +20,13 @@ import java.util.Map;
 public class PeriodoOlimpiadaService {
     private final PeriodoOlimpiadaAdapter periodoOlimpiadaAdapter;
     private final OlimpiadaService olimpiadaService;
+    private final CatalogoOlimpiadaService catalogoOlimpiadaService;
 
     @Autowired
-    public PeriodoOlimpiadaService(PeriodoOlimpiadaAdapter periodoOlimpiadaAdapter, OlimpiadaService olimpiadaService) {
+    public PeriodoOlimpiadaService(PeriodoOlimpiadaAdapter periodoOlimpiadaAdapter, OlimpiadaService olimpiadaService, CatalogoOlimpiadaService catalogoOlimpiadaService) {
         this.periodoOlimpiadaAdapter = periodoOlimpiadaAdapter;
         this.olimpiadaService = olimpiadaService;
+        this.catalogoOlimpiadaService = catalogoOlimpiadaService;
     }
 
     public Map<String, Object> insertPeriodoOlimpiada(PeriodoOlimpiada periodoOlimpiada) {
@@ -102,6 +105,7 @@ public class PeriodoOlimpiadaService {
                 response.put("status", "success");
                 response.put("olimpiada", olimpiada);
                 response.put("periodoOlimpiada", periodoOlimpiada);
+            response.put("catalogoOlimpiada", catalogoOlimpiadaService.getCatalogoOlimpiadaById(periodoOlimpiada.getIdOlimpiada()));
             }
         } catch (Exception e) {
             response.put("status", "error");

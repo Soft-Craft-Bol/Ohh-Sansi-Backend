@@ -11,12 +11,10 @@ CREATE OR REPLACE FUNCTION public.crear_periodo(
     nombre_periodo VARCHAR,
     fecha_inicio TIMESTAMP,
     fecha_fin TIMESTAMP,
-    orden INTEGER,
     id_estado INTEGER
 ) AS $$
 DECLARE
     v_periodo periodos_olimpiada;
-    v_orden INTEGER;
     v_estado_planificacion_id INTEGER;
     v_anio_olimpiada INTEGER;
     v_fecha_actual TIMESTAMP := NOW();
@@ -78,12 +76,6 @@ BEGIN
     SELECT id_estado INTO v_estado_planificacion_id
     FROM estado_olimpiada
     WHERE nombre_estado = 'PLANIFICACION';
-
-    -- Calcular el orden del nuevo período
-    SELECT COALESCE(MAX(orden), 0) + 1 INTO v_orden
-    FROM periodos_olimpiada
-    WHERE id_olimpiada = p_id_olimpiada;
-
     -- Insertar el nuevo período
     INSERT INTO periodos_olimpiada (
         id_olimpiada,
@@ -91,23 +83,17 @@ BEGIN
         nombre_periodo,
         fecha_inicio,
         fecha_fin,
-        orden,
         id_estado
     ) VALUES (
                  p_id_olimpiada,
                  p_tipo_periodo,
                  COALESCE(p_nombre_personalizado,
                           CASE p_tipo_periodo
-                              WHEN 'CONFIGURACION' THEN 'Configuración Inicial'
-                              WHEN 'PRE_INSCRIPCION' THEN 'Pre-Inscripciones'
-                              WHEN 'INSCRIPCION' THEN 'Inscripciones Formales'
-                              WHEN 'EVALUACION' THEN 'Fase de Evaluación'
-                              WHEN 'FINAL' THEN 'Fase Final'
-                              WHEN 'PREMIACION' THEN 'Ceremonia de Premiación'
+                              WHEN 'INSCRIPCION' THEN 'Inscripciones'
+                              WHEN 'AMPLIACION' THEN 'Ampliacion'
                               END),
                  p_fecha_inicio,
                  p_fecha_fin,
-                 v_orden,
                  v_estado_planificacion_id
              ) RETURNING * INTO v_periodo;
 
@@ -158,7 +144,7 @@ BEGIN
                 WHEN NOW() < p.fecha_inicio THEN 'PENDIENTE'::VARCHAR(20)
                 WHEN NOW() BETWEEN p.fecha_inicio AND p.fecha_fin THEN 'ACTIVO'::VARCHAR(20)
                 ELSE 'FINALIZADO'::VARCHAR(20)
-                END AS estado_actual,
+                END AS estado_actual
         FROM
             public.periodos_olimpiada p
                 JOIN

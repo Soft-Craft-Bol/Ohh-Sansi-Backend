@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 import java.sql.Array;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 public class CatalogoOlimpiadaDomainRepository implements ICatalogoOlimpiadaRepository {
@@ -29,6 +31,45 @@ public class CatalogoOlimpiadaDomainRepository implements ICatalogoOlimpiadaRepo
                 catalogoOlimpiada.getIdCategoria(),
                 catalogoOlimpiada.getIdOlimpiada()
         }, new BeanPropertyRowMapper<>(CatalogoOlimpiada.class));
+    }
+
+    @Override
+    public List<CatalogoOlimpiadaDTO> getCatalogoOlimpiadaById(Integer idCatalogoOlimpiada) {
+        String sql = "SELECT co.id_catalogo, a.id_area, a.nombre_area, a.descripcion_area, " +
+                "g.nombre_grado, o.nombre_olimpiada, o.id_olimpiada, c.nombre_categoria " +
+                "FROM catalogo_olimpiada co " +
+                "JOIN olimpiada o ON co.id_olimpiada = o.id_olimpiada " +
+                "JOIN area a ON co.id_area = a.id_area " +
+                "JOIN categorias c ON co.id_categoria = c.id_categoria " +
+                "JOIN grado_categoria gc ON co.id_categoria = gc.id_categoria " +
+                "JOIN grado g ON gc.id_grado = g.id_grado " +
+                "WHERE co.id_olimpiada = ? " +
+                "ORDER BY co.id_catalogo";
+
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, idCatalogoOlimpiada);
+
+        Map<Integer, List<Map<String, Object>>> grouped = rows.stream()
+                .collect(Collectors.groupingBy(row -> (Integer)row.get("id_catalogo")));
+
+        return grouped.values().stream().map(group -> {
+            Map<String, Object> firstRow = group.get(0);
+
+            CatalogoOlimpiadaDTO dto = new CatalogoOlimpiadaDTO();
+            dto.setIdCatalogo((Integer)firstRow.get("id_catalogo"));
+            dto.setIdArea((Integer)firstRow.get("id_area"));
+            dto.setNombreArea((String)firstRow.get("nombre_area"));
+            dto.setDescripcionArea((String)firstRow.get("descripcion_area"));
+            dto.setNombreOlimpiada((String)firstRow.get("nombre_olimpiada"));
+            dto.setIdOlimpiada((Integer)firstRow.get("id_olimpiada"));
+            dto.setNombreCategoria((String)firstRow.get("nombre_categoria"));
+
+            List<String> grados = group.stream()
+                    .map(row -> (String)row.get("nombre_grado"))
+                    .collect(Collectors.toList());
+            dto.setGrados(grados);
+
+            return dto;
+        }).collect(Collectors.toList());
     }
 
 

@@ -22,7 +22,7 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
 
     @Override
     public Olimpiada saveOlimpiada(Olimpiada olimpiada) {
-        String sql = "SELECT * FROM crear_olimpiada(?, ?, ?, ?, ?)";
+        String sql = "SELECT * FROM crear_olimpiada(?, ?, ?)";
         return jdbcTemplate.queryForObject(sql, new Object[]{
                 olimpiada.getAnio(),
                 olimpiada.getNombreOlimpiada(),
@@ -32,7 +32,7 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
 
     @Override
     public Olimpiada updateOlimpiada(Olimpiada olimpiada) {
-        String sql = "SELECT * FROM actualizar_olimpiada(?, ?, ?, ?, ?, ?)";
+        String sql = "SELECT * FROM actualizar_olimpiada(?, ?, ?, ?)";
         return jdbcTemplate.queryForObject(sql, new Object[]{
                 olimpiada.getIdOlimpiada(),
                 olimpiada.getAnio(),
