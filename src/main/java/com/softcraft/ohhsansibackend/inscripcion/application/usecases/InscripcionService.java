@@ -6,6 +6,7 @@ import com.softcraft.ohhsansibackend.inscripcion.application.ports.InscripcionAd
 import com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementation.InscripcionDomainRepository;
 import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionDomainService;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
+import com.softcraft.ohhsansibackend.periodosolimpiada.application.usecases.PeriodoOlimpiadaService;
 import com.softcraft.ohhsansibackend.utils.UniqueCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -26,12 +27,14 @@ public class InscripcionService {
     private final InscripcionDomainService inscripcionDomainService;
     private final UniqueCodeGenerator uniqueCodeGenerator;
     private final InscripcionDomainRepository inscripcionDomainRepository;
+    private final PeriodoOlimpiadaService periodoOlimpiadaService;
     @Autowired
-    public InscripcionService(@Lazy InscripcionAdapter inscripcionAdapter, InscripcionDomainService inscripcionDomainService, UniqueCodeGenerator uniqueCodeGenerator, InscripcionDomainRepository inscripcionDomainRepository) {
+    public InscripcionService(@Lazy InscripcionAdapter inscripcionAdapter, InscripcionDomainService inscripcionDomainService, UniqueCodeGenerator uniqueCodeGenerator, InscripcionDomainRepository inscripcionDomainRepository, PeriodoOlimpiadaService periodoOlimpiadaService) {
         this.inscripcionAdapter = inscripcionAdapter;
         this.inscripcionDomainService = inscripcionDomainService;
         this.uniqueCodeGenerator = uniqueCodeGenerator;
         this.inscripcionDomainRepository = inscripcionDomainRepository;
+        this.periodoOlimpiadaService = periodoOlimpiadaService;
     }
 
     public Inscripcion saveInscripcion() {
@@ -110,7 +113,7 @@ public class InscripcionService {
                 "participantes", getParticipantesByInscripcionId(idInscripcion),
                 "areas", areas,
                 "tutores", tutores,
-                "olimpiadas", inscripcionDomainRepository.findOlimapiada(),//falta
+                "olimpaiada", periodoOlimpiadaService.encontrarPeriodoInscripcionActualMap(),
                 "edadParticipante", edadParticipante,
                 "ordenDePagoGenerada",inscripcionAdapter.verificarEstadoOrdenPago(idInscripcion)
         );
