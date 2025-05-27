@@ -81,4 +81,4 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM public.actualizar_olimpiada(1, 2024, 'Olimpiada Nacional de Ciencias', 50.00);
+SELECT * FROM public.actualizar_olimpiada(102, 2025, 'Olimpiada Nacional de Ciencias', 50.00);

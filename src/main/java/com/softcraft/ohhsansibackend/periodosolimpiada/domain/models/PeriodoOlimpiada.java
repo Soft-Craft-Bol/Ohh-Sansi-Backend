@@ -1,24 +1,27 @@
 package com.softcraft.ohhsansibackend.periodosolimpiada.domain.models;
 
-import java.sql.Date;
+
+import java.time.LocalDate;
 
 public class PeriodoOlimpiada {
 
     private int idPeriodo;
     private int idOlimpiada;
     private String nombrePeriodo;
-    private Date fechaInicio;
-    private Date fechaFin;
+    private int idEstado;
+    private LocalDate fechaInicio;
+    private LocalDate fechaFin;
     private String tipoPeriodo;
 
 
     public PeriodoOlimpiada() {
     }
 
-    public PeriodoOlimpiada(int idPeriodo, int idOlimpiada, String nombrePeriodo, Date fechaInicio, Date fechaFin, String tipoPeriodo) {
+    public PeriodoOlimpiada(int idPeriodo, int idOlimpiada, String nombrePeriodo, int idEstado, LocalDate fechaInicio, LocalDate fechaFin, String tipoPeriodo) {
         this.idPeriodo = idPeriodo;
         this.idOlimpiada = idOlimpiada;
         this.nombrePeriodo = nombrePeriodo;
+        this.idEstado = idEstado;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.tipoPeriodo = tipoPeriodo;
@@ -42,16 +45,25 @@ public class PeriodoOlimpiada {
     public void setNombrePeriodo(String nombrePeriodo) {
         this.nombrePeriodo = nombrePeriodo;
     }
-    public Date getFechaInicio() {
+
+    public int getIdEstado() {
+        return idEstado;
+    }
+
+    public void setIdEstado(int idEstado) {
+        this.idEstado = idEstado;
+    }
+
+    public LocalDate getFechaInicio() {
         return fechaInicio;
     }
-    public void setFechaInicio(Date fechaInicio) {
+    public void setFechaInicio(LocalDate fechaInicio) {
         this.fechaInicio = fechaInicio;
     }
-    public Date getFechaFin() {
+    public LocalDate getFechaFin() {
         return fechaFin;
     }
-    public void setFechaFin(Date fechaFin) {
+    public void setFechaFin(LocalDate fechaFin) {
         this.fechaFin = fechaFin;
     }
     public String getTipoPeriodo() {

@@ -44,7 +44,7 @@ public class CatalogoDomainRepository {
             WHERE gc.id_grado = ?
             AND o.id_estado IN (
                 SELECT id_estado FROM estado_olimpiada 
-                WHERE nombre_estado IN ('PRE_INSCRIPCION', 'INSCRIPCION', 'EN_CURSO')
+                WHERE nombre_estado IN ('EN INSCRIPCION')
             )
             ORDER BY a.nombre_area
         """;
@@ -57,9 +57,9 @@ public class CatalogoDomainRepository {
                 .orElseThrow(() -> new IllegalStateException("La olimpiada especificada no existe"));
 
         // Validar período de inscripción
-        if (estado.equals("EN_CURSO") && !isPeriodoInscripcionActivo(participanteCatalogo.getIdOlimpiada())) {
+        if (estado.equals("EN INSCRIPCION") && !isPeriodoInscripcionActivo(participanteCatalogo.getIdOlimpiada())) {
             throw new IllegalStateException("No se pueden registrar participantes fuera del período de inscripción");
-        } else if (!List.of("PRE_INSCRIPCION", "INSCRIPCION").contains(estado)) {
+        } else if (!List.of( "EN INSCRIPCION").contains(estado)) {
             throw new IllegalStateException("No se pueden registrar participantes en el estado actual de la olimpiada: " + estado);
         }
 
@@ -158,7 +158,7 @@ public class CatalogoDomainRepository {
             SELECT EXISTS (
                 SELECT 1 FROM periodos_olimpiada po
                 WHERE po.id_olimpiada = ?
-                AND po.tipo_periodo IN ('PRE_INSCRIPCION', 'INSCRIPCION')
+                AND po.tipo_periodo IN ('INSCRIPCIONES', 'AMPLIACION')
                 AND CURRENT_TIMESTAMP BETWEEN po.fecha_inicio AND po.fecha_fin
             )
         """;
@@ -170,7 +170,7 @@ public class CatalogoDomainRepository {
             SELECT o.id_olimpiada, e.nombre_estado 
             FROM olimpiada o
             JOIN estado_olimpiada e ON o.id_estado = e.id_estado
-            WHERE e.nombre_estado IN ('PRE_INSCRIPCION', 'INSCRIPCION', 'EN_CURSO')
+            WHERE e.nombre_estado IN ( 'EN INSCRIPCION')
             ORDER BY o.id_olimpiada DESC
             LIMIT 1
         """;

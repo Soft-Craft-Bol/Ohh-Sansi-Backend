@@ -5,11 +5,13 @@ import com.softcraft.ohhsansibackend.periodosolimpiada.domain.repository.abstrac
 import com.softcraft.ohhsansibackend.periodosolimpiada.infraestructure.dto.EventoDTO;
 import com.softcraft.ohhsansibackend.periodosolimpiada.infraestructure.dto.OlimpiadaEventosDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,8 +41,8 @@ public class PeriodoOlimpiadaDomainRepository implements IPeriodoOlimpiadaReposi
             po.setIdOlimpiada(rs.getInt("id_olimpiada"));
             po.setTipoPeriodo(rs.getString("tipo_periodo"));
             po.setNombrePeriodo(rs.getString("nombre_periodo"));
-            po.setFechaInicio(rs.getDate("fecha_inicio"));
-            po.setFechaFin(rs.getDate("fecha_fin"));
+            po.setFechaInicio(rs.getDate("fecha_inicio").toLocalDate());
+            po.setFechaFin(rs.getDate("fecha_fin").toLocalDate());
             return po;
         });
     }
@@ -107,5 +109,58 @@ public class PeriodoOlimpiadaDomainRepository implements IPeriodoOlimpiadaReposi
                   and CURRENT_DATE between DATE(po.fecha_inicio) and DATE(po.fecha_fin);
             """;
         return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(PeriodoOlimpiada.class));
+    }
+
+
+    public PeriodoOlimpiada actualizarPeriodo(int idPeriodo, int idOlimpiada,
+                                              LocalDate fechaInicio, LocalDate fechaFin,
+                                              String nombrePeriodo) {
+        try {
+            return jdbcTemplate.queryForObject(
+                    "SELECT * FROM update_periodo_olimpiada(?, ?, ?, ?, ?)",
+                    new Object[]{idPeriodo, idOlimpiada, fechaInicio, fechaFin, nombrePeriodo},
+                    (rs, rowNum) -> {
+                        PeriodoOlimpiada p = new PeriodoOlimpiada();
+                        p.setIdPeriodo(rs.getInt("id_periodo"));
+                        p.setIdOlimpiada(rs.getInt("id_olimpiada"));
+                        p.setNombrePeriodo(rs.getString("nombre_periodo"));
+                        p.setFechaInicio(rs.getDate("fecha_inicio").toLocalDate());
+                        p.setFechaFin(rs.getDate("fecha_fin").toLocalDate());
+                        p.setTipoPeriodo(rs.getString("tipo_periodo"));
+                        p.setIdEstado(rs.getInt("id_estado"));
+                        return p;
+                    }
+            );
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error al actualizar período: " + e.getMostSpecificCause().getMessage());
+        }
+    }
+
+    public PeriodoOlimpiada cerrarPeriodo(int idPeriodo, int idOlimpiada, String motivo) {
+        try {
+            return jdbcTemplate.queryForObject(
+                    "SELECT * FROM cerrar_periodo_manual(?, ?, ?)",
+                    new Object[]{idPeriodo, idOlimpiada, motivo},
+                    (rs, rowNum) -> {
+                        PeriodoOlimpiada p = new PeriodoOlimpiada();
+                        p.setIdPeriodo(rs.getInt("id_periodo"));
+                        p.setIdOlimpiada(rs.getInt("id_olimpiada"));
+                        p.setIdEstado(rs.getInt("id_estado"));
+                        return p;
+                    }
+            );
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error al cerrar período: " + e.getMostSpecificCause().getMessage());
+        }
+    }
+
+    public void verificarYActualizarEstados() {
+        jdbcTemplate.update("UPDATE periodos_olimpiada SET id_estado = CASE " +
+                "WHEN CURRENT_DATE < fecha_inicio THEN 1 " +
+                "WHEN CURRENT_DATE BETWEEN fecha_inicio AND fecha_fin THEN 2 " +
+                "ELSE 4 END " +
+                "WHERE id_estado NOT IN (3, 5)");
+
+        jdbcTemplate.update("SELECT actualizar_estado_olimpiada_por_periodos(id_olimpiada) FROM olimpiada");
     }
 }

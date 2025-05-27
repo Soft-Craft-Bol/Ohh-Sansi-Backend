@@ -130,4 +130,182 @@ END;
 $$ LANGUAGE plpgsql;
 
 SELECT * FROM select_all_periodos_olimpiadas();
-----------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------CREATE OR REPLACE FUNCTION public.update_periodo_olimpiada(
+CREATE OR REPLACE FUNCTION public.update_periodo_olimpiada(
+    p_id_periodo INTEGER,
+    p_id_olimpiada INTEGER,
+    p_fecha_inicio DATE,
+    p_fecha_fin DATE,
+    p_nombre_personalizado VARCHAR,
+    p_id_estado INTEGER DEFAULT NULL
+) RETURNS periodos_olimpiada AS $$
+DECLARE
+    v_periodo periodos_olimpiada%ROWTYPE;
+    v_solapamiento BOOLEAN;
+BEGIN
+    -- Obtener el período actual para validaciones
+    SELECT * INTO v_periodo FROM periodos_olimpiada
+    WHERE id_periodo = p_id_periodo AND id_olimpiada = p_id_olimpiada;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'El período especificado no existe';
+    END IF;
+
+    -- Validación básica: fecha fin no puede ser anterior a fecha inicio
+    IF p_fecha_fin < p_fecha_inicio THEN
+        RAISE EXCEPTION 'La fecha de fin no puede ser anterior a la fecha de inicio';
+    END IF;
+
+    -- Validar que las fechas sean futuras
+    IF p_fecha_inicio < CURRENT_DATE THEN
+        RAISE EXCEPTION 'La fecha de inicio debe ser mayor a la fecha actual';
+    END IF;
+
+    -- Validar que no se modifique un período completado o cancelado
+    IF v_periodo.id_estado IN (4, 5, 2) THEN
+        RAISE EXCEPTION 'No se pueden modificar períodos COMPLETADOS o EN INSCRIPCION';
+    END IF;
+
+    -- Validar solapamiento con otros períodos (excepto con sí mismo)
+    SELECT EXISTS(
+        SELECT 1 FROM periodos_olimpiada
+        WHERE  id_periodo != p_id_periodo
+          AND tipo_periodo IN ('INSCRIPCIONES', 'AMPLIACION')
+          AND (
+            (fecha_inicio <= p_fecha_fin AND fecha_fin >= p_fecha_inicio) OR
+            (p_fecha_inicio <= fecha_fin AND p_fecha_fin >= fecha_inicio)
+            )
+    ) INTO v_solapamiento;
+
+    IF v_solapamiento THEN
+        RAISE EXCEPTION 'Las fechas se solapan con otro período de inscripción existente en cualquier olimpiada';
+    END IF;
+
+    -- Actualizar el período
+    UPDATE periodos_olimpiada
+    SET nombre_periodo = COALESCE(p_nombre_personalizado, nombre_periodo),
+        fecha_inicio = p_fecha_inicio,
+        fecha_fin = p_fecha_fin,
+        id_estado = COALESCE(p_id_estado, id_estado)
+    WHERE id_periodo = p_id_periodo AND id_olimpiada = p_id_olimpiada
+    RETURNING * INTO v_periodo;
+
+    -- Actualizar estado de la olimpiada
+    PERFORM actualizar_estado_olimpiada_por_periodos(p_id_olimpiada);
+
+    RETURN v_periodo;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT * FROM public.update_periodo_olimpiada(
+        169,
+        135,
+        '2025-05-27',
+        '2025-09-15',
+        'Inscripción Actualizada',
+        NULL
+              );
+
+
+CREATE OR REPLACE FUNCTION public.actualizar_estado_periodo_automatico()
+    RETURNS TRIGGER AS $$
+DECLARE
+    v_nuevo_estado INTEGER;
+    v_fecha_actual DATE := CURRENT_DATE;
+BEGIN
+    -- Determinar el estado basado en fechas
+    IF v_fecha_actual < NEW.fecha_inicio THEN
+        v_nuevo_estado := 1; -- PENDIENTE
+    ELSIF v_fecha_actual BETWEEN NEW.fecha_inicio AND NEW.fecha_fin THEN
+        v_nuevo_estado := 2; -- ACTIVO
+    ELSE
+        v_nuevo_estado := 4; -- COMPLETADO
+    END IF;
+
+    -- Solo actualizar si el estado actual no es CERRADO (3) o CANCELADO (5)
+    -- y si el nuevo estado es diferente al actual
+    IF NEW.id_estado NOT IN (3, 5) AND NEW.id_estado != v_nuevo_estado THEN
+        NEW.id_estado := v_nuevo_estado;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Crear trigger para actualización automática
+CREATE OR REPLACE TRIGGER trg_actualizar_estado_periodo
+    BEFORE INSERT OR UPDATE OF fecha_inicio, fecha_fin ON periodos_olimpiada
+    FOR EACH ROW EXECUTE FUNCTION actualizar_estado_periodo_automatico();
+
+
+CREATE OR REPLACE FUNCTION public.actualizar_estado_olimpiada_por_periodos(p_id_olimpiada INTEGER)
+    RETURNS VOID AS $$
+DECLARE
+    v_nuevo_estado INTEGER;
+BEGIN
+    -- Determinar el nuevo estado basado en los períodos activos
+    SELECT
+        CASE
+            WHEN EXISTS (
+                SELECT 1 FROM periodos_olimpiada
+                WHERE id_olimpiada = p_id_olimpiada
+                  AND id_estado = 2 -- ACTIVO
+                  AND tipo_periodo IN ('INSCRIPCION', 'AMPLIACION')
+            ) THEN 2 -- EN INSCRIPCION
+            WHEN EXISTS (
+                SELECT 1 FROM periodos_olimpiada
+                WHERE id_olimpiada = p_id_olimpiada
+                  AND id_estado = 3 -- CERRADO
+                  AND tipo_periodo IN ('INSCRIPCION', 'AMPLIACION')
+            ) THEN 4 -- INSCRIPCION CERRADA
+            WHEN EXISTS (
+                SELECT 1 FROM periodos_olimpiada
+                WHERE id_olimpiada = p_id_olimpiada
+                  AND id_estado = 5 -- CANCELADO
+                  AND tipo_periodo IN ('INSCRIPCION', 'AMPLIACION')
+            ) THEN 5 -- INSCRIPCION CANCELADA
+            ELSE 1 -- PLANIFICACION
+            END INTO v_nuevo_estado;
+
+    -- Actualizar solo si cambió el estado
+    UPDATE olimpiada
+    SET id_estado = v_nuevo_estado
+    WHERE id_olimpiada = p_id_olimpiada
+      AND id_estado != v_nuevo_estado;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION public.cerrar_periodo_manual(
+    p_id_periodo INTEGER,
+    p_id_olimpiada INTEGER,
+    p_motivo VARCHAR(300) DEFAULT 'Cerrado manualmente'
+) RETURNS periodos_olimpiada AS $$
+DECLARE
+    v_periodo periodos_olimpiada%ROWTYPE;
+BEGIN
+    -- Verificar que el período existe y es de tipo INSCRIPCION o AMPLIACION
+    SELECT * INTO v_periodo FROM periodos_olimpiada
+    WHERE id_periodo = p_id_periodo AND id_olimpiada = p_id_olimpiada
+      AND tipo_periodo IN ('INSCRIPCION', 'AMPLIACION');
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Período no encontrado o no es de inscripción/ampliación';
+    END IF;
+
+    -- Solo se puede cerrar si está ACTIVO o PENDIENTE
+    IF v_periodo.id_estado NOT IN (1, 2) THEN
+        RAISE EXCEPTION 'Solo se pueden cerrar períodos PENDIENTES o ACTIVOS';
+    END IF;
+
+    -- Actualizar a CERRADO
+    UPDATE periodos_olimpiada
+    SET id_estado = 3
+    WHERE id_periodo = p_id_periodo AND id_olimpiada = p_id_olimpiada
+    RETURNING * INTO v_periodo;
+
+    -- Actualizar estado de la olimpiada
+    PERFORM actualizar_estado_olimpiada_por_periodos(p_id_olimpiada);
+
+    RETURN v_periodo;
+END;
+$$ LANGUAGE plpgsql;

@@ -3,6 +3,7 @@ package com.softcraft.ohhsansibackend.periodosolimpiada.infraestructure.rest;
 import com.softcraft.ohhsansibackend.periodosolimpiada.application.usecases.PeriodoOlimpiadaService;
 import com.softcraft.ohhsansibackend.periodosolimpiada.application.usecases.OlimpiadaService;
 import com.softcraft.ohhsansibackend.periodosolimpiada.domain.models.PeriodoOlimpiada;
+import com.softcraft.ohhsansibackend.periodosolimpiada.domain.repository.implementation.PeriodoOlimpiadaDomainRepository;
 import com.softcraft.ohhsansibackend.periodosolimpiada.infraestructure.dto.OlimpiadaEventosDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +21,13 @@ import java.util.Map;
 public class PeriodoOlimpiadaController {
     private final PeriodoOlimpiadaService periodoOlimpiadaService;
     private final OlimpiadaService olimpiadaService;
+    private final PeriodoOlimpiadaDomainRepository periodoService;
 
     @Autowired
-    public PeriodoOlimpiadaController(PeriodoOlimpiadaService periodoOlimpiadaService, OlimpiadaService olimpiadaService) {
+    public PeriodoOlimpiadaController(PeriodoOlimpiadaService periodoOlimpiadaService, OlimpiadaService olimpiadaService, PeriodoOlimpiadaDomainRepository periodoService) {
         this.periodoOlimpiadaService = periodoOlimpiadaService;
         this.olimpiadaService = olimpiadaService;
+        this.periodoService = periodoService;
     }
 
     @PostMapping("register")
@@ -64,6 +67,50 @@ public class PeriodoOlimpiadaController {
     public ResponseEntity<Map<String, Object>> buscarPeriodoInscripcionActual() {
         Map<String, Object> response = periodoOlimpiadaService.encontrarPeriodoInscripcionActualMap();
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PutMapping("/{idPeriodo}")
+    public ResponseEntity<?> actualizarPeriodo(
+            @PathVariable int idPeriodo,
+            @RequestParam int idOlimpiada,
+            @RequestBody PeriodoOlimpiada request) {
+
+        try {
+            PeriodoOlimpiada periodo = periodoService.actualizarPeriodo(
+                    idPeriodo, idOlimpiada,
+                    request.getFechaInicio(),
+                    request.getFechaFin(),
+                    request.getNombrePeriodo());
+
+            return ResponseEntity.ok(periodo);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(
+                    Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/{idPeriodo}/cerrar")
+    public ResponseEntity<?> cerrarPeriodo(
+            @PathVariable int idPeriodo,
+            @RequestParam int idOlimpiada,
+            @RequestParam(required = false) String motivo) {
+
+        try {
+            PeriodoOlimpiada periodo = periodoService.cerrarPeriodo(
+                    idPeriodo, idOlimpiada,
+                    motivo != null ? motivo : "Cerrado manualmente");
+
+            return ResponseEntity.ok(periodo);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(
+                    Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/verificar-estados")
+    public ResponseEntity<String> verificarEstados() {
+        periodoService.verificarYActualizarEstados();
+        return ResponseEntity.ok("Estados verificados y actualizados");
     }
 
 }

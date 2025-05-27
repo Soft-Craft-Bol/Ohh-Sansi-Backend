@@ -1,19 +1,69 @@
+CREATE TABLE IF NOT EXISTS public.estado_periodo (
+                                                     id_estado SERIAL PRIMARY KEY,
+                                                     nombre_estado VARCHAR(50) NOT NULL UNIQUE,
+                                                     descripcion VARCHAR(300),
+                                                     permite_modificacion BOOLEAN DEFAULT true
+);
 
-SELECT nombre_area, descripcion_area, nombre_grado, nombre_olimpiada, a.id_area
-FROM catalogo_olimpiada co, olimpiada o, grado_categoria gc, grado g, area a, categorias c
-WHERE co.id_olimpiada = o.id_olimpiada
-    AND co.id_area = a.id_area
-    AND co.id_categoria=c.id_categoria
-  AND co.id_categoria = gc.id_categoria
-  AND gc.id_grado = g.id_grado
-AND co.id_olimpiada = ?
-order by id_catalogo
+-- Insertar estados básicos
+INSERT INTO public.estado_periodo (nombre_estado, permite_modificacion, descripcion) VALUES
+                                                                                         ('PENDIENTE', true, 'El período está programado pero no ha comenzado'),
+                                                                                         ('ACTIVO', false, 'El período está actualmente en curso'),
+                                                                                         ('CANCELADO', false, 'El período fue cancelado manualmente'),
+                                                                                         ('COMPLETADO', false, 'El período finalizó normalmente'),
+                                                                                         ('AMPLIACION', false, 'Período de ampliación después de un cierre');
+
+ALTER TABLE public.periodos_olimpiada
+    ADD COLUMN id_estado INTEGER NOT NULL DEFAULT 1
+        CONSTRAINT fk_periodo_estado REFERENCES public.estado_periodo(id_estado),
+    ADD COLUMN fecha_cancelacion TIMESTAMP,
+    ADD COLUMN motivo_cancelacion VARCHAR(300),
+    ADD COLUMN es_ampliacion BOOLEAN DEFAULT false,
+    ADD COLUMN id_periodo_original INTEGER;  -- Para referenciar el período original en caso de ampliación
+
+-- Eliminar la restricción única que impedía múltiples períodos del mismo tipo
+ALTER TABLE public.periodos_olimpiada DROP CONSTRAINT IF EXISTS uq_periodo_olimpiada;
+
+CREATE OR REPLACE FUNCTION actualizar_estado_periodos()
+    RETURNS TRIGGER AS $$
+BEGIN
+    -- Actualizar estados basados en fechas (excepto CANCELADOS)
+    UPDATE public.periodos_olimpiada
+    SET id_estado = CASE
+                        WHEN CURRENT_DATE < fecha_inicio THEN 1 -- PENDIENTE
+                        WHEN CURRENT_DATE BETWEEN fecha_inicio AND fecha_fin THEN 2 -- ACTIVO
+                        WHEN CURRENT_DATE > fecha_fin AND id_estado != 3 THEN 4 -- COMPLETADO
+                        ELSE id_estado
+        END
+    WHERE id_estado != 3; -- No cambiar estado de los cancelados
+
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger que se ejecuta diariamente
+CREATE TRIGGER trg_actualizar_estado_periodos
+    AFTER INSERT OR UPDATE OR DELETE ON public.periodos_olimpiada
+EXECUTE FUNCTION actualizar_estado_periodos();
 
 
+CREATE TABLE IF NOT EXISTS public.historial_periodos (
+                                                         id_historial SERIAL PRIMARY KEY,
+                                                         id_periodo INTEGER NOT NULL,
+                                                         id_olimpiada INTEGER NOT NULL,
+                                                         accion VARCHAR(10) NOT NULL, -- 'CREATE', 'UPDATE', 'CANCEL'
+                                                         fecha_cambio TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                                         usuario VARCHAR(100) NOT NULL,
+                                                         cambios JSONB, -- Detalles de los cambios
+                                                         motivo VARCHAR(300),
+                                                         CONSTRAINT fk_historial_periodo FOREIGN KEY (id_periodo, id_olimpiada)
+                                                             REFERENCES public.periodos_olimpiada(id_periodo, id_olimpiada)
+);
 
-SELECT        o.id_olimpiada,
-                 o.anio,
-                  o.nombre_olimpiada,
-                    e.nombre_estado,
-                       o.precio_olimpiada
-                    FROM    olimpiada o         JOIN     estado_olimpiada e ON o.id_estado = e.id_estado;
+
+select po.*
+from olimpiada o, estado_olimpiada eo, periodos_olimpiada po
+where po.id_estado = eo.id_estado
+  and o.id_olimpiada = po.id_olimpiada
+  and eo.nombre_estado = 'EN INSCRIPCION'
+  and CURRENT_DATE between DATE(po.fecha_inicio) and DATE(po.fecha_fin)

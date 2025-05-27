@@ -46,10 +46,6 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
     public List<Olimpiada> getOlimpiadas() {
         String sql = "SELECT o.id_olimpiada, o.anio, o.nombre_olimpiada, e.nombre_estado, o.precio_olimpiada " +
                 "FROM olimpiada o JOIN estado_olimpiada e ON o.id_estado = e.id_estado";
-
-        List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
-        rows.forEach(row -> System.out.println("Row: " + row)); // Debug
-
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             Olimpiada o = new Olimpiada();
             o.setIdOlimpiada(rs.getInt("id_olimpiada"));

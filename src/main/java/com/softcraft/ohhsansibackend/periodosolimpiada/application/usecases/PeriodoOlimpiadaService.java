@@ -11,8 +11,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,13 +31,13 @@ public class PeriodoOlimpiadaService {
     public Map<String, Object> insertPeriodoOlimpiada(PeriodoOlimpiada periodoOlimpiada) {
         Map<String, Object> response = new HashMap<>();
         try {
-            if (periodoOlimpiada.getFechaInicio().before(Calendar.getInstance().getTime())) {
+            if (periodoOlimpiada.getFechaInicio().isBefore(LocalDate.now())) {
                 response.put("status", "error");
                 response.put("message", "No se pueden crear períodos con fechas anteriores a la fecha actual");
                 return response;
             }
 
-            if (periodoOlimpiada.getFechaFin().before(periodoOlimpiada.getFechaInicio())) {
+            if (periodoOlimpiada.getFechaFin().isBefore(periodoOlimpiada.getFechaInicio())) {
                 response.put("status", "error");
                 response.put("message", "La fecha de fin no puede ser anterior a la fecha de inicio");
                 return response;
