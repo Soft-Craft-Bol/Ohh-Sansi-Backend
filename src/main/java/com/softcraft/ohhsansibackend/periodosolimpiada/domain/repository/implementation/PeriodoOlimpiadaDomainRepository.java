@@ -100,9 +100,9 @@ public class PeriodoOlimpiadaDomainRepository implements IPeriodoOlimpiadaReposi
 
     public PeriodoOlimpiada encontrarPeriodoInscripcionActual() {
         String sql = """
-                select po.*
+                select distinct po.*
                 from olimpiada o, estado_olimpiada eo, periodos_olimpiada po
-                where o.id_estado = eo.id_estado
+                where po.id_estado = eo.id_estado
                   and eo.nombre_estado = 'EN INSCRIPCION'
                   and CURRENT_DATE between DATE(po.fecha_inicio) and DATE(po.fecha_fin);
             """;

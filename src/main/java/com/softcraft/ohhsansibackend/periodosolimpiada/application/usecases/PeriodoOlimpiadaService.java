@@ -112,7 +112,7 @@ public class PeriodoOlimpiadaService {
                 response.put("status", "success");
                 response.put("olimpiada", olimpiada);
                 response.put("periodoOlimpiada", periodoOlimpiada);
-            response.put("catalogoOlimpiada", catalogoOlimpiadaService.getCatalogoOlimpiadaById(periodoOlimpiada.getIdOlimpiada()));
+                response.put("catalogoOlimpiada", catalogoOlimpiadaService.getCatalogoOlimpiadaById(periodoOlimpiada.getIdOlimpiada()));
             }
         } catch (Exception e) {
             response.put("status", "error");
