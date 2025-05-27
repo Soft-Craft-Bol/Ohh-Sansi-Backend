@@ -27,12 +27,12 @@ public class CatalogoService {
     public List<Map<String, Object>> getAreasByGradoParticipante(int ciParticipante) {
         // Obtener el participante
         Participante participante = participanteService.findByCarnetIdentidadService(ciParticipante);
-
+        System.out.println("Participante encontrado: " + participante);
         if (participante == null) {
             throw new IllegalArgumentException("Participante no encontrado con el CI proporcionado.");
         }
 
-        // Obtener todas las áreas con estado de asignación para el participante
+
         List<Map<String, Object>> areas = catalogoDomainRepository
                 .getRegisterAreaParticipante(participante.getIdParticipante(), participante.getIdGrado());
 

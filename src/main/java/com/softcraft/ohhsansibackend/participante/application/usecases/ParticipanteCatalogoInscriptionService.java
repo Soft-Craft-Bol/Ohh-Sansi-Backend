@@ -45,7 +45,7 @@ public class ParticipanteCatalogoInscriptionService {
             if(areasParticipante >= 2){
                 throw new RuntimeException("El participante ya tiene áreas registradas en el catálogo, areas registradas :"+ areasParticipante);
             }
-
+            System.out.println("Antes de inserter");
             for (int i = 0; i < areaCatalogoDTO.size(); i++) {
                 AreaCatalogoDTO area = areaCatalogoDTO.get(i);
                 try {
@@ -57,6 +57,7 @@ public class ParticipanteCatalogoInscriptionService {
                     participanteCatalogo.setIdInscripcion(participante.getIdInscripcion());
                     participanteCatalogo.setIdParticipante(participante.getIdParticipante());
                     catalogoService.insertParticipanteCatalogo(participanteCatalogo);
+                    System.out.println("llega 2");
                     results.add(Map.of(
                             "area", i + 1,
                             "status", "success",
