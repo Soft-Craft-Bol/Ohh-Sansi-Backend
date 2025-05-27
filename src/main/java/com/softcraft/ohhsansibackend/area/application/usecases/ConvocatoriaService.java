@@ -48,4 +48,16 @@ public class ConvocatoriaService {
         return response;
     }
 
+    public Map<String, Object> getConvocatoriasByAreaOlimpiada(int idArea, int idOlimpiada) {
+        Map<String, Object> response = new java.util.HashMap<>();
+        try {
+            response.put("convocatorias", pdfOlimpiadaDomainRepository.getPdfConvocatorias(idArea, idOlimpiada));
+            response.put("status", "success");
+            response.put("message", "Convocatorias obtenidas correctamente");
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener las convocatorias: " + e.getMessage(), e);
+        }
+        return response;
+    }
+
 }

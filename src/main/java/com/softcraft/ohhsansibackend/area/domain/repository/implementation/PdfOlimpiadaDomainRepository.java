@@ -5,6 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
+
 @Repository
 public class PdfOlimpiadaDomainRepository {
     private final JdbcTemplate jdbcTemplate;
@@ -33,5 +36,13 @@ public class PdfOlimpiadaDomainRepository {
         pdfOlimpiada.setIdPdfConvocatoria(idPdfConvocatoria);
         pdfOlimpiada.setPdfBase64(pdfBase64);
         return pdfOlimpiada;
+    }
+    public List<Map<String, Object>> getPdfConvocatorias(int idArea, int idOlimpiada) {
+        String sql = """
+                    select distinct pdfo.*
+                    from convocatoria c, pdf_olimpiada pdfo
+                    where c.id_area = ? and c.id_olimpiada=? and c.id_pdf_convocatoria = pdfo.id_pdf_convocatoria;
+                """;
+        return jdbcTemplate.queryForList(sql, idArea, idOlimpiada);
     }
 }

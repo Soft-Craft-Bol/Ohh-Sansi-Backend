@@ -64,5 +64,12 @@ public class AreaController {
         Map<String, Object> response = convocatoriaService.saveConvocatoria(idArea, idOlimpiada, pdfFile);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+    @GetMapping("/convocatoria/{idArea}/{idOlimpiada}")
+    public ResponseEntity<Map<String, Object>> getConvocatoriaByAreaAndOlimpiada(
+            @PathVariable int idArea,
+            @PathVariable int idOlimpiada) {
+        Map<String, Object> response = convocatoriaService.getConvocatoriasByAreaOlimpiada(idArea, idOlimpiada);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 }
 
