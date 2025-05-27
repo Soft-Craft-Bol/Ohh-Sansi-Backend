@@ -100,6 +100,23 @@ public class PeriodoOlimpiadaService {
     public List<OlimpiadaEventosDTO> getOlimpiadasconEventos() {
         return periodoOlimpiadaAdapter.getOlimpiadasconEventos();
     }
+    public PeriodoOlimpiada encontrarPeriodoInscripcionActual() {
+        PeriodoOlimpiada periodoOlimpiada = periodoOlimpiadaAdapter.encontrarPeriodoInscripcionActual();
+        if (periodoOlimpiada == null) {
+            throw new ResourceNotFoundException("No se encontró un período de inscripción actual");
+        }
+        return periodoOlimpiada;
+    }
+
+    public Olimpiada encontrarOlimpiadaPorPeriodoInscripcionActual(int idOlimpiada) {
+        PeriodoOlimpiada periodoOlimpiada = periodoOlimpiadaAdapter.encontrarPeriodoInscripcionActual();
+        if (periodoOlimpiada == null) {
+            throw new ResourceNotFoundException("No se encontró un período de inscripción actual");
+        }
+        return olimpiadaService.findOlimpiadaById(idOlimpiada);
+    }
+
+
     public Map<String, Object> encontrarPeriodoInscripcionActualMap(){
         Map<String, Object> response = new HashMap<>();
         try {

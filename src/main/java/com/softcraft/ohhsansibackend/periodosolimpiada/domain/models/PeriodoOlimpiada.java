@@ -60,4 +60,16 @@ public class PeriodoOlimpiada {
     public void setTipoPeriodo(String tipoPeriodo) {
         this.tipoPeriodo = tipoPeriodo;
     }
+
+    @Override
+    public String toString() {
+        return "PeriodoOlimpiada{" +
+                "idPeriodo=" + idPeriodo +
+                ", idOlimpiada=" + idOlimpiada +
+                ", nombrePeriodo='" + nombrePeriodo + '\'' +
+                ", fechaInicio=" + fechaInicio +
+                ", fechaFin=" + fechaFin +
+                ", tipoPeriodo='" + tipoPeriodo + '\'' +
+                '}';
+    }
 }

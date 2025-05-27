@@ -59,4 +59,15 @@ public class Olimpiada {
     public void setPrecioOlimpiada(BigDecimal precioOlimpiada) {
         this.precioOlimpiada = precioOlimpiada;
     }
+
+    @Override
+    public String toString() {
+        return "Olimpiada{" +
+                "idOlimpiada=" + idOlimpiada +
+                ", anio=" + anio +
+                ", nombreOlimpiada='" + nombreOlimpiada + '\'' +
+                ", nombreEstado='" + nombreEstado + '\'' +
+                ", precioOlimpiada=" + precioOlimpiada +
+                '}';
+    }
 }

@@ -2,6 +2,10 @@ package com.softcraft.ohhsansibackend.catalogoolimpiadas.domain;
 
 import com.softcraft.ohhsansibackend.area.domain.models.Area;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.model.ParticipanteCatalogo;
+import com.softcraft.ohhsansibackend.periodosolimpiada.application.usecases.PeriodoOlimpiadaService;
+import com.softcraft.ohhsansibackend.periodosolimpiada.domain.models.Olimpiada;
+import com.softcraft.ohhsansibackend.periodosolimpiada.domain.models.PeriodoOlimpiada;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,10 +19,16 @@ import java.util.Optional;
 @Repository
 public class CatalogoDomainRepository {
     private final JdbcTemplate jdbcTemplate;
+    private final PeriodoOlimpiadaService periodoOlimpiadaService;
+    @Autowired
+    public CatalogoDomainRepository(JdbcTemplate jdbcTemplate,
+                                    PeriodoOlimpiadaService periodoOlimpiadaService
 
-    public CatalogoDomainRepository(JdbcTemplate jdbcTemplate) {
+    ) {
         this.jdbcTemplate = jdbcTemplate;
+        this.periodoOlimpiadaService = periodoOlimpiadaService;
     }
+
 
     public List<Map<String, Object>> getCatalogoByGrado(int grado) {
         String sql = """
@@ -172,18 +182,11 @@ public class CatalogoDomainRepository {
     }
 
     public List<Map<String, Object>> getRegisterAreaParticipante(int idParticipante, int idGrado) {
-        Map<String, Object> olimpiadaInfo = getOlimpiadaActiva()
-                .orElseThrow(() -> new IllegalStateException("No hay olimpiadas en período de inscripción o en curso"));
-
-        Integer idOlimpiada = (Integer) olimpiadaInfo.get("id_olimpiada");
-        String estadoOlimpiada = (String) olimpiadaInfo.get("nombre_estado");
-
-        if ("EN_CURSO".equals(estadoOlimpiada)){
-            if (!isPeriodoInscripcionActivo(idOlimpiada)) {
-                throw new IllegalStateException("No está habilitado el período de inscripciones para esta olimpiada");
-            }
-        }
-
+        PeriodoOlimpiada periodoOlimpiadaActual = periodoOlimpiadaService.encontrarPeriodoInscripcionActual();
+        Olimpiada olimpiadaActual = periodoOlimpiadaService.encontrarOlimpiadaPorPeriodoInscripcionActual(periodoOlimpiadaActual.getIdOlimpiada());
+        System.out.println(periodoOlimpiadaActual.toString());
+        System.out.println(olimpiadaActual.toString());
+        Integer idOlimpiada = olimpiadaActual.getIdOlimpiada();
         String sql = """
             SELECT
                 a.id_area, a.nombre_area, a.nombre_corto_area, a.descripcion_area,
