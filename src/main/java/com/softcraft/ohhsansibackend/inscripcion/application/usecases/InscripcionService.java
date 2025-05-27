@@ -113,7 +113,7 @@ public class InscripcionService {
                 "participantes", getParticipantesByInscripcionId(idInscripcion),
                 "areas", areas,
                 "tutores", tutores,
-                "olimpaiada", periodoOlimpiadaService.encontrarPeriodoInscripcionActualMap(),
+                "olimpiada", periodoOlimpiadaService.encontrarPeriodoInscripcionActualMap(),
                 "edadParticipante", edadParticipante,
                 "ordenDePagoGenerada",inscripcionAdapter.verificarEstadoOrdenPago(idInscripcion)
         );
