@@ -111,14 +111,18 @@ public class PeriodoOlimpiadaDomainRepository implements IPeriodoOlimpiadaReposi
         return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(PeriodoOlimpiada.class));
     }
 
-
-    public PeriodoOlimpiada actualizarPeriodo(int idPeriodo, int idOlimpiada,
-                                              LocalDate fechaInicio, LocalDate fechaFin,
-                                              String nombrePeriodo) {
+    @Override
+    public PeriodoOlimpiada actualizarPeriodo(PeriodoOlimpiada periodoOlimpiada) {
         try {
             return jdbcTemplate.queryForObject(
                     "SELECT * FROM update_periodo_olimpiada(?, ?, ?, ?, ?)",
-                    new Object[]{idPeriodo, idOlimpiada, fechaInicio, fechaFin, nombrePeriodo},
+                    new Object[]{
+                            periodoOlimpiada.getIdPeriodo(),
+                            periodoOlimpiada.getIdOlimpiada(),
+                            periodoOlimpiada.getFechaInicio(),
+                            periodoOlimpiada.getFechaFin(),
+                            periodoOlimpiada.getNombrePeriodo()
+                    },
                     (rs, rowNum) -> {
                         PeriodoOlimpiada p = new PeriodoOlimpiada();
                         p.setIdPeriodo(rs.getInt("id_periodo"));
@@ -132,27 +136,10 @@ public class PeriodoOlimpiadaDomainRepository implements IPeriodoOlimpiadaReposi
                     }
             );
         } catch (DataAccessException e) {
-            throw new RuntimeException("Error al actualizar período: " + e.getMostSpecificCause().getMessage());
+            throw e;
         }
     }
 
-    public PeriodoOlimpiada cerrarPeriodo(int idPeriodo, int idOlimpiada, String motivo) {
-        try {
-            return jdbcTemplate.queryForObject(
-                    "SELECT * FROM cerrar_periodo_manual(?, ?, ?)",
-                    new Object[]{idPeriodo, idOlimpiada, motivo},
-                    (rs, rowNum) -> {
-                        PeriodoOlimpiada p = new PeriodoOlimpiada();
-                        p.setIdPeriodo(rs.getInt("id_periodo"));
-                        p.setIdOlimpiada(rs.getInt("id_olimpiada"));
-                        p.setIdEstado(rs.getInt("id_estado"));
-                        return p;
-                    }
-            );
-        } catch (DataAccessException e) {
-            throw new RuntimeException("Error al cerrar período: " + e.getMostSpecificCause().getMessage());
-        }
-    }
 
     public void verificarYActualizarEstados() {
         jdbcTemplate.update("UPDATE periodos_olimpiada SET id_estado = CASE " +

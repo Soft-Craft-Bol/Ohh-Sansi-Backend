@@ -70,42 +70,20 @@ public class PeriodoOlimpiadaController {
     }
 
     @PutMapping("/{idPeriodo}")
-    public ResponseEntity<?> actualizarPeriodo(
-            @PathVariable int idPeriodo,
-            @RequestParam int idOlimpiada,
-            @RequestBody PeriodoOlimpiada request) {
-
+    public ResponseEntity<Map<String, Object>> actualizarPeriodo(@RequestBody PeriodoOlimpiada periodoOlimpiada,
+                                                                @PathVariable("idPeriodo") Integer idPeriodo) {
+        Map<String, Object> response = new HashMap<>();
         try {
-            PeriodoOlimpiada periodo = periodoService.actualizarPeriodo(
-                    idPeriodo, idOlimpiada,
-                    request.getFechaInicio(),
-                    request.getFechaFin(),
-                    request.getNombrePeriodo());
-
-            return ResponseEntity.ok(periodo);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(
-                    Map.of("error", e.getMessage()));
+            Map<String, Object> updatedResponse = periodoOlimpiadaService.actualizarPeriodo(periodoOlimpiada);
+            return ResponseEntity.ok(updatedResponse);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "Error al actualizar el período: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+
     }
 
-    @PostMapping("/{idPeriodo}/cerrar")
-    public ResponseEntity<?> cerrarPeriodo(
-            @PathVariable int idPeriodo,
-            @RequestParam int idOlimpiada,
-            @RequestParam(required = false) String motivo) {
-
-        try {
-            PeriodoOlimpiada periodo = periodoService.cerrarPeriodo(
-                    idPeriodo, idOlimpiada,
-                    motivo != null ? motivo : "Cerrado manualmente");
-
-            return ResponseEntity.ok(periodo);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(
-                    Map.of("error", e.getMessage()));
-        }
-    }
 
     @GetMapping("/verificar-estados")
     public ResponseEntity<String> verificarEstados() {

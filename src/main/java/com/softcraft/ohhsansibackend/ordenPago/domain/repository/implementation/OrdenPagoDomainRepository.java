@@ -171,7 +171,8 @@ public class OrdenPagoDomainRepository {
     public List<OrdenDePago> findOrdenPagoByOlimpiada(int idOlimpiada) {
         String sql =
             """
-                select op.*
+                
+                select distinct op.*
                         from participante_catalogo pc, orden_de_pago op, inscripcion i
                         where pc.id_inscripcion = i.id_inscripcion
                         and op.id_inscripcion = i.id_inscripcion

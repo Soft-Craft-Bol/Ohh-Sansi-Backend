@@ -4,6 +4,8 @@ import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.DTO.CatalogoOlimp
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.model.CatalogoOlimpiada;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.repository.abstraction.ICatalogoOlimpiadaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -25,12 +27,18 @@ public class CatalogoOlimpiadaDomainRepository implements ICatalogoOlimpiadaRepo
 
     @Override
     public CatalogoOlimpiada save(CatalogoOlimpiada catalogoOlimpiada) {
-        String sql = "SELECT * FROM insertcatalogo(?, ?, ?)";
-      return jdbcTemplate .queryForObject(sql, new Object[]{
-                catalogoOlimpiada.getIdArea(),
-                catalogoOlimpiada.getIdCategoria(),
-                catalogoOlimpiada.getIdOlimpiada()
-        }, new BeanPropertyRowMapper<>(CatalogoOlimpiada.class));
+        String sql = "SELECT * FROM upsertcatalogo(?, ?, ?, ?)";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{
+                    catalogoOlimpiada.getIdCatalogo(),
+                    catalogoOlimpiada.getIdArea(),
+                    catalogoOlimpiada.getIdCategoria(),
+                    catalogoOlimpiada.getIdOlimpiada()
+            }, new BeanPropertyRowMapper<>(CatalogoOlimpiada.class));
+        } catch (DataAccessException e) {
+            String errorMessage = e.getMostSpecificCause().getMessage();
+            throw new DataIntegrityViolationException(errorMessage, e);
+        }
     }
 
     @Override
@@ -81,6 +89,7 @@ public class CatalogoOlimpiadaDomainRepository implements ICatalogoOlimpiadaRepo
             CatalogoOlimpiadaDTO dto = new CatalogoOlimpiadaDTO();
             dto.setIdOlimpiada(rs.getInt("id_olimpiada"));
             dto.setNombreOlimpiada(rs.getString("nombre_olimpiada"));
+            dto.setIdCatalogo(rs.getInt("id_catalogo"));
             dto.setIdArea(rs.getInt("id_area"));
             dto.setNombreArea(rs.getString("nombre_area"));
             dto.setNombreCategoria(rs.getString("nombre_categoria"));

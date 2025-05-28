@@ -67,3 +67,16 @@ where po.id_estado = eo.id_estado
   and o.id_olimpiada = po.id_olimpiada
   and eo.nombre_estado = 'EN INSCRIPCION'
   and CURRENT_DATE between DATE(po.fecha_inicio) and DATE(po.fecha_fin)
+
+
+
+select distinct cp.*, ecp.nombre_estado_comprobante
+from comprobante_pago cp, estado_comprobante_pago ecp, orden_de_pago op, periodos_olimpiada po,
+     olimpiada o, estado_olimpiada eo
+where cp.id_estado_comprobante = ecp.id_estado_comprobante
+and o.id_olimpiada = po.id_olimpiada
+and eo.id_estado = po.id_estado
+and eo.nombre_estado= 'EN INSCRIPCION'
+
+
+select * from participante where id_inscripcion=767

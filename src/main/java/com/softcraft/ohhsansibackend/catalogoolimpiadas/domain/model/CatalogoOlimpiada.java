@@ -4,9 +4,9 @@ public class CatalogoOlimpiada {
     private int idOlimpiada;
     private int idArea;
     private int idCategoria;
-    private int idCatalogo;
+    private Integer idCatalogo;
 
-    public CatalogoOlimpiada(int idOlimpiada, int idArea, int idCategoria, int idCatalogo) {
+    public CatalogoOlimpiada(int idOlimpiada, int idArea, int idCategoria, Integer idCatalogo) {
         this.idOlimpiada = idOlimpiada;
         this.idArea = idArea;
         this.idCategoria = idCategoria;
@@ -40,11 +40,11 @@ public class CatalogoOlimpiada {
         this.idCategoria = idCategoria;
     }
 
-    public int getIdCatalogo() {
+    public Integer getIdCatalogo() {
         return idCatalogo;
     }
 
-    public void setIdCatalogo(int idCatalogo) {
+    public void setIdCatalogo(Integer idCatalogo) {
         this.idCatalogo = idCatalogo;
     }
 }

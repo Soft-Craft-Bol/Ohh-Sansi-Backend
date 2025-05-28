@@ -135,4 +135,62 @@ public class PeriodoOlimpiadaService {
         }
         return response;
     }
+
+    public Map<String, Object> actualizarPeriodo(PeriodoOlimpiada periodoOlimpiada) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            if (periodoOlimpiada.getFechaInicio().isBefore(LocalDate.now())) {
+                response.put("status", "error");
+                response.put("message", "No se pueden actualizar períodos con fechas anteriores a la fecha actual");
+                return response;
+            }
+            PeriodoOlimpiada periodoOlimpiadaupdate = periodoOlimpiadaAdapter.actualizarPeriodo(periodoOlimpiada);
+
+            response.put("status", "success");
+            response.put("message", "Período actualizado exitosamente");
+            response.put("data", periodoOlimpiadaupdate);
+
+        } catch (DataAccessException dae) {
+            String errorMessage = extractPostgreSQLErrorMessage(dae);
+            response.put("status", "error");
+            response.put("message", errorMessage);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "Error interno al actualizar el período: " + e.getMessage());
+        }
+        return response;
+    }
+
+    private String extractPostgreSQLErrorMessage(DataAccessException dae) {
+        Throwable rootCause = dae.getMostSpecificCause();
+        if (rootCause == null) {
+            return "Error al procesar la solicitud";
+        }
+
+        String errorMessage = rootCause.getMessage();
+
+        // Extraer la parte relevante del mensaje de error
+        if (errorMessage.contains("ERROR:")) {
+            errorMessage = errorMessage.substring(errorMessage.indexOf("ERROR:") + 6).trim();
+        }
+
+        // Limpiar el mensaje si contiene detalles técnicos
+        if (errorMessage.contains("Detail:")) {
+            errorMessage = errorMessage.substring(0, errorMessage.indexOf("Detail:")).trim();
+        }
+        if (errorMessage.contains("Where:")) {
+            errorMessage = errorMessage.substring(0, errorMessage.indexOf("Where:")).trim();
+        }
+
+        // Manejar casos específicos conocidos
+        if (errorMessage.contains("solapa")) {
+            return "Existe un conflicto con las fechas proporcionadas: " +
+                    errorMessage.substring(errorMessage.indexOf(':') + 1).trim();
+        }
+        if (errorMessage.contains("No se pueden modificar períodos COMPLETADOS o CANCELADOS")) {
+            return "No se pueden modificar períodos que ya están completados o cancelados";
+        }
+
+        return errorMessage;
+    }
 }
