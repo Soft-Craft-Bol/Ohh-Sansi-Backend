@@ -2,6 +2,9 @@ package com.softcraft.ohhsansibackend.registromasivo.application.usecases;
 
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.CatalogoDomainRepository;
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
+import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
+import com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementation.InscripcionDomainRepository;
+import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionDomainService;
 import com.softcraft.ohhsansibackend.participante.application.ports.ParticipanteAdapter;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteCatalogoInscriptionService;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
@@ -29,17 +32,21 @@ public class InscripcionMasivaService {
 
     private final ParticipanteService participanteService;
     private final ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService;
+    private final InscripcionDomainService inscripcionDomainService;
+    private final InscripcionDomainRepository inscripcionDomainRepository;
     private final TutorService tutorService;
     private final JdbcTemplate jdbcTemplate;
     private final CatalogoDomainRepository catalogoDomainRepository;
     private int counterFaileds = 0;
 
-    public InscripcionMasivaService(ParticipanteService participanteService, TutorService tutorService, JdbcTemplate jdbcTemplate, CatalogoDomainRepository catalogoDomainRepository, ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService) {
+    public InscripcionMasivaService(ParticipanteService participanteService, TutorService tutorService, JdbcTemplate jdbcTemplate, CatalogoDomainRepository catalogoDomainRepository, ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService, InscripcionDomainService inscripcionDomainService, InscripcionDomainRepository inscripcionDomainRepository) {
         this.participanteService = participanteService;
         this.tutorService = tutorService;
         this.jdbcTemplate = jdbcTemplate;
         this.catalogoDomainRepository = catalogoDomainRepository;
         this.participanteCatalogoInscriptionService = participanteCatalogoInscriptionService;
+        this.inscripcionDomainService = inscripcionDomainService;
+        this.inscripcionDomainRepository = inscripcionDomainRepository;
     }
 
     public Participante createExclParticipante() {
@@ -153,6 +160,11 @@ public class InscripcionMasivaService {
                     Participante participante = mapRowToParticipanteHoja2(row);
                     Map<String, Object> saveResult = participanteService.save(participante);
                     resultado.putAll(saveResult);
+                    //actualizar su codigo
+                    Inscripcion setParticipante = inscripcionDomainService.getInscripcion(participante.getIdInscripcion());
+
+                    setParticipante.setCodigoUnicoInscripcion(inscripcionDomainService.getInscripcion(participanteExcel.getIdInscripcion()).getCodigoUnicoInscripcion());
+                    inscripcionDomainRepository.updateCodigoUnicoInscripcion(setParticipante);
 
                     int area1 = (int)getSafeIntValue(rowArea.getCell(2));
                     int area2 = (int)getSafeIntValue(rowArea.getCell(9));
