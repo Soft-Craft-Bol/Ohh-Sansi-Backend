@@ -37,16 +37,6 @@ public class ComprobantePagoRepositoryImpl implements ComprobantePagoRepository 
             // Conversión de monto pagado a NUMERIC(10, 2)
             BigDecimal montoPagadoConvertido = BigDecimal.valueOf(montoPagado).setScale(2, RoundingMode.HALF_UP);
 
-            // Debug (opcional, puedes eliminar estas líneas si no son necesarias)
-            System.out.println("carnetIdentidad: " + carnetIdentidad);
-            System.out.println("montoPagado: " + montoPagadoConvertido);
-            System.out.println("fechaPago: " + fechaPagoConvertida);
-            System.out.println("codTransaccion: " + codTransaccion);
-            System.out.println("imagenComprobante: " + imagenComprobante);
-            System.out.println("nombreReceptor: " + nombreReceptor);
-            System.out.println("estadoOrden: " + estadoOrden);
-            System.out.println("notasAdicionales: " + notasAdicionales);
-
             // Ejecución del query
             String sql = "SELECT registrar_comprobante_pago(?, ?, ?, ?, ?, ?, ?, ?)";
             return jdbcTemplate.queryForObject(
