@@ -82,3 +82,30 @@ END;
 $$ LANGUAGE plpgsql;
 
 SELECT * FROM public.actualizar_olimpiada(102, 2025, 'Olimpiada Nacional de Ciencias', 50.00);
+
+
+SELECT DISTINCT
+    p.apellido_paterno,
+    p.apellido_materno,
+    p.nombre_participante,
+    p.id_inscripcion,
+    c.nombre_colegio,
+    m.nombre_municipio,
+    d.nombre_departamento,
+    g.nombre_grado
+FROM orden_de_pago op
+         JOIN estado_orden_de_pago eop ON eop.id_estado = op.id_estado
+         JOIN inscripcion i ON op.id_inscripcion = i.id_inscripcion
+         JOIN participante p ON p.id_inscripcion = i.id_inscripcion
+         JOIN participante_catalogo pc ON p.id_participante = pc.id_participante
+         JOIN catalogo_olimpiada co ON pc.id_catalogo = co.id_catalogo
+         JOIN olimpiada o ON co.id_olimpiada = o.id_olimpiada  -- Esta conexión faltaba
+         JOIN area a ON co.id_area = a.id_area  -- Conectar área através del catálogo
+         JOIN colegio c ON p.id_colegio = c.id_colegio
+         JOIN municipio m ON c.id_municipio = m.id_municipio
+         JOIN departamento d ON m.id_departamento = d.id_departamento
+         JOIN grado g ON g.id_grado = p.id_grado
+WHERE eop.estado = 'PAGADO'
+  AND a.id_area = 6  -- Filtro por área
+  AND o.id_olimpiada = 102  -- Filtro por olimpiada
+ORDER BY g.nombre_grado;

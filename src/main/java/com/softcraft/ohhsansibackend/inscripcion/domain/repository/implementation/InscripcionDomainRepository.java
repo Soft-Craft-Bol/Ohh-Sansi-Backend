@@ -133,18 +133,31 @@ public class InscripcionDomainRepository {
 
     public List<Map<String, Object>> getReporteInscripcionByArea(int idArea, int idOlimpiada) {
         String sql = """
-                    select distinct p.apellido_paterno, p.apellido_materno, p.nombre_participante, p.id_inscripcion, c.nombre_colegio, m.nombre_municipio, d.nombre_departamento, g.nombre_grado
-                    from orden_de_pago op, participante p, inscripcion i, olimpiada o, catalogo_olimpiada co,
-                         area a, estado_orden_de_pago eop, participante_catalogo pc,
-                         municipio m, colegio c, departamento d, grado g
-                    where eop.estado = 'PAGADO' and eop.id_estado = op.id_estado
-                      and op.id_inscripcion = i.id_inscripcion and p.id_inscripcion = i.id_inscripcion
-                      and p.id_participante = pc.id_participante and pc.id_catalogo = co.id_catalogo
-                      and pc.id_catalogo = co.id_catalogo and a.id_area = ?
-                      and p.id_colegio = c.id_colegio and c.id_municipio = m.id_municipio
-                      and m.id_departamento = d.id_departamento and o.id_olimpiada = ?
-                      and g.id_grado = p.id_grado
-                    order by (g.nombre_grado);
+                    SELECT DISTINCT
+                        p.apellido_paterno,
+                        p.apellido_materno,
+                        p.nombre_participante,
+                        p.id_inscripcion,
+                        c.nombre_colegio,
+                        m.nombre_municipio,
+                        d.nombre_departamento,
+                        g.nombre_grado
+                    FROM orden_de_pago op
+                             JOIN estado_orden_de_pago eop ON eop.id_estado = op.id_estado
+                             JOIN inscripcion i ON op.id_inscripcion = i.id_inscripcion
+                             JOIN participante p ON p.id_inscripcion = i.id_inscripcion
+                             JOIN participante_catalogo pc ON p.id_participante = pc.id_participante
+                             JOIN catalogo_olimpiada co ON pc.id_catalogo = co.id_catalogo
+                             JOIN olimpiada o ON co.id_olimpiada = o.id_olimpiada 
+                             JOIN area a ON co.id_area = a.id_area 
+                             JOIN colegio c ON p.id_colegio = c.id_colegio
+                             JOIN municipio m ON c.id_municipio = m.id_municipio
+                             JOIN departamento d ON m.id_departamento = d.id_departamento
+                             JOIN grado g ON g.id_grado = p.id_grado
+                    WHERE eop.estado = 'PAGADO'
+                      AND a.id_area = ?
+                      AND o.id_olimpiada = ?
+                    ORDER BY g.nombre_grado;
                 """;
         return jdbcTemplate.queryForList(sql, idArea, idOlimpiada);
     }
