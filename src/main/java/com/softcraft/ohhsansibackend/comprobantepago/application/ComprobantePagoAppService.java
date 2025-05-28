@@ -87,6 +87,19 @@ public class ComprobantePagoAppService {
         }
         return response;
     }
+    public Map<String, Object> sendInfoForComprobantePago(String codComprobantePago) {
+        Map<String, Object> response = new HashMap<>();
+        try{
+            response.put("success", true);
+            response.put("estadosComprobante",comprobantePagoAppRepository.getEstadosComprobantePago());
+            response.put("comprobantePago", comprobantePagoAppRepository.getComprobantePagoByCod(codComprobantePago));
+            //response.put()
+        }catch (Exception e){
+            throw new RuntimeException("Error al enviar los estados de comprobante de pago: " + e.getMessage());
+        }
+        return response;
+    }
+
 
 
 }

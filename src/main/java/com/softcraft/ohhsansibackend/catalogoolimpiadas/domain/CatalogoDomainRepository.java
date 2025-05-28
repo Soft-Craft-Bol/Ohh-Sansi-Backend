@@ -69,7 +69,7 @@ public class CatalogoDomainRepository {
         // Insertar registro
         String sql = """
             INSERT INTO participante_catalogo (
-                id_categoria, id_area, id_catalogo, id_olimpiada, 
+                id_categoria, id_area, id_catalogo, id_olimpiada,
                 id_inscripcion, id_participante
             ) VALUES (?, ?, ?, ?, ?, ?)
             RETURNING id_participante_catalogo
@@ -167,7 +167,7 @@ public class CatalogoDomainRepository {
 
     public Optional<Map<String, Object>> getOlimpiadaActiva() {
         String sql = """
-            SELECT o.id_olimpiada, e.nombre_estado 
+            SELECT o.id_olimpiada, e.nombre_estado
             FROM olimpiada o
             JOIN estado_olimpiada e ON o.id_estado = e.id_estado
             WHERE e.nombre_estado IN ( 'EN INSCRIPCION')
