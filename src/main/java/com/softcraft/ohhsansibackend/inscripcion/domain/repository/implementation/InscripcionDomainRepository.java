@@ -44,6 +44,11 @@ public class InscripcionDomainRepository {
         return inscripcion;
     }
 
+    public int updateCodigoUnicoInscripcion(Inscripcion inscripcion) {
+        String sql = "UPDATE inscripcion SET codigo_unico_inscripcion = ? WHERE id_inscripcion = ?";
+        return jdbcTemplate.update(sql, inscripcion.getCodigoUnicoInscripcion(), inscripcion.getIdInscripcion());
+    }
+
 
     public Inscripcion findByIdInscripcion(int idInscripcion) {
         String sql = "SELECT * FROM inscripcion WHERE id_inscripcion = ?";
