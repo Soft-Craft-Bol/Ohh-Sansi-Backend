@@ -121,5 +121,25 @@ public class ComprobantePagoAppRepository {
         });
     }
 
+    //TODO: ud inscripcion, id orden de pago, estados
+    public List<Map<String, Object>> getEstadosComprobantePago(){
+        String sql =
+                """
+                    select distinct *
+                    from estado_comprobante_pago
+                """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> getComprobantePagoByCod(String codigoUnicoInscripcion) {
+        String sql=
+                """
+                    select distinct op.*
+                    from inscripcion i, orden_de_pago op
+                    where i.codigo_unico_inscripcion='?'
+                    and i.id_inscripcion=op.id_inscripcion;
+                """;
+        return jdbcTemplate.queryForList(sql, codigoUnicoInscripcion);
+    }
 
 }

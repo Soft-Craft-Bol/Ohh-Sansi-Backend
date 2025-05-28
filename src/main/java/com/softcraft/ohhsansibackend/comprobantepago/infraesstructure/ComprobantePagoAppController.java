@@ -1,10 +1,12 @@
 package com.softcraft.ohhsansibackend.comprobantepago.infraesstructure;
 
 import com.softcraft.ohhsansibackend.comprobantepago.application.ComprobantePagoAppService;
+import com.softcraft.ohhsansibackend.comprobantepago.domain.model.ComprobantePago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,5 +36,21 @@ public class ComprobantePagoAppController {
     public ResponseEntity<Map<String, Object>> findComprobantePagoByOlimpiada(@PathVariable int idOlimpiada) {
         Map<String, Object> response = comprobantePagoService.findComprobantePagoByIdOlimpiada(idOlimpiada);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/comprobante-info/{codUnicoParticipante}")
+    public ResponseEntity<Map<String,Object>> getComprobanteInfoByCiParticipante(@PathVariable String codUnicoParticipante) {
+        Map<String, Object> response = comprobantePagoService.sendInfoForComprobantePago(codUnicoParticipante);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/comprobante/")
+    public ResponseEntity<Map<String, Object>> insertComprobantePago(
+            @RequestBody ComprobantePago comprobantePago
+            ){
+        Map<String,Object> response = new HashMap<>();
+        return null;
+        //notas adicionales
+        //
     }
 }
