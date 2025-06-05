@@ -89,7 +89,6 @@ public class CatalogoOlimpiadaService {
         }
     }
 
-    // Método auxiliar para verificar si existe la combinación
     private boolean existsCombination(int idOlimpiada, int idArea, int idCategoria) {
         String sql = "SELECT COUNT(*) FROM catalogo_olimpiada WHERE id_olimpiada = ? AND id_area = ? AND id_categoria = ?";
         try {

@@ -46,10 +46,10 @@ public class ComprobantePagoAppService {
             response.put("message", "Estado del comprobante de pago actualizado correctamente.");
             response.put("idComprobantePago", idComprobantePago);
             response.put("nuevoEstado", nuevoEstado.name());
-            //TODO: BUSCAR POR ID DE COMPROBANTE PAGO EL ID ORDEN PAGO
             if(nuevoEstado.getId()==1){
                 OrdenDePago op = ordenPagoService.getOrdenDePagoByIdComprobantePago(idComprobantePago);
                 ordenPagoService.changeEstadoOrdenPagoAPagado(op.getIdOrdenPago());
+                //TODO: COmprobar esta funcion
                 System.out.println("FUNCIONO");
             }
 

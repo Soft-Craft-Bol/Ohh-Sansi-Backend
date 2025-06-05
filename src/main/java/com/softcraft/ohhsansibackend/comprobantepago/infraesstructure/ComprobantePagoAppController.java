@@ -55,5 +55,4 @@ public class ComprobantePagoAppController {
 
     }
 
-    //TODO: En la orden de pago
 }

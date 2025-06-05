@@ -121,7 +121,6 @@ public class ComprobantePagoAppRepository {
         });
     }
 
-    //TODO: ud inscripcion, id orden de pago, estados
     public List<Map<String, Object>> getEstadosComprobantePago(){
         String sql =
                 """
