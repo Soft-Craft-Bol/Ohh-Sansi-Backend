@@ -109,4 +109,11 @@ public class ParticipanteController {
     public Optional<ParticipanteResumenDTO> getAreasResumenByCarnet(@PathVariable int carnetIdentidad) {
         return participanteAdapter.obtenerParticipanteResumenPorCi(carnetIdentidad);
     }
+    //TODO: hacer la implementacion
+    @PostMapping("/register-multiple-participant")
+    public ResponseEntity<Map<String, Object>> registerMultipleParticipant(
+            @RequestBody List<Participante> participantes
+    ){
+        return ResponseEntity.ok(participanteService.saveMultipleParticipant(participantes));
+    }
 }
