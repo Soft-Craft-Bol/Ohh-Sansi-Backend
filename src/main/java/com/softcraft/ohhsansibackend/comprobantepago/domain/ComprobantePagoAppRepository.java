@@ -142,4 +142,6 @@ public class ComprobantePagoAppRepository {
         return jdbcTemplate.queryForList(sql, codigoUnicoInscripcion);
     }
 
+
+
 }

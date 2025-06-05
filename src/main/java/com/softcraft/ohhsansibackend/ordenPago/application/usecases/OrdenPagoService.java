@@ -74,6 +74,16 @@ public class OrdenPagoService {
         }
 
     }
+    public boolean changeEstadoOrdenPagoAPagado(int idOrdenPago){
+        return ordenPagoDomainRepository.changeEstadoOrdenPagoAPagado(idOrdenPago);
+    }
 
+    public OrdenDePago getOrdenDePagoByIdComprobantePago(int idComprobantePago) {
+        try {
+            return ordenPagoDomainRepository.getOrdenDePagoByIdComprobantePago(idComprobantePago);
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Orden de pago no encontrada para el comprobante de pago con ID: " + idComprobantePago);
+        }
+    }
 
 }

@@ -4,6 +4,8 @@ import com.softcraft.ohhsansibackend.comprobantepago.domain.ComprobantePagoAppRe
 import com.softcraft.ohhsansibackend.comprobantepago.domain.model.ComprobantePago;
 import com.softcraft.ohhsansibackend.comprobantepago.domain.model.EstadoComprobantePago;
 import com.softcraft.ohhsansibackend.comprobantepago.domain.model.EstadoComprobantePagoEnum;
+import com.softcraft.ohhsansibackend.ordenPago.application.usecases.OrdenPagoService;
+import com.softcraft.ohhsansibackend.ordenPago.domain.models.OrdenDePago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +17,17 @@ import java.util.Map;
 public class ComprobantePagoAppService {
     private final ComprobantePagoAppRepository comprobantePagoRepository;
     private final ComprobantePagoAppRepository comprobantePagoAppRepository;
+    private final OrdenPagoService ordenPagoService;
 
     @Autowired
-    private ComprobantePagoAppService(ComprobantePagoAppRepository comprobantePagoRepository, ComprobantePagoAppRepository comprobantePagoAppRepository) {
+    private ComprobantePagoAppService(
+            ComprobantePagoAppRepository comprobantePagoRepository,
+            ComprobantePagoAppRepository comprobantePagoAppRepository,
+            OrdenPagoService ordenPagoService
+    ) {
         this.comprobantePagoRepository = comprobantePagoRepository;
         this.comprobantePagoAppRepository = comprobantePagoAppRepository;
+        this.ordenPagoService = ordenPagoService;
     }
 
     public List<Map<String, Object>> getComprobantesPago(){
@@ -38,6 +46,13 @@ public class ComprobantePagoAppService {
             response.put("message", "Estado del comprobante de pago actualizado correctamente.");
             response.put("idComprobantePago", idComprobantePago);
             response.put("nuevoEstado", nuevoEstado.name());
+            //TODO: BUSCAR POR ID DE COMPROBANTE PAGO EL ID ORDEN PAGO
+            if(nuevoEstado.getId()==1){
+                OrdenDePago op = ordenPagoService.getOrdenDePagoByIdComprobantePago(idComprobantePago);
+                ordenPagoService.changeEstadoOrdenPagoAPagado(op.getIdOrdenPago());
+                System.out.println("FUNCIONO");
+            }
+
         } catch (IllegalArgumentException e) {
             response.put("success", false);
             response.put("message", "Estado no válido: " + e.getMessage());

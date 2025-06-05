@@ -1,7 +1,10 @@
 package com.softcraft.ohhsansibackend.ordenPago.domain.repository.implementation;
 import com.softcraft.ohhsansibackend.ordenPago.domain.models.EstadoOrdenDePago;
 import com.softcraft.ohhsansibackend.ordenPago.domain.models.OrdenDePago;
+import com.softcraft.ohhsansibackend.ordenPago.domain.repository.model.OrdenPagoEstadoEnum;
+import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -209,6 +212,31 @@ public class OrdenPagoDomainRepository {
             estadoOrdenDePago.setEstado(rs.getString("estado"));
             return estadoOrdenDePago;
         });
+    }
+
+    public boolean changeEstadoOrdenPagoAPagado(int idOrdenPago) {
+        OrdenPagoEstadoEnum estadoOrdenPago = OrdenPagoEstadoEnum.PAGADO;
+        int idEstado = estadoOrdenPago.getId();
+        String sql= """
+                    UPDATE orden_de_pago
+                    SET id_estado = ?
+                    WHERE id_orden_pago = ?
+                """;
+        int ct = jdbcTemplate.update(sql, idEstado, idOrdenPago);
+        if(ct==0){
+            throw new RuntimeException("oNo se modifico el estado de la orden de pago");
+        }else{
+            return true;
+        }
+    }
+
+    public OrdenDePago getOrdenDePagoByIdComprobantePago(int idComprobantePago){
+        String sql = """
+                Select op.*
+                from orden_de_pago op, comprobante_pago cp
+                where op.id_orden_pago = cp.id_orden_pago and cp.id_comprobante_pago = ?;
+                """;
+        return jdbcTemplate.queryForObject(sql, new Object[]{idComprobantePago}, new BeanPropertyRowMapper<>(OrdenDePago.class));
     }
 
 }
