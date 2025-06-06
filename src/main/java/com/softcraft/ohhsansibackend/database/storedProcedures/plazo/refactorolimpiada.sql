@@ -80,3 +80,68 @@ and eo.nombre_estado= 'EN INSCRIPCION'
 
 
 select * from participante where id_inscripcion=767
+
+
+DELETE FROM participante;-- Primero, eliminar la restricción foreign key existente
+ALTER TABLE excel_association
+    DROP CONSTRAINT fk_participante;
+
+-- Luego, crear la nueva restricción con CASCADE
+ALTER TABLE excel_association
+    ADD CONSTRAINT fk_participante
+        FOREIGN KEY (ci_participante)
+            REFERENCES participante(carnet_identidad_participante)
+            ON DELETE CASCADE;
+
+-- Ahora puedes eliminar de participante y se eliminará en cascada
+DELETE FROM participante;
+
+-- Modificar la restricción en excel_association
+ALTER TABLE excel_association
+    DROP CONSTRAINT fk_participante;
+
+ALTER TABLE excel_association
+    ADD CONSTRAINT fk_participante
+        FOREIGN KEY (carnet_identidad_participante)
+            REFERENCES participante(carnet_identidad_participante)
+            ON DELETE CASCADE;
+
+-- Modificar la restricción en participante_catalogo
+ALTER TABLE participante_catalogo
+    DROP CONSTRAINT fk_particip_relations_particip;
+
+ALTER TABLE participante_catalogo
+    ADD CONSTRAINT fk_particip_relations_particip
+        FOREIGN KEY (id_inscripcion, id_participante)
+            REFERENCES participante(id_inscripcion, id_participante)
+            ON DELETE CASCADE;
+
+-- Ahora sí podrás eliminar de participante
+DELETE FROM participante;
+
+ALTER TABLE excel_association
+    DROP CONSTRAINT fk_excel;
+
+ALTER TABLE excel_association
+    ADD CONSTRAINT fk_excel
+        FOREIGN KEY (id_excel)
+            REFERENCES participante(carnet_identidad_participante)
+            ON DELETE CASCADE;
+ALTER TABLE orden_de_pago
+    DROP CONSTRAINT fk_orden_de_relations_inscripc;
+
+ALTER TABLE orden_de_pago
+    ADD CONSTRAINT fk_orden_de_relations_inscripc
+        FOREIGN KEY (id_inscripcion)
+            REFERENCES inscripcion(id_inscripcion)
+            ON DELETE CASCADE;
+
+
+alter table comprobante_pago
+    drop constraint fk_comproba_r30_orden_de;
+
+alter table comprobante_pago
+    add constraint fk_comproba_r30_orden_de
+        foreign key (id_inscripcion, id_orden_pago)
+            references orden_de_pago(id_inscripcion, id_orden_pago)
+            on delete cascade;

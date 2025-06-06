@@ -4,8 +4,11 @@ import com.softcraft.ohhsansibackend.comprobantepago.domain.ComprobantePagoAppRe
 import com.softcraft.ohhsansibackend.comprobantepago.domain.model.ComprobantePago;
 import com.softcraft.ohhsansibackend.comprobantepago.domain.model.EstadoComprobantePago;
 import com.softcraft.ohhsansibackend.comprobantepago.domain.model.EstadoComprobantePagoEnum;
+import com.softcraft.ohhsansibackend.inscripcion.application.usecases.InscripcionService;
+import com.softcraft.ohhsansibackend.mail.service.MailService;
 import com.softcraft.ohhsansibackend.ordenPago.application.usecases.OrdenPagoService;
 import com.softcraft.ohhsansibackend.ordenPago.domain.models.OrdenDePago;
+import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,16 +21,23 @@ public class ComprobantePagoAppService {
     private final ComprobantePagoAppRepository comprobantePagoRepository;
     private final ComprobantePagoAppRepository comprobantePagoAppRepository;
     private final OrdenPagoService ordenPagoService;
+    private final MailService mailService;
+    private final ParticipanteService participanteService;
+    private final InscripcionService inscripcionService;
 
     @Autowired
     private ComprobantePagoAppService(
             ComprobantePagoAppRepository comprobantePagoRepository,
             ComprobantePagoAppRepository comprobantePagoAppRepository,
-            OrdenPagoService ordenPagoService
-    ) {
+            OrdenPagoService ordenPagoService,
+            MailService mailService,
+            ParticipanteService participanteService, InscripcionService inscripcionService) {
         this.comprobantePagoRepository = comprobantePagoRepository;
         this.comprobantePagoAppRepository = comprobantePagoAppRepository;
         this.ordenPagoService = ordenPagoService;
+        this.mailService = mailService;
+        this.participanteService = participanteService;
+        this.inscripcionService = inscripcionService;
     }
 
     public List<Map<String, Object>> getComprobantesPago(){
@@ -41,16 +51,34 @@ public class ComprobantePagoAppService {
         Map<String, Object> response = new HashMap<>();
         try {
             EstadoComprobantePagoEnum nuevoEstado = EstadoComprobantePagoEnum.fromId(nuevoEstadoId);
+            OrdenDePago ordenPago = ordenPagoService.getOrdenDePagoByIdComprobantePago(idComprobantePago);
+            String emailUsuario = obtenerEmailUsuario(ordenPago);
+            String codigoUnico =ordenPago.getCodOrdenPago();
             comprobantePagoRepository.actualizarEstadoComprobantePago(idComprobantePago, nuevoEstado.getId());
             response.put("success", true);
             response.put("message", "Estado del comprobante de pago actualizado correctamente.");
             response.put("idComprobantePago", idComprobantePago);
             response.put("nuevoEstado", nuevoEstado.name());
-            if(nuevoEstado.getId()==1){
-                OrdenDePago op = ordenPagoService.getOrdenDePagoByIdComprobantePago(idComprobantePago);
-                ordenPagoService.changeEstadoOrdenPagoAPagado(op.getIdOrdenPago());
-                //TODO: COmprobar esta funcion
-                System.out.println("FUNCIONO");
+            try {
+                if (nuevoEstado.getId() == 1) {
+                    // Cambiar estado de la orden de pago
+                    ordenPagoService.changeEstadoOrdenPagoAPagado(ordenPago.getIdOrdenPago());
+
+                    // Enviar email de confirmación
+                    mailService.sendPagoAceptadoEmail(emailUsuario, codigoUnico);
+                    System.out.println("Email de pago aceptado enviado a: " + emailUsuario);
+
+                } else if (nuevoEstado.getId() == 2) {
+                    mailService.sendPagoRechazadoEmail(emailUsuario, codigoUnico);
+                    System.out.println("Email de pago rechazado enviado a: " + emailUsuario);
+                }
+
+                response.put("emailEnviado", true);
+
+            } catch (Exception emailException) {
+                System.err.println("Error al enviar email: " + emailException.getMessage());
+                response.put("emailEnviado", false);
+                response.put("emailError", emailException.getMessage());
             }
 
         } catch (IllegalArgumentException e) {
@@ -61,6 +89,14 @@ public class ComprobantePagoAppService {
             response.put("message", "Error al cambiar el estado del comprobante de pago: " + e.getMessage());
         }
         return response;
+    }
+
+    private String obtenerEmailUsuario(OrdenDePago ordenPago) {
+        /*return participanteService.findByEmail(ordenPago.getIdOrdenPago());
+
+        return inscripcionService.getEmailByCodigoUnico(ordenPago.getCodigoUnico());
+*/
+        throw new RuntimeException("Método obtenerEmailUsuario() debe ser implementado según tu estructura de datos");
     }
 
     public boolean verificarExistenciaComprobantePago(int ciParticipante){
