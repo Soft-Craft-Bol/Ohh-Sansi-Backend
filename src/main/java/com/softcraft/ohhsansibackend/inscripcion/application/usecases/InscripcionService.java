@@ -54,7 +54,7 @@ public class InscripcionService {
                               @Lazy TutorService tutorService,
                               CatalogoOlimpiadaService catalogoOlimpiadaService,
                               AreaService areaService,
-                              ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService
+                              @Lazy ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService
     ) {
         this.inscripcionAdapter = inscripcionAdapter;
         this.inscripcionDomainService = inscripcionDomainService;

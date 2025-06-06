@@ -8,6 +8,7 @@ import com.softcraft.ohhsansibackend.participante.application.usecases.Participa
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.domain.repository.implementation.ParticipanteDomainRepository;
 import com.softcraft.ohhsansibackend.participante.infraestructure.request.AreaCatalogoDTO;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class CatalogoService {
     private final ParticipanteDomainRepository participanteDomainRepository;
 
 
-    public CatalogoService(CatalogoDomainRepository catalogoDomainRepository, ParticipanteService participanteService, ParticipanteDomainRepository participanteDomainRepository) {
+    public CatalogoService(CatalogoDomainRepository catalogoDomainRepository, @Lazy ParticipanteService participanteService,@Lazy ParticipanteDomainRepository participanteDomainRepository) {
         this.catalogoDomainRepository = catalogoDomainRepository;
         this.participanteService = participanteService;
         this.participanteDomainRepository = participanteDomainRepository;
