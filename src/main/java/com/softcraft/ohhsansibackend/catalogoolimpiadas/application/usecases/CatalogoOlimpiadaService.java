@@ -3,6 +3,7 @@ package com.softcraft.ohhsansibackend.catalogoolimpiadas.application.usecases;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.application.adapter.CatalogoOlimpiadaAdapter;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.DTO.CatalogoOlimpiadaDTO;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.model.CatalogoOlimpiada;
+import com.softcraft.ohhsansibackend.participante.infraestructure.request.AreaCatalogoDTO;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -123,6 +124,9 @@ public class CatalogoOlimpiadaService {
 
     public List<CatalogoOlimpiadaDTO> getCatalogoOlimpiadaById(Integer idCatalogoOlimpiada) {
         return catalogoOlimpiadaAdapter.getCatalogoOlimpiadaById(idCatalogoOlimpiada);
+    }
+    public List<AreaCatalogoDTO> getParticipantesByAreaAndOlimpiada(int idArea,int idArea2, int idOlimpiada, int idGrado) {
+        return catalogoOlimpiadaAdapter.getAreaCatalogoByIdAreaAndIdOlimpiada(idArea, idArea2,idOlimpiada, idGrado);
     }
 }
 

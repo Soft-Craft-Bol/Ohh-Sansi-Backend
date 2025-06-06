@@ -30,7 +30,7 @@ public class ParticipanteCatalogoInscriptionService {
         this.participanteDomainService = participanteDomainService;
     }
 
-
+    //TODO: USAR ESTE SERVICIO PARA REGISTRAR PARTICIPANTE EN CATALOGO
     public Map<String, Object> registerParticipantWithCatalogoComposition(int ciParticipante, List<AreaCatalogoDTO> areaCatalogoDTO) {
         List<Map<String, Object>> results = new ArrayList<>();
         try {

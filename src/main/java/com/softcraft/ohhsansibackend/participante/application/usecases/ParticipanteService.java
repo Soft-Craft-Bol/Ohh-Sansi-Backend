@@ -111,6 +111,7 @@ public class ParticipanteService {
         return participanteAdapter.findParticipanteByIdInscripcion(idInscripcion);
     }
 
+    //TODO: para hacer pruebas, metodo no funcional para el uso
     public Map<String, Object> saveMultipleParticipant(List<Participante> participantes){
         Inscripcion inscripcion = createInscripcion();
         List<Participante> participantesInscritos= new ArrayList<Participante>();
@@ -121,6 +122,10 @@ public class ParticipanteService {
                 participanteAdapter.save(participante);
                 participantesInscritos.add(participante);
             }
+
+
+
+
         }catch (DuplicateKeyException e){
             try {
                 inscripcionService.deleteInscripcionById(inscripcion.getIdInscripcion());

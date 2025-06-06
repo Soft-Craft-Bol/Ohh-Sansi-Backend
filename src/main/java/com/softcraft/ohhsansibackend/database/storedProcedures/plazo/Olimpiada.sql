@@ -109,3 +109,7 @@ WHERE eop.estado = 'PAGADO'
   AND a.id_area = 6  -- Filtro por área
   AND o.id_olimpiada = 102  -- Filtro por olimpiada
 ORDER BY g.nombre_grado;
+
+
+
+CREATE EXTENSION IF NOT EXISTS pg_cron

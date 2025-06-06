@@ -170,7 +170,7 @@ BEGIN
     SELECT EXISTS(
         SELECT 1 FROM periodos_olimpiada
         WHERE  id_periodo != p_id_periodo
-          AND tipo_periodo IN ('INSCRIPCIONES', 'AMPLIACION')
+          AND tipo_periodo IN ('INSCRIPCION', 'AMPLIACION')
           AND (
             (fecha_inicio <= p_fecha_fin AND fecha_fin >= p_fecha_inicio) OR
             (p_fecha_inicio <= fecha_fin AND p_fecha_fin >= fecha_inicio)

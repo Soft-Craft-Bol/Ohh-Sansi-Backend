@@ -3,6 +3,7 @@ package com.softcraft.ohhsansibackend.inscripcion.infraestructure.rest;
 import com.softcraft.ohhsansibackend.inscripcion.application.usecases.InscripcionService;
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
 import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionMasivaDomainService;
+import com.softcraft.ohhsansibackend.inscripcion.infraestructure.dto.inscripcionmasiva.ExcelInscriptionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,6 +56,12 @@ public class InscripcionController {
     public ResponseEntity<List<Map<String, Object>>> getInscripcionByArea(@PathVariable int idArea, @PathVariable int idOlimpiada) {
         List<Map<String, Object>> inscripciones = inscripcionService.getReporteInscripcionByArea(idArea, idOlimpiada);
         return ResponseEntity.ok(inscripciones);
+    }
+
+    @PostMapping("/masivo/register")
+    public ResponseEntity<Map<String, Object>> saveInscripcionExcelMasiva(List<ExcelInscriptionDTO> inscripcionMasiva){
+        Map<String, Object> res = inscripcionService.saveInscripcionExcelMasiva(inscripcionMasiva);
+        return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 
 }
