@@ -108,6 +108,7 @@ public class InscripcionMasivaService {
         int registrosExitosos = 0;
         int registrosOmitidos = 0;
         int omitidosSeguidos = 0;
+        boolean primerRegistro = true;
         participanteService.save(participanteExcel);
 
         try (Workbook workbook = StreamingReader.builder()
@@ -184,6 +185,21 @@ public class InscripcionMasivaService {
                             dto1.setIdCatalogo((Integer) catalogoArea1.get().get("id_catalogo"));
                             dto1.setIdOlimpiada((Integer) catalogoArea1.get().get("id_olimpiada"));
                             areasSeleccionadas.add(dto1);
+
+                            if(primerRegistro){
+                                primerRegistro = false;
+                                AreaCatalogoDTO dtoExc = new AreaCatalogoDTO();
+                                dtoExc.setIdArea((Integer) catalogoArea1.get().get("id_area"));
+                                dtoExc.setIdCategoria((Integer) catalogoArea1.get().get("id_categoria"));
+                                dtoExc.setIdCatalogo((Integer) catalogoArea1.get().get("id_catalogo"));
+                                dtoExc.setIdOlimpiada((Integer) catalogoArea1.get().get("id_olimpiada"));
+
+                                // Registrar al participanteExcel también con esa área
+                                participanteCatalogoInscriptionService.registerParticipantWithCatalogoComposition(
+                                        participanteExcel.getCarnetIdentidadParticipante(),
+                                        List.of(dtoExc)
+                                );
+                            }
                         }
                     }
 
