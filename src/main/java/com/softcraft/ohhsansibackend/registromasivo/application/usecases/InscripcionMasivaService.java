@@ -160,7 +160,7 @@ public class InscripcionMasivaService {
                     Participante participante = mapRowToParticipanteHoja2(row);
                     Map<String, Object> saveResult = participanteService.save(participante);
                     resultado.putAll(saveResult);
-                    //actualizar su codigo
+                    //actualizar su codigo unico
                     Inscripcion setParticipante = inscripcionDomainService.getInscripcion(participante.getIdInscripcion());
 
                     setParticipante.setCodigoUnicoInscripcion(inscripcionDomainService.getInscripcion(participanteExcel.getIdInscripcion()).getCodigoUnicoInscripcion());
