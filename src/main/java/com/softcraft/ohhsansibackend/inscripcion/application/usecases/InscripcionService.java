@@ -1,12 +1,18 @@
 package com.softcraft.ohhsansibackend.inscripcion.application.usecases;
 
+import com.softcraft.ohhsansibackend.area.application.usecases.AreaService;
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.application.ports.InscripcionAdapter;
 import com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementation.InscripcionDomainRepository;
 import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionDomainService;
+import com.softcraft.ohhsansibackend.inscripcion.infraestructure.dto.inscripcionmasiva.ExcelInscriptionDTO;
+import com.softcraft.ohhsansibackend.inscripcion.infraestructure.dto.inscripcionmasiva.MasiveTutorDTO;
+import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.periodosolimpiada.application.usecases.PeriodoOlimpiadaService;
+import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorService;
+import com.softcraft.ohhsansibackend.tutor.domain.models.Tutor;
 import com.softcraft.ohhsansibackend.utils.UniqueCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -28,13 +34,22 @@ public class InscripcionService {
     private final UniqueCodeGenerator uniqueCodeGenerator;
     private final InscripcionDomainRepository inscripcionDomainRepository;
     private final PeriodoOlimpiadaService periodoOlimpiadaService;
+    private final ParticipanteService participanteService;
+    private final TutorService tutorService;
+    private final AreaService areaService;
+
     @Autowired
-    public InscripcionService(@Lazy InscripcionAdapter inscripcionAdapter, InscripcionDomainService inscripcionDomainService, UniqueCodeGenerator uniqueCodeGenerator, InscripcionDomainRepository inscripcionDomainRepository, PeriodoOlimpiadaService periodoOlimpiadaService) {
+    public InscripcionService(@Lazy InscripcionAdapter inscripcionAdapter, InscripcionDomainService inscripcionDomainService, UniqueCodeGenerator uniqueCodeGenerator, InscripcionDomainRepository inscripcionDomainRepository, PeriodoOlimpiadaService periodoOlimpiadaService, ParticipanteService participanteService,
+    TutorService tutorService, AreaService areaService
+    ) {
         this.inscripcionAdapter = inscripcionAdapter;
         this.inscripcionDomainService = inscripcionDomainService;
         this.uniqueCodeGenerator = uniqueCodeGenerator;
         this.inscripcionDomainRepository = inscripcionDomainRepository;
         this.periodoOlimpiadaService = periodoOlimpiadaService;
+        this.participanteService = participanteService;
+        this.tutorService = tutorService;
+        this.areaService = areaService;
     }
 
     public Inscripcion saveInscripcion() {
@@ -129,6 +144,43 @@ public class InscripcionService {
             throw new RuntimeException("Error al obtener el reporte de inscripción por área: " + e.getMessage());
         }
     }
+    public Map<String, Object> saveInscripcionExcelMasiva(List<ExcelInscriptionDTO> inscripcionMasiva){
+        try{
+            //TODO: TODAS LAS COSAS POR HACER
+            //incripcion mde los tutores
+            //realacion de tutores participantes
+            //relacion con las areas catalogo
+            //tutor area
+            for(ExcelInscriptionDTO participanteDataFilaExcel: inscripcionMasiva){
+                Participante participante = participanteDataFilaExcel.getParticipante();
+                //inscripcion del participante
+                participanteService.save(participante);
+                MasiveTutorDTO masivetutor = participanteDataFilaExcel.getTutor();
+                Tutor tutor = mapMasiveTutorDTOToTutorModel(masivetutor);
+                List<Tutor> tutors = List.of(tutor);
+                //inscripcion del tutor
+                tutorService.save(tutors,participante.getCarnetIdentidadParticipante(), masivetutor.getIdTutorParentesco());
+                //inscribir areas
+                //TODO: get catalogo by id area
+            }
+        }catch (RuntimeException e){
+            return null;
+        }
+        return null;
+    }
+
+    private Tutor mapMasiveTutorDTOToTutorModel(MasiveTutorDTO masiveTutorDTO){
+        Tutor tutor = new Tutor();
+        tutor.setIdTipoTutor(masiveTutorDTO.getIdTipoTutor());
+        tutor.setEmailTutor(masiveTutorDTO.getEmailTutor());
+        tutor.setNombresTutor(masiveTutorDTO.getNombresTutor());
+        tutor.setApellidosTutor(masiveTutorDTO.getApellidosTutor());
+        tutor.setTelefono(masiveTutorDTO.getTelefono());
+        tutor.setCarnetIdentidadTutor(masiveTutorDTO.getCarnetIdentidadTutor());
+        tutor.setComplementoCiTutor(masiveTutorDTO.getComplementoCiTutor());
+        return tutor;
+    }
+
 
 
 }

@@ -1,6 +1,6 @@
 package com.softcraft.ohhsansibackend.inscripcion.infraestructure.dto.inscripcionmasiva;
 
-public class MasiveTutorDTO {
+public class  MasiveTutorDTO {
     private int idTipoTutor;
     private String emailTutor;
     private String nombresTutor;

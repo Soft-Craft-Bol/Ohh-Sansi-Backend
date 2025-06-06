@@ -1,9 +1,11 @@
 package com.softcraft.ohhsansibackend.inscripcion.infraestructure.dto.inscripcionmasiva;
 
+import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
+
 import java.util.List;
 
 public class ExcelInscriptionDTO {
-    private MasiveParticipanteDTO participante;
+    private Participante participante;
     private MasiveTutorDTO tutor;
     private MasiveAreaDTO areas;
     private List<MasiveProfesorDTO> profesor;
@@ -11,18 +13,18 @@ public class ExcelInscriptionDTO {
     public ExcelInscriptionDTO() {
     }
 
-    public ExcelInscriptionDTO(MasiveParticipanteDTO participante, MasiveTutorDTO tutor, MasiveAreaDTO areas, List<MasiveProfesorDTO> profesor) {
+    public ExcelInscriptionDTO(Participante participante, MasiveTutorDTO tutor, MasiveAreaDTO areas, List<MasiveProfesorDTO> profesor) {
         this.participante = participante;
         this.tutor = tutor;
         this.areas = areas;
         this.profesor = profesor;
     }
 
-    public MasiveParticipanteDTO getParticipante() {
+    public Participante getParticipante() {
         return participante;
     }
 
-    public void setParticipante(MasiveParticipanteDTO participante) {
+    public void setParticipante(Participante participante) {
         this.participante = participante;
     }
 
