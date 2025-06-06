@@ -13,6 +13,7 @@ import com.softcraft.ohhsansibackend.participante.application.usecases.Participa
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.xml.catalog.Catalog;
@@ -31,11 +32,11 @@ public class EstadoInscripcionService {
 
     @Autowired
     public EstadoInscripcionService(EstadoInscripcionDomainRepository estadoInscripcionDomainRepository,
-                                    ParticipanteService participanteService,
-                                    TutorService tutorService,
+                                    @Lazy ParticipanteService participanteService,
+                                    @Lazy TutorService tutorService,
                                     InscripcionAdapter inscripcionAdapter,
                                     CatalogoService catalogoService,
-                                    OrdenPagoService ordenPagoService,
+                                    @Lazy OrdenPagoService ordenPagoService,
                                     ComprobantePagoAppService comprobantePagoAppService
     ) {
         this.estadoInscripcionDomainRepository = estadoInscripcionDomainRepository;

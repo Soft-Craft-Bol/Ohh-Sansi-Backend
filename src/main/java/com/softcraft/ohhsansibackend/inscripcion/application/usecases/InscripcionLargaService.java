@@ -14,6 +14,7 @@ import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorAreaService
 import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorService;
 import com.softcraft.ohhsansibackend.tutor.domain.models.Tutor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -30,9 +31,13 @@ public class InscripcionLargaService {
     //private final InscripcionAreaService inscripcionAreaService;
 
     @Autowired
-    public InscripcionLargaService(InscripcionService inscripcionService, ParticipanteService participanteService,
-                                   ParticipanteTutorService participanteTutorService, TutorService tutorService,
-                                   TutorAreaService tutorAreaService, AreaService areaService
+    public InscripcionLargaService(
+            @Lazy InscripcionService inscripcionService,
+            @Lazy ParticipanteService participanteService,
+            @Lazy ParticipanteTutorService participanteTutorService,
+            @Lazy TutorService tutorService,
+            @Lazy TutorAreaService tutorAreaService,
+            @Lazy AreaService areaService
     ) {
 
         this.inscripcionService = inscripcionService;

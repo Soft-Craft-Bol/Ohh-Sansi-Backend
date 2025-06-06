@@ -7,6 +7,7 @@ import com.softcraft.ohhsansibackend.comprobantepago.domain.model.EstadoComproba
 import com.softcraft.ohhsansibackend.ordenPago.application.usecases.OrdenPagoService;
 import com.softcraft.ohhsansibackend.ordenPago.domain.models.OrdenDePago;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -23,7 +24,7 @@ public class ComprobantePagoAppService {
     private ComprobantePagoAppService(
             ComprobantePagoAppRepository comprobantePagoRepository,
             ComprobantePagoAppRepository comprobantePagoAppRepository,
-            OrdenPagoService ordenPagoService
+            @Lazy OrdenPagoService ordenPagoService
     ) {
         this.comprobantePagoRepository = comprobantePagoRepository;
         this.comprobantePagoAppRepository = comprobantePagoAppRepository;
