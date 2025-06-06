@@ -3,6 +3,7 @@ package com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.repository.imple
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.DTO.CatalogoOlimpiadaDTO;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.model.CatalogoOlimpiada;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.repository.abstraction.ICatalogoOlimpiadaRepository;
+import com.softcraft.ohhsansibackend.participante.infraestructure.request.AreaCatalogoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -102,5 +103,29 @@ public class CatalogoOlimpiadaDomainRepository implements ICatalogoOlimpiadaRepo
 
             return dto;
         });
+    }
+
+    public List<AreaCatalogoDTO> getAreaCatalogoByIdAreaAndIdOlimpiada(int idArea,int idArea2, int idOlimpiada, int idGrado) {
+        String sql =
+                """
+                        select distinct co.*
+                        from catalogo_olimpiada co, grado_categoria gc
+                            where (id_area=? or id_area=?)
+                            and id_olimpiada=?
+                            and gc.id_categoria=co.id_categoria
+                            and gc.id_grado = ?;
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new Object[]{
+                    idArea,
+                    idArea2,
+                    idOlimpiada,
+                    idGrado
+                },
+                new BeanPropertyRowMapper<>(
+                            AreaCatalogoDTO.class
+                        )
+        );
     }
 }

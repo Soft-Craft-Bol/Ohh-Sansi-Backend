@@ -1,10 +1,10 @@
 package com.softcraft.ohhsansibackend.participante.infraestructure.request;
 
 public class AreaCatalogoDTO {
-    private int idArea;
     private int idCategoria;
-    private int idOlimpiada;
+    private int idArea;
     private int idCatalogo;
+    private int idOlimpiada;
 
     public int getIdCatalogo() {
         return idCatalogo;

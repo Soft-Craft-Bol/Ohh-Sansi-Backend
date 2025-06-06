@@ -1,11 +1,13 @@
 package com.softcraft.ohhsansibackend.catalogoolimpiadas.application;
 
 import com.softcraft.ohhsansibackend.area.domain.models.Area;
+import com.softcraft.ohhsansibackend.catalogoolimpiadas.application.adapter.CatalogoOlimpiadaAdapter;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.CatalogoDomainRepository;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.model.ParticipanteCatalogo;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.domain.repository.implementation.ParticipanteDomainRepository;
+import com.softcraft.ohhsansibackend.participante.infraestructure.request.AreaCatalogoDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +19,7 @@ public class CatalogoService {
     private final CatalogoDomainRepository catalogoDomainRepository;
     private final ParticipanteService participanteService;
     private final ParticipanteDomainRepository participanteDomainRepository;
+
 
     public CatalogoService(CatalogoDomainRepository catalogoDomainRepository, ParticipanteService participanteService, ParticipanteDomainRepository participanteDomainRepository) {
         this.catalogoDomainRepository = catalogoDomainRepository;
@@ -56,4 +59,5 @@ public class CatalogoService {
     public List<Integer> getRegisteredAreasByParticipante(int idParticipante) {
         return catalogoDomainRepository.getRegisteredAreasByParticipante(idParticipante);
     }
+
 }

@@ -1,6 +1,7 @@
 package com.softcraft.ohhsansibackend.inscripcion.application.usecases;
 
 import com.softcraft.ohhsansibackend.area.application.usecases.AreaService;
+import com.softcraft.ohhsansibackend.catalogoolimpiadas.application.usecases.CatalogoOlimpiadaService;
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.application.ports.InscripcionAdapter;
@@ -8,9 +9,12 @@ import com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementatio
 import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionDomainService;
 import com.softcraft.ohhsansibackend.inscripcion.infraestructure.dto.inscripcionmasiva.ExcelInscriptionDTO;
 import com.softcraft.ohhsansibackend.inscripcion.infraestructure.dto.inscripcionmasiva.MasiveTutorDTO;
+import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteCatalogoInscriptionService;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
+import com.softcraft.ohhsansibackend.participante.infraestructure.request.AreaCatalogoDTO;
 import com.softcraft.ohhsansibackend.periodosolimpiada.application.usecases.PeriodoOlimpiadaService;
+import com.softcraft.ohhsansibackend.periodosolimpiada.domain.models.PeriodoOlimpiada;
 import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorService;
 import com.softcraft.ohhsansibackend.tutor.domain.models.Tutor;
 import com.softcraft.ohhsansibackend.utils.UniqueCodeGenerator;
@@ -36,11 +40,21 @@ public class InscripcionService {
     private final PeriodoOlimpiadaService periodoOlimpiadaService;
     private final ParticipanteService participanteService;
     private final TutorService tutorService;
+    private final CatalogoOlimpiadaService catalogoOlimpiadaService;
     private final AreaService areaService;
+    private final ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService;
 
     @Autowired
-    public InscripcionService(@Lazy InscripcionAdapter inscripcionAdapter, InscripcionDomainService inscripcionDomainService, UniqueCodeGenerator uniqueCodeGenerator, InscripcionDomainRepository inscripcionDomainRepository, PeriodoOlimpiadaService periodoOlimpiadaService, ParticipanteService participanteService,
-    TutorService tutorService, AreaService areaService
+    public InscripcionService(@Lazy InscripcionAdapter inscripcionAdapter,
+                              InscripcionDomainService inscripcionDomainService,
+                              UniqueCodeGenerator uniqueCodeGenerator,
+                              InscripcionDomainRepository inscripcionDomainRepository,
+                              PeriodoOlimpiadaService periodoOlimpiadaService,
+                              @Lazy ParticipanteService participanteService,
+                              @Lazy TutorService tutorService,
+                              CatalogoOlimpiadaService catalogoOlimpiadaService,
+                              AreaService areaService,
+                              ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService
     ) {
         this.inscripcionAdapter = inscripcionAdapter;
         this.inscripcionDomainService = inscripcionDomainService;
@@ -50,6 +64,8 @@ public class InscripcionService {
         this.participanteService = participanteService;
         this.tutorService = tutorService;
         this.areaService = areaService;
+        this.catalogoOlimpiadaService = catalogoOlimpiadaService;
+        this.participanteCatalogoInscriptionService = participanteCatalogoInscriptionService;
     }
 
     public Inscripcion saveInscripcion() {
@@ -150,7 +166,7 @@ public class InscripcionService {
             //incripcion mde los tutores
             //realacion de tutores participantes
             //relacion con las areas catalogo
-            //tutor area
+            //tutor area, profesores
             for(ExcelInscriptionDTO participanteDataFilaExcel: inscripcionMasiva){
                 Participante participante = participanteDataFilaExcel.getParticipante();
                 //inscripcion del participante
@@ -162,7 +178,22 @@ public class InscripcionService {
                 tutorService.save(tutors,participante.getCarnetIdentidadParticipante(), masivetutor.getIdTutorParentesco());
                 //inscribir areas
                 //TODO: get catalogo by id area
+                PeriodoOlimpiada periodoOlimpiada = periodoOlimpiadaService.encontrarPeriodoInscripcionActual();
+                if(periodoOlimpiada == null){
+                    throw new ResourceNotFoundException("No se encontró un período de inscripción actual");
+                }
+                Map<String, Object> responseOfCatalogoComposition =
+                        participanteCatalogoInscriptionService.
+                                registerParticipantWithCatalogoComposition(
+                                        participante.getCarnetIdentidadParticipante(),
+                                        catalogoOlimpiadaService.getParticipantesByAreaAndOlimpiada(participanteDataFilaExcel.getAreas().getIdArea(),
+                                        participanteDataFilaExcel.getAreas().getIdArea2(),
+                                        periodoOlimpiada.getIdOlimpiada(),participante.getIdGrado())
+                                );
+
+
             }
+            //inscribir profesores
         }catch (RuntimeException e){
             return null;
         }
