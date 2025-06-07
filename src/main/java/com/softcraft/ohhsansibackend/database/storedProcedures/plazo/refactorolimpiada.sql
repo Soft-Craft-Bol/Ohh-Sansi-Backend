@@ -145,3 +145,29 @@ alter table comprobante_pago
         foreign key (id_inscripcion, id_orden_pago)
             references orden_de_pago(id_inscripcion, id_orden_pago)
             on delete cascade;
+
+SELECT
+    p.email_participante,
+    CONCAT(p.nombre_participante, ' ', p.apellido_paterno,
+           CASE WHEN p.apellido_materno IS NOT NULL THEN ' ' || p.apellido_materno ELSE '' END) AS nombre_completo,
+    i.codigo_unico_inscripcion,
+    po.tipo_periodo,
+    po.fecha_fin,
+    CAST(po.fecha_fin - CURRENT_DATE AS INTEGER) AS dias_restantes,
+    o.nombre_olimpiada
+FROM participante p
+         JOIN inscripcion i ON p.id_inscripcion = i.id_inscripcion
+         JOIN participante_catalogo pc ON p.id_inscripcion = pc.id_inscripcion AND p.id_participante = pc.id_participante
+         JOIN catalogo_olimpiada co ON pc.id_categoria = co.id_categoria
+    AND pc.id_area = co.id_area
+    AND pc.id_catalogo = co.id_catalogo
+    AND pc.id_olimpiada = co.id_olimpiada
+         JOIN olimpiada o ON co.id_olimpiada = o.id_olimpiada
+         JOIN periodos_olimpiada po ON o.id_olimpiada = po.id_olimpiada
+    AND po.id_estado = 1
+    AND po.fecha_fin >= CURRENT_DATE
+    AND po.fecha_fin <= CURRENT_DATE + ($1 * INTERVAL '1 day')
+    LEFT JOIN orden_de_pago odp ON i.id_inscripcion = odp.id_inscripcion
+         LEFT JOIN estado_orden_de_pago eop ON odp.id_estado = eop.id_estado
+WHERE (odp.id_orden_pago IS NULL OR eop.estado != 'PAGADO')
+ORDER BY po.fecha_fin ASC, p.email_participante;

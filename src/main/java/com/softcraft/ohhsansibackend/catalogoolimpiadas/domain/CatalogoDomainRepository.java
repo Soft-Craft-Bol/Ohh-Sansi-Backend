@@ -158,7 +158,7 @@ public class CatalogoDomainRepository {
             SELECT EXISTS (
                 SELECT 1 FROM periodos_olimpiada po
                 WHERE po.id_olimpiada = ?
-                AND po.tipo_periodo IN ('INSCRIPCIONES', 'AMPLIACION')
+                AND po.tipo_periodo IN ('INSCRIPCION', 'AMPLIACION')
                 AND CURRENT_TIMESTAMP BETWEEN po.fecha_inicio AND po.fecha_fin
             )
         """;

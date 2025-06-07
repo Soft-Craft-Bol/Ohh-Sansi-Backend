@@ -100,6 +100,10 @@ public class InscripcionService {
         Inscripcion savedInscripcion = inscripcionAdapter.saveInscripcion(inscripcion);
         return savedInscripcion.getIdInscripcion();
     }
+
+    public String findCodigoUnicoById(int idInscripcion) {
+        return inscripcionAdapter.findCodigoUnicoById(idInscripcion);
+    }
     //codigo
     public Long findIdByCodigoUnico(String codigoUnico) {
         return inscripcionAdapter.findIdByCodigoUnico(codigoUnico);

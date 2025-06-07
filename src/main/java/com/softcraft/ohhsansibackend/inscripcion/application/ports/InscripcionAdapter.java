@@ -35,6 +35,10 @@ public class InscripcionAdapter {
         return inscripcionDomainService.createInscripcion(inscripcion);
     }
 
+    public String findCodigoUnicoById(int idInscripcion) {
+        return inscripcionDomainService.findCodigoUnicoByIdInscripcion(idInscripcion);
+    }
+
 
     public Inscripcion findInscripcionById(int id) {
         return inscripcionDomainService.getInscripcion(id);
