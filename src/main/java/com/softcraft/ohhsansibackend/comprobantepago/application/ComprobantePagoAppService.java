@@ -9,6 +9,7 @@ import com.softcraft.ohhsansibackend.mail.service.MailService;
 import com.softcraft.ohhsansibackend.ordenPago.application.usecases.OrdenPagoService;
 import com.softcraft.ohhsansibackend.ordenPago.domain.models.OrdenDePago;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
+import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -54,7 +55,7 @@ public class ComprobantePagoAppService {
             EstadoComprobantePagoEnum nuevoEstado = EstadoComprobantePagoEnum.fromId(nuevoEstadoId);
             OrdenDePago ordenPago = ordenPagoService.getOrdenDePagoByIdComprobantePago(idComprobantePago);
             String emailUsuario = obtenerEmailUsuario(ordenPago);
-            String codigoUnico =ordenPago.getCodOrdenPago();
+            String codigoUnico = obtenerCodigoUnico(ordenPago);
             comprobantePagoRepository.actualizarEstadoComprobantePago(idComprobantePago, nuevoEstado.getId());
             response.put("success", true);
             response.put("message", "Estado del comprobante de pago actualizado correctamente.");
@@ -62,10 +63,8 @@ public class ComprobantePagoAppService {
             response.put("nuevoEstado", nuevoEstado.name());
             try {
                 if (nuevoEstado.getId() == 1) {
-                    // Cambiar estado de la orden de pago
                     ordenPagoService.changeEstadoOrdenPagoAPagado(ordenPago.getIdOrdenPago());
 
-                    // Enviar email de confirmación
                     mailService.sendPagoAceptadoEmail(emailUsuario, codigoUnico);
                     System.out.println("Email de pago aceptado enviado a: " + emailUsuario);
 
@@ -93,11 +92,31 @@ public class ComprobantePagoAppService {
     }
 
     private String obtenerEmailUsuario(OrdenDePago ordenPago) {
-        /*return participanteService.findByEmail(ordenPago.getIdOrdenPago());
+        try {
+            Participante participante = participanteService.findParticipanteByIdInscripcion(ordenPago.getIdInscripcion());
 
-        return inscripcionService.getEmailByCodigoUnico(ordenPago.getCodigoUnico());
-*/
-        throw new RuntimeException("Método obtenerEmailUsuario() debe ser implementado según tu estructura de datos");
+            if (participante != null && participante.getEmailParticipante() != null) {
+                return participante.getEmailParticipante();
+            } else {
+                throw new RuntimeException("No se pudo encontrar el email del participante para la orden de pago ID: " + ordenPago.getIdOrdenPago());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener email del usuario: " + e.getMessage());
+        }
+    }
+
+    private String obtenerCodigoUnico(OrdenDePago ordenPago) {
+        try {
+            String codigoUnico = inscripcionService.findCodigoUnicoById(ordenPago.getIdInscripcion());
+
+            if (codigoUnico != null && !codigoUnico.isEmpty()) {
+                return codigoUnico;
+            } else {
+                throw new RuntimeException("No se pudo encontrar el código único para la inscripción ID: " + ordenPago.getIdInscripcion());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener código único: " + e.getMessage());
+        }
     }
 
     public boolean verificarExistenciaComprobantePago(int ciParticipante){

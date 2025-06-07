@@ -107,6 +107,8 @@ public class OrdenPagoDomainRepository {
             }
         });
     }
+
+
     public OrdenDePago findOrdenPagoByIDOrdenPago(int idOrdenPago){
         String sql = "SELECT * FROM orden_de_pago WHERE id_orden_pago = ?";
         return jdbcTemplate.queryForObject(sql, new Object[]{idOrdenPago}, new RowMapper<OrdenDePago>() {

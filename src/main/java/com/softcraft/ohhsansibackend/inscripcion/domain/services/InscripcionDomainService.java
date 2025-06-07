@@ -31,6 +31,10 @@ public class InscripcionDomainService {
         return inscripcionDomainRepository.findAllInscripcion();
     }
 
+    public String findCodigoUnicoByIdInscripcion(int idInscripcion) {
+        return inscripcionDomainRepository.findCodigoUnicoByIdInscripcion(idInscripcion);
+    }
+
     public Long findIdByCodigoUnico(String codigoUnico) {
         return inscripcionDomainRepository.findIdByCodigoUnico(codigoUnico);
     }

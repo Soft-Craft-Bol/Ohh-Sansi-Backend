@@ -75,6 +75,15 @@ public class InscripcionDomainRepository {
         }
     }
 
+    public String findCodigoUnicoByIdInscripcion(int idInscripcion) {
+        String sql = "SELECT codigo_unico_inscripcion FROM inscripcion WHERE id_inscripcion = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, String.class, idInscripcion);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
 
     public Long findIdByCodigoUnico(String codigoUnicoInscripcion) {
         String sql = "SELECT id_inscripcion FROM inscripcion WHERE codigo_unico_inscripcion = ?";
