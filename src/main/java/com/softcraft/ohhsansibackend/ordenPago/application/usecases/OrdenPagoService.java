@@ -46,6 +46,14 @@ public class OrdenPagoService {
     public boolean verificarExistenciaDeInscripcionEnOrdenPago(int idInscripcion){
         return ordenPagoDomainRepository.verificarExistenciaDeInscripcionEnOrdenPago(idInscripcion);
     }
+    public Integer verificarParticipanteDeMasivo(int ciParticipante){
+        return ordenPagoDomainRepository.verificarParticipanteDeMasivo(ciParticipante);
+    }
+
+    public Integer verificarCarnetDeMasivo(int ciParticipante){
+        return ordenPagoDomainRepository.verificarCarnetDeMasivo(ciParticipante);
+    }
+
     public List<OrdenDePago> obtenerOrdenesNoVencidasEnRango(Date fechaInicio, Date fechaFin) {
         return ordenPagoDomainRepository.findOrdenesNoVencidasEnRango(fechaInicio, fechaFin);
     }
