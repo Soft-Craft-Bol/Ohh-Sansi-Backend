@@ -143,7 +143,7 @@ public class BulEmailController {
 
     @PostMapping("/send-test-reminder")
     public ResponseEntity<Map<String, Object>> sendTestReminder(
-            @RequestParam String email,
+            @RequestParam (defaultValue = "dzeballosperedo@gmail.com")String email,
             @RequestParam(defaultValue = "Usuario Test") String nombre,
             @RequestParam(defaultValue = "TEST123") String codUnique,
             @RequestParam(defaultValue = "2") int diasRestantes,
