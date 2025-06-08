@@ -157,7 +157,7 @@ public class InscripcionService {
         return inscripcionAdapter.deleteInscripcionById(idInscripcion);
     }
 
-    public List<Map<String, Object>> getReporteInscripcionByArea(int idArea, int idOlimpiada) {
+    public List<Map<String, Object>> getReporteInscripcionByArea(Integer idArea, int idOlimpiada) {
         try {
             return inscripcionDomainRepository.getReporteInscripcionByArea(idArea, idOlimpiada);
         } catch (Exception e) {

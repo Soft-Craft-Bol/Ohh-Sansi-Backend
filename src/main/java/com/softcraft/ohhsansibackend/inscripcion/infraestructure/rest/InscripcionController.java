@@ -53,8 +53,12 @@ public class InscripcionController {
     }
 
     @GetMapping("/reporte-por-area/{idArea}/{idOlimpiada}")
-    public ResponseEntity<List<Map<String, Object>>> getInscripcionByArea(@PathVariable int idArea, @PathVariable int idOlimpiada) {
-        List<Map<String, Object>> inscripciones = inscripcionService.getReporteInscripcionByArea(idArea, idOlimpiada);
+    public ResponseEntity<List<Map<String, Object>>> getInscripcionByArea(
+            @PathVariable Integer idArea,
+            @PathVariable int idOlimpiada) {
+
+        Integer areaId = idArea == 0 ? null : idArea;
+        List<Map<String, Object>> inscripciones = inscripcionService.getReporteInscripcionByArea(areaId, idOlimpiada);
         return ResponseEntity.ok(inscripciones);
     }
 
