@@ -142,8 +142,7 @@ public class InscripcionDomainRepository {
 
     public List<Map<String, Object>> getReporteInscripcionByArea(Integer idArea, int idOlimpiada) {
         String sql = """
-                SELECT DISTINCT
-                    p.apellido_paterno,
+                SELECT p.apellido_paterno,
                     p.apellido_materno,
                     p.nombre_participante,
                     p.id_inscripcion,
@@ -151,7 +150,7 @@ public class InscripcionDomainRepository {
                     m.nombre_municipio,
                     d.nombre_departamento,
                     g.nombre_grado,
-                    a.nombre_area  
+                    STRING_AGG(a.nombre_area, ', ') as areas  
                 FROM orden_de_pago op
                          JOIN estado_orden_de_pago eop ON eop.id_estado = op.id_estado
                          JOIN inscripcion i ON op.id_inscripcion = i.id_inscripcion
@@ -167,7 +166,10 @@ public class InscripcionDomainRepository {
                 WHERE eop.estado = 'PAGADO'
                   AND o.id_olimpiada = ?
                   {0}
-                ORDER BY g.nombre_grado, a.nombre_area, p.apellido_paterno;
+                GROUP BY p.id_inscripcion, p.apellido_paterno, p.apellido_materno, 
+                         p.nombre_participante, c.nombre_colegio, m.nombre_municipio,
+                         d.nombre_departamento, g.nombre_grado
+                ORDER BY g.nombre_grado, p.apellido_paterno;
             """;
 
         String areaFilter = (idArea != null) ? "AND a.id_area = ?" : "";
