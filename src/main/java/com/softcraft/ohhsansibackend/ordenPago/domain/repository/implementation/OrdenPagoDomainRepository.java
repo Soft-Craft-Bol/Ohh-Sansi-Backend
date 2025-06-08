@@ -4,6 +4,7 @@ import com.softcraft.ohhsansibackend.ordenPago.domain.models.OrdenDePago;
 import com.softcraft.ohhsansibackend.ordenPago.domain.repository.model.OrdenPagoEstadoEnum;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -142,6 +143,32 @@ public class OrdenPagoDomainRepository {
                     """;
         Boolean exists = jdbcTemplate.queryForObject(sql, new Object[]{idInscripcion}, Boolean.class);
         return (exists != null) ? exists : false;
+    }
+
+    public Integer verificarParticipanteDeMasivo(int ciParticipante) {
+        String sql = """
+        SELECT id_inscripcion_excel FROM excel_association
+        WHERE ci_participante = ?
+    """;
+
+        try {
+            return jdbcTemplate.queryForObject(sql, Integer.class, ciParticipante);
+        } catch (EmptyResultDataAccessException e) {
+            return null; // No se encontró asociación
+        }
+    }
+
+    public Integer verificarCarnetDeMasivo(int ciParticipante) {
+        String sql = """
+        SELECT id_excel FROM excel_association
+        WHERE ci_participante = ?
+    """;
+
+        try {
+            return jdbcTemplate.queryForObject(sql, Integer.class, ciParticipante);
+        } catch (EmptyResultDataAccessException e) {
+            return null; // No se encontró asociación
+        }
     }
 
     public List<OrdenDePago> findOrdenesNoVencidasEnRango(Date fechaInicio, Date fechaFin) {

@@ -144,15 +144,23 @@ public class EstadoInscripcionService {
             }
         }
 
-
-        if(ordenPagoService.verificarExistenciaDeInscripcionEnOrdenPago(participante.getIdInscripcion())){
+        int idParaOrden = 0;
+        int ciParaOrden = 0;
+        if(ordenPagoService.verificarParticipanteDeMasivo(participante.getCarnetIdentidadParticipante()) != null){
+            idParaOrden = ordenPagoService.verificarParticipanteDeMasivo(participante.getCarnetIdentidadParticipante());
+            ciParaOrden = ordenPagoService.verificarCarnetDeMasivo(participante.getCarnetIdentidadParticipante());
+        }else{
+            idParaOrden = participante.getIdInscripcion();
+            ciParaOrden = participante.getCarnetIdentidadParticipante();
+        }
+        if(ordenPagoService.verificarExistenciaDeInscripcionEnOrdenPago(idParaOrden)){
             response.put("registroOrdenPago",
                     Map.of(
                             "estado", "Generado",
                             "fechaRegistro", "No seteado hacer querys",
                             "comentarios", "Orden de pago registrada correctamente.",
                             "codigoUnico", inscripcionAdapter.
-                                    findInscripcionById(participante.getIdInscripcion()).
+                                    findInscripcionById(idParaOrden).
                                     getCodigoUnicoInscripcion()
                     ));
         }else{
@@ -162,10 +170,11 @@ public class EstadoInscripcionService {
                             "fechaRegistro", "No seteado hacer querys",
                             "comentarios", "No se encontraron ordenes de pago registradas para el participante.",
                             "codigoUnico", inscripcionAdapter.
-                                    findInscripcionById(participante.getIdInscripcion()).
+                                    findInscripcionById(idParaOrden).
                                     getCodigoUnicoInscripcion()
                     ));
         }
+
         if(comprobantePagoAppService.verificarExistenciaComprobantePago(ciParticipante)){
             ComprobantePago comprobantePago = comprobantePagoAppService.getComprobantePagoByCiParticipante(ciParticipante);
             EstadoComprobantePago estadoComprobantePago = comprobantePagoAppService.obtenerEstadoComprobantePago(ciParticipante);
