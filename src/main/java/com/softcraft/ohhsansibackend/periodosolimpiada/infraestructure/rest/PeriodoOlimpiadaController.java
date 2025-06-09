@@ -74,8 +74,13 @@ public class PeriodoOlimpiadaController {
                                                                 @PathVariable("idPeriodo") Integer idPeriodo) {
         Map<String, Object> response = new HashMap<>();
         try {
+            periodoOlimpiada.setIdPeriodo(idPeriodo);
             Map<String, Object> updatedResponse = periodoOlimpiadaService.actualizarPeriodo(periodoOlimpiada);
-            return ResponseEntity.ok(updatedResponse);
+            if ("success".equals(updatedResponse.get("status"))) {
+                return ResponseEntity.ok(updatedResponse);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(updatedResponse);
+            }
         } catch (Exception e) {
             response.put("status", "error");
             response.put("message", "Error al actualizar el período: " + e.getMessage());

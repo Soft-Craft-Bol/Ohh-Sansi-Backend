@@ -130,9 +130,7 @@ public class InscripcionService {
     }
     public Map<String, Object> getInscripcionDetails(String codigoUnico) {
         int idInscripcion = findIdByCodigoUnico(codigoUnico).intValue();
-        System.out.println("ID Inscripcion: " + idInscripcion);
         Participante participante = inscripcionAdapter.findParticipanteByIdInscripcion(idInscripcion);
-        System.out.println(participante.toString());
         int edadParticipante = inscripcionAdapter.calculateEdad(participante);
 
         List<Map<String,Object>> areas = getAreasByInscripcionId(idInscripcion);

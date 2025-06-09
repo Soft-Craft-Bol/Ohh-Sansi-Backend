@@ -93,7 +93,6 @@ public class InscripcionMasivaService {
         }
 
         participante.setCarnetIdentidadParticipante(carnet);
-        System.out.println(carnet);
         participante.setEmailParticipante("amercer732@gmail.com");
         participante.setTutorRequerido(false);
 
