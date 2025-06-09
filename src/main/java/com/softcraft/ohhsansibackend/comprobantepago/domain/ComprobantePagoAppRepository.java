@@ -46,15 +46,17 @@ public class ComprobantePagoAppRepository {
     }
 
     public EstadoComprobantePago getEstadoComprobantePago(int ciParticipante) {
+        System.out.println("el id que le llega es"+ ciParticipante);
         String sql = """
         select distinct ecp.id_estado_comprobante, ecp.nombre_estado_comprobante
         from participante p, inscripcion i, comprobante_pago cp, estado_comprobante_pago ecp
         where p.id_inscripcion = i.id_inscripcion
           and i.id_inscripcion = cp.id_inscripcion
           and cp.id_estado_comprobante = ecp.id_estado_comprobante
-          and p.carnet_identidad_participante = ?;
+          and cp.id_inscripcion = ?;
     """;
         return jdbcTemplate.queryForObject(sql, new Object[]{ciParticipante}, (rs, rowNum) -> {
+            System.out.println(rs);
             EstadoComprobantePago estadoComprobantePago = new EstadoComprobantePago();
             estadoComprobantePago.setIdEstadoComprobantePago(rs.getInt("id_estado_comprobante"));
             estadoComprobantePago.setNombreEstadoComprobante(rs.getString("nombre_estado_comprobante"));

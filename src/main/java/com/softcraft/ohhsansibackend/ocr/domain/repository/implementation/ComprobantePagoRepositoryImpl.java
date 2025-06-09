@@ -38,7 +38,7 @@ public class ComprobantePagoRepositoryImpl implements ComprobantePagoRepository 
             BigDecimal montoPagadoConvertido = BigDecimal.valueOf(montoPagado).setScale(2, RoundingMode.HALF_UP);
 
             // Ejecución del query
-            String sql = "SELECT registrar_comprobante_pago(?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "SELECT registrar_comprobante_pago_v2(?, ?, ?, ?, ?, ?, ?, ?)";
             return jdbcTemplate.queryForObject(
                     sql,
                     new Object[] {
