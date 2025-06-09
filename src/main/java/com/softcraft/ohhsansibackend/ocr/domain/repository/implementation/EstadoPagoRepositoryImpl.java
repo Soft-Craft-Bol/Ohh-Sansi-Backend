@@ -41,7 +41,7 @@ public class EstadoPagoRepositoryImpl implements EstadoPagoRepository {
     @Override
     public Optional<EstadoPagoDto> obtenerEstadoPago(String codigoUnicoInscripcion) {
         try {
-            String sql = "SELECT * FROM obtener_estado_pago_inscripcion(?)";
+            String sql = "SELECT * FROM obtener_estado_pago_inscripcion_v2(?)";
 
             EstadoPagoDto resultado = jdbcTemplate.queryForObject(
                     sql,

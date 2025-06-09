@@ -175,26 +175,26 @@ public class EstadoInscripcionService {
                     ));
         }
 
-        if(comprobantePagoAppService.verificarExistenciaComprobantePago(ciParticipante)){
-            ComprobantePago comprobantePago = comprobantePagoAppService.getComprobantePagoByCiParticipante(ciParticipante);
-            EstadoComprobantePago estadoComprobantePago = comprobantePagoAppService.obtenerEstadoComprobantePago(ciParticipante);
+        if(comprobantePagoAppService.verificarExistenciaComprobantePago(ciParaOrden)){
+            ComprobantePago comprobantePago = comprobantePagoAppService.getComprobantePagoByCiParticipante(ciParaOrden);
+            EstadoComprobantePago estadoComprobantePago = comprobantePagoAppService.obtenerEstadoComprobantePago(idParaOrden);
             if(EstadoComprobantePagoEnum.ACEPTADA.getId()==estadoComprobantePago.getIdEstadoComprobantePago()){
                 response.put("comprobantePagoStatus", Map.of(
-                        "estado",comprobantePagoAppService.obtenerEstadoComprobantePago(ciParticipante).getNombreEstadoComprobante(),
+                        "estado",comprobantePagoAppService.obtenerEstadoComprobantePago(idParaOrden).getNombreEstadoComprobante(),
                         "fechaRegistro", comprobantePago.getFechaPago(),
                         "comentarios","El comprobante de pago fue Aceptado",
                         "comprobantePago",comprobantePago
                 ));
             }else if(EstadoComprobantePagoEnum.PENDIENTE.getId()==estadoComprobantePago.getIdEstadoComprobantePago()){
                 response.put("comprobantePagoStatus", Map.of(
-                        "estado",comprobantePagoAppService.obtenerEstadoComprobantePago(ciParticipante).getNombreEstadoComprobante(),
+                        "estado",comprobantePagoAppService.obtenerEstadoComprobantePago(idParaOrden).getNombreEstadoComprobante(),
                         "fechaRegistro", comprobantePago.getFechaPago(),
                         "comentarios","El comprobante de pago esta pendiente de revision",
                         "comprobantePago",comprobantePago
                 ));
             } else if (EstadoComprobantePagoEnum.RECHAZADA.getId()==estadoComprobantePago.getIdEstadoComprobantePago()) {
                 response.put("comprobantePagoStatus", Map.of(
-                        "estado",comprobantePagoAppService.obtenerEstadoComprobantePago(ciParticipante).getNombreEstadoComprobante(),
+                        "estado",comprobantePagoAppService.obtenerEstadoComprobantePago(idParaOrden).getNombreEstadoComprobante(),
                         "fechaRegistro", comprobantePago.getFechaPago(),
                         "comentarios","El comprobante de pago fue rechazado, sube de nuevo el comprobante de pago",
                         "comprobantePago",comprobantePago

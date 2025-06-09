@@ -52,7 +52,7 @@ public class ComprobantePagoAppRepository {
         where p.id_inscripcion = i.id_inscripcion
           and i.id_inscripcion = cp.id_inscripcion
           and cp.id_estado_comprobante = ecp.id_estado_comprobante
-          and p.carnet_identidad_participante = ?;
+          and cp.id_inscripcion = ?;
     """;
         return jdbcTemplate.queryForObject(sql, new Object[]{ciParticipante}, (rs, rowNum) -> {
             EstadoComprobantePago estadoComprobantePago = new EstadoComprobantePago();
