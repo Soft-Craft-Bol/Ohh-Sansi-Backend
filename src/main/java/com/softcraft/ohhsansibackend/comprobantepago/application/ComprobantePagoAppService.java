@@ -66,11 +66,9 @@ public class ComprobantePagoAppService {
                     ordenPagoService.changeEstadoOrdenPagoAPagado(ordenPago.getIdOrdenPago());
 
                     mailService.sendPagoAceptadoEmail(emailUsuario, codigoUnico);
-                    System.out.println("Email de pago aceptado enviado a: " + emailUsuario);
 
                 } else if (nuevoEstado.getId() == 2) {
                     mailService.sendPagoRechazadoEmail(emailUsuario, codigoUnico);
-                    System.out.println("Email de pago rechazado enviado a: " + emailUsuario);
                 }
 
                 response.put("emailEnviado", true);

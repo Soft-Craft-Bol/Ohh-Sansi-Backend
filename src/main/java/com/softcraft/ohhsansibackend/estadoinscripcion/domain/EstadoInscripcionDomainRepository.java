@@ -18,7 +18,6 @@ public class EstadoInscripcionDomainRepository {
         AND p.carnet_identidad_participante = ?
     """;
         Integer count = jdbcTemplate.queryForObject(sql, new Object[]{carnetIdentidad}, Integer.class);
-        System.out.println("Count result: " + count);
         return (count != null) ? count : 0;
     }
 }

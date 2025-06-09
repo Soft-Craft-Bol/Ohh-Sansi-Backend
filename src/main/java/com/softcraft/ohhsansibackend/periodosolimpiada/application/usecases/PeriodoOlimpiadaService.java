@@ -139,7 +139,8 @@ public class PeriodoOlimpiadaService {
     public Map<String, Object> actualizarPeriodo(PeriodoOlimpiada periodoOlimpiada) {
         Map<String, Object> response = new HashMap<>();
         try {
-            if (periodoOlimpiada.getFechaInicio().isBefore(LocalDate.now())) {
+            if (periodoOlimpiada.getFechaInicio() != null &&
+                    periodoOlimpiada.getFechaInicio().isBefore(LocalDate.now()))  {
                 response.put("status", "error");
                 response.put("message", "No se pueden actualizar períodos con fechas anteriores a la fecha actual");
                 return response;

@@ -11,6 +11,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -111,33 +114,97 @@ public class PeriodoOlimpiadaDomainRepository implements IPeriodoOlimpiadaReposi
         return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(PeriodoOlimpiada.class));
     }
 
-    @Override
-    public PeriodoOlimpiada actualizarPeriodo(PeriodoOlimpiada periodoOlimpiada) {
+    public PeriodoOlimpiada actualizarPeriodo(
+            Integer idPeriodo,
+            Integer idOlimpiada,
+            LocalDate fechaInicio,
+            LocalDate fechaFin,
+            String nombrePersonalizado,
+            Integer idEstado
+    ) {
         try {
             return jdbcTemplate.queryForObject(
-                    "SELECT * FROM update_periodo_olimpiada(?, ?, ?, ?, ?)",
+                    "SELECT * FROM update_periodo_olimpiada(?, ?, ?, ?, ?, ?)",
                     new Object[]{
-                            periodoOlimpiada.getIdPeriodo(),
-                            periodoOlimpiada.getIdOlimpiada(),
-                            periodoOlimpiada.getFechaInicio(),
-                            periodoOlimpiada.getFechaFin(),
-                            periodoOlimpiada.getNombrePeriodo()
+                            idPeriodo,
+                            idOlimpiada,
+                            fechaInicio,
+                            fechaFin,
+                            nombrePersonalizado,
+                            idEstado
                     },
-                    (rs, rowNum) -> {
-                        PeriodoOlimpiada p = new PeriodoOlimpiada();
-                        p.setIdPeriodo(rs.getInt("id_periodo"));
-                        p.setIdOlimpiada(rs.getInt("id_olimpiada"));
-                        p.setNombrePeriodo(rs.getString("nombre_periodo"));
-                        p.setFechaInicio(rs.getDate("fecha_inicio").toLocalDate());
-                        p.setFechaFin(rs.getDate("fecha_fin").toLocalDate());
-                        p.setTipoPeriodo(rs.getString("tipo_periodo"));
-                        p.setIdEstado(rs.getInt("id_estado"));
-                        return p;
-                    }
+                    new int[]{
+                            Types.INTEGER,
+                            Types.INTEGER,
+                            Types.DATE,
+                            Types.DATE,
+                            Types.VARCHAR,
+                            Types.INTEGER
+                    },
+                    this::mapPeriodoOlimpiada
             );
         } catch (DataAccessException e) {
             throw e;
         }
+    }
+
+    private PeriodoOlimpiada mapPeriodoOlimpiada(ResultSet rs, int rowNum) throws SQLException {
+        PeriodoOlimpiada p = new PeriodoOlimpiada();
+        p.setIdPeriodo(rs.getInt("id_periodo"));
+        p.setIdOlimpiada(rs.getInt("id_olimpiada"));
+        p.setNombrePeriodo(rs.getString("nombre_periodo"));
+
+        Date fechaInicio = rs.getDate("fecha_inicio");
+        if (fechaInicio != null) {
+            p.setFechaInicio(fechaInicio.toLocalDate());
+        }
+
+        Date fechaFin = rs.getDate("fecha_fin");
+        if (fechaFin != null) {
+            p.setFechaFin(fechaFin.toLocalDate());
+        }
+
+        p.setTipoPeriodo(rs.getString("tipo_periodo"));
+        p.setIdEstado(rs.getInt("id_estado"));
+        return p;
+    }
+
+    @Override
+    public PeriodoOlimpiada actualizarPeriodo(PeriodoOlimpiada periodoOlimpiada) {
+        PeriodoOlimpiada existing = obtenerPeriodoPorId(periodoOlimpiada.getIdPeriodo());
+
+        if (periodoOlimpiada.getFechaInicio() != null) {
+            existing.setFechaInicio(periodoOlimpiada.getFechaInicio());
+        }
+        if (periodoOlimpiada.getFechaFin() != null) {
+            existing.setFechaFin(periodoOlimpiada.getFechaFin());
+        }
+        return actualizarPeriodo(
+                periodoOlimpiada.getIdPeriodo(),
+                periodoOlimpiada.getIdOlimpiada(),
+                periodoOlimpiada.getFechaInicio(),
+                periodoOlimpiada.getFechaFin(),
+                periodoOlimpiada.getNombrePeriodo(),
+                periodoOlimpiada.getIdEstado()
+        );
+    }
+
+    public PeriodoOlimpiada actualizarSoloFechaFin(Integer idPeriodo, Integer idOlimpiada, LocalDate fechaFin) {
+        return actualizarPeriodo(idPeriodo, idOlimpiada, null, fechaFin, null, null);
+    }
+
+    public PeriodoOlimpiada actualizarSoloNombre(Integer idPeriodo, Integer idOlimpiada, String nombre) {
+        return actualizarPeriodo(idPeriodo, idOlimpiada, null, null, nombre, null);
+    }
+
+    public PeriodoOlimpiada actualizarFechas(Integer idPeriodo, Integer idOlimpiada,
+                                             LocalDate fechaInicio, LocalDate fechaFin) {
+        return actualizarPeriodo(idPeriodo, idOlimpiada, fechaInicio, fechaFin, null, null);
+    }
+
+    public PeriodoOlimpiada obtenerPeriodoPorId(Integer idPeriodo) {
+        String sql = "SELECT * FROM periodos_olimpiada WHERE id_periodo = ?";
+        return jdbcTemplate.queryForObject(sql, new Object[]{idPeriodo}, new BeanPropertyRowMapper<>(PeriodoOlimpiada.class));
     }
 
 

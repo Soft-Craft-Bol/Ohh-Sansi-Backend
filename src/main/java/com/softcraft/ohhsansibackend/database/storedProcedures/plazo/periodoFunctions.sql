@@ -134,77 +134,95 @@ SELECT * FROM select_all_periodos_olimpiadas();
 CREATE OR REPLACE FUNCTION public.update_periodo_olimpiada(
     p_id_periodo INTEGER,
     p_id_olimpiada INTEGER,
-    p_fecha_inicio DATE,
-    p_fecha_fin DATE,
-    p_nombre_personalizado VARCHAR,
+    p_fecha_inicio DATE DEFAULT NULL,
+    p_fecha_fin DATE DEFAULT NULL,
+    p_nombre_personalizado VARCHAR DEFAULT NULL,
     p_id_estado INTEGER DEFAULT NULL
 ) RETURNS periodos_olimpiada AS $$
 DECLARE
     v_periodo periodos_olimpiada%ROWTYPE;
     v_solapamiento BOOLEAN;
+    v_nueva_fecha_inicio DATE;
+    v_nueva_fecha_fin DATE;
+    v_tipo_periodo VARCHAR;
 BEGIN
-    -- Obtener el período actual para validaciones
     SELECT * INTO v_periodo FROM periodos_olimpiada
     WHERE id_periodo = p_id_periodo AND id_olimpiada = p_id_olimpiada;
 
     IF NOT FOUND THEN
-        RAISE EXCEPTION 'El período especificado no existe';
+        RAISE EXCEPTION 'El período especificado no existe (ID: %, Olimpiada: %)', p_id_periodo, p_id_olimpiada;
     END IF;
 
-    -- Validación básica: fecha fin no puede ser anterior a fecha inicio
-    IF p_fecha_fin < p_fecha_inicio THEN
+    v_nueva_fecha_inicio := COALESCE(p_fecha_inicio, v_periodo.fecha_inicio);
+    v_nueva_fecha_fin := COALESCE(p_fecha_fin, v_periodo.fecha_fin);
+
+    IF v_nueva_fecha_fin IS NOT NULL AND v_nueva_fecha_inicio IS NOT NULL AND v_nueva_fecha_fin < v_nueva_fecha_inicio THEN
         RAISE EXCEPTION 'La fecha de fin no puede ser anterior a la fecha de inicio';
     END IF;
 
-    -- Validar que las fechas sean futuras
-    IF p_fecha_inicio < CURRENT_DATE THEN
-        RAISE EXCEPTION 'La fecha de inicio debe ser mayor a la fecha actual';
+    IF p_fecha_inicio IS NOT NULL AND p_fecha_inicio != v_periodo.fecha_inicio AND p_fecha_inicio < CURRENT_DATE THEN
+        RAISE EXCEPTION 'La nueva fecha de inicio debe ser mayor a la fecha actual';
     END IF;
 
-    -- Validar que no se modifique un período completado o cancelado
-    IF v_periodo.id_estado IN (4, 5, 2) THEN
-        RAISE EXCEPTION 'No se pueden modificar períodos COMPLETADOS o EN INSCRIPCION';
+    IF v_periodo.id_estado IN (4) THEN
+        RAISE EXCEPTION 'No se pueden modificar períodos COMPLETADOS';
     END IF;
 
-    -- Validar solapamiento con otros períodos (excepto con sí mismo)
-    SELECT EXISTS(
-        SELECT 1 FROM periodos_olimpiada
-        WHERE  id_periodo != p_id_periodo
-          AND tipo_periodo IN ('INSCRIPCION', 'AMPLIACION')
-          AND (
-            (fecha_inicio <= p_fecha_fin AND fecha_fin >= p_fecha_inicio) OR
-            (p_fecha_inicio <= fecha_fin AND p_fecha_fin >= fecha_inicio)
-            )
-    ) INTO v_solapamiento;
+    SELECT tipo_periodo INTO v_tipo_periodo FROM periodos_olimpiada
+    WHERE id_periodo = p_id_periodo AND id_olimpiada = p_id_olimpiada;
 
-    IF v_solapamiento THEN
-        RAISE EXCEPTION 'Las fechas se solapan con otro período de inscripción existente en cualquier olimpiada';
+    IF v_tipo_periodo IN ('INSCRIPCION', 'AMPLIACION') THEN
+        SELECT EXISTS(
+            SELECT 1 FROM periodos_olimpiada
+            WHERE id_periodo != p_id_periodo
+              AND tipo_periodo IN ('INSCRIPCION', 'AMPLIACION')
+              AND (
+                (fecha_inicio <= v_nueva_fecha_fin AND fecha_fin >= v_nueva_fecha_inicio)
+                )
+        ) INTO v_solapamiento;
+
+        IF v_solapamiento THEN
+            RAISE EXCEPTION 'Las fechas se solapan con otro período de inscripción existente';
+        END IF;
     END IF;
 
-    -- Actualizar el período
+    RAISE NOTICE 'Procediendo a actualizar con: nombre=%, inicio=%, fin=%, estado=%',
+        COALESCE(p_nombre_personalizado, v_periodo.nombre_periodo),
+        v_nueva_fecha_inicio,
+        v_nueva_fecha_fin,
+        COALESCE(p_id_estado, v_periodo.id_estado);
+
     UPDATE periodos_olimpiada
-    SET nombre_periodo = COALESCE(p_nombre_personalizado, nombre_periodo),
-        fecha_inicio = p_fecha_inicio,
-        fecha_fin = p_fecha_fin,
+    SET
+        nombre_periodo = COALESCE(p_nombre_personalizado, nombre_periodo),
+        fecha_inicio = v_nueva_fecha_inicio,
+        fecha_fin = v_nueva_fecha_fin,
         id_estado = COALESCE(p_id_estado, id_estado)
-    WHERE id_periodo = p_id_periodo AND id_olimpiada = p_id_olimpiada
-    RETURNING * INTO v_periodo;
+    WHERE id_periodo = p_id_periodo AND id_olimpiada = p_id_olimpiada;
 
-    -- Actualizar estado de la olimpiada
-    PERFORM actualizar_estado_olimpiada_por_periodos(p_id_olimpiada);
+    -- Verificar que se actualizó
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'No se pudo actualizar el período. Verificar condiciones WHERE';
+    END IF;
+
+    -- Obtener el registro actualizado
+    SELECT * INTO v_periodo FROM periodos_olimpiada
+    WHERE id_periodo = p_id_periodo AND id_olimpiada = p_id_olimpiada;
+
+    BEGIN
+        PERFORM actualizar_estado_olimpiada_por_periodos(p_id_olimpiada);
+    EXCEPTION WHEN OTHERS THEN
+        RAISE NOTICE 'No se pudo actualizar el estado de la olimpiada: %', SQLERRM;
+    END;
 
     RETURN v_periodo;
 END;
 $$ LANGUAGE plpgsql;
+SELECT * FROM update_periodo_olimpiada(200, 102, NULL, '2025-08-29', NULL, NULL);
+SELECT 'Período existe:', * FROM periodos_olimpiada WHERE id_periodo = 200 AND id_olimpiada = 102;
+SELECT 'Resultado función:', * FROM update_periodo_olimpiada(200, 102, NULL, '2025-08-30', NULL, NULL);
+SELECT * FROM periodos_olimpiada WHERE id_periodo = 200 AND id_olimpiada = 102;
 
-SELECT * FROM public.update_periodo_olimpiada(
-        169,
-        135,
-        '2025-05-27',
-        '2025-09-15',
-        'Inscripción Actualizada',
-        NULL
-              );
 
 
 CREATE OR REPLACE FUNCTION public.actualizar_estado_periodo_automatico()
