@@ -19,6 +19,17 @@ public class Tutor {
     private int carnetIdentidadTutor;
     private String complementoCiTutor;
 
+    public Tutor(){}
+
+    public Tutor(int idTipoTutor, String emailTutor, String nombresTutor, String apellidosTutor, int telefono, int carnetIdentidadTutor, String complementoCiTutor) {
+        this.idTipoTutor = idTipoTutor;
+        this.emailTutor = emailTutor;
+        this.nombresTutor = nombresTutor;
+        this.apellidosTutor = apellidosTutor;
+        this.telefono = telefono;
+        this.carnetIdentidadTutor = carnetIdentidadTutor;
+        this.complementoCiTutor = complementoCiTutor;
+    }
 
     public String getComplementoCiTutor() {
         return complementoCiTutor;

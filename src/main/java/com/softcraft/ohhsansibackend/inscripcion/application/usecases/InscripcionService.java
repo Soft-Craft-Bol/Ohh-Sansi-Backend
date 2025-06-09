@@ -8,6 +8,7 @@ import com.softcraft.ohhsansibackend.inscripcion.application.ports.InscripcionAd
 import com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementation.InscripcionDomainRepository;
 import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionDomainService;
 import com.softcraft.ohhsansibackend.inscripcion.infraestructure.dto.inscripcionmasiva.ExcelInscriptionDTO;
+import com.softcraft.ohhsansibackend.inscripcion.infraestructure.dto.inscripcionmasiva.MasiveProfesorDTO;
 import com.softcraft.ohhsansibackend.inscripcion.infraestructure.dto.inscripcionmasiva.MasiveTutorDTO;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteCatalogoInscriptionService;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
@@ -28,6 +29,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -128,6 +130,7 @@ public class InscripcionService {
         int idInscripcion = findIdByCodigoUnico(codigoUnico).intValue();
         System.out.println("ID Inscripcion: " + idInscripcion);
         Participante participante = inscripcionAdapter.findParticipanteByIdInscripcion(idInscripcion);
+        System.out.println("Participante");
         System.out.println(participante.toString());
         int edadParticipante = inscripcionAdapter.calculateEdad(participante);
 
@@ -193,7 +196,11 @@ public class InscripcionService {
 
 
             }
-            //inscribir profesores
+            //TODO inscribir profesores, no entiendo como funciona los profesores
+
+
+
+
         }catch (RuntimeException e){
             return null;
         }
@@ -211,6 +218,24 @@ public class InscripcionService {
         tutor.setComplementoCiTutor(masiveTutorDTO.getComplementoCiTutor());
         return tutor;
     }
+
+    private List<Tutor> convertProfesorATutor(List<MasiveProfesorDTO> profesoresDTO){
+        List<Tutor> tutores = new ArrayList<Tutor>();
+        for(MasiveProfesorDTO profesDTO: profesoresDTO){
+            Tutor tutor = new Tutor(
+                    1,//profesDTO.getIdTipoTutor(),
+                    profesDTO.getEmailTutor(),
+                    profesDTO.getNombresTutor(),
+                    profesDTO.getApellidosTutor(),
+                    profesDTO.getTelefono(),
+                    profesDTO.getCarnetIdentidadTutor(),
+                    profesDTO.getComplementoCiTutor()
+            );
+            tutores.add(tutor);
+        }
+        return tutores;
+    }
+
 
 
 
