@@ -1,193 +1,173 @@
-CREATE OR REPLACE FUNCTION public.validar_cambio_estado()
+CREATE TABLE IF NOT EXISTS public.estado_periodo (
+                                                     id_estado SERIAL PRIMARY KEY,
+                                                     nombre_estado VARCHAR(50) NOT NULL UNIQUE,
+                                                     descripcion VARCHAR(300),
+                                                     permite_modificacion BOOLEAN DEFAULT true
+);
+
+-- Insertar estados básicos
+INSERT INTO public.estado_periodo (nombre_estado, permite_modificacion, descripcion) VALUES
+                                                                                         ('PENDIENTE', true, 'El período está programado pero no ha comenzado'),
+                                                                                         ('ACTIVO', false, 'El período está actualmente en curso'),
+                                                                                         ('CANCELADO', false, 'El período fue cancelado manualmente'),
+                                                                                         ('COMPLETADO', false, 'El período finalizó normalmente'),
+                                                                                         ('AMPLIACION', false, 'Período de ampliación después de un cierre');
+
+ALTER TABLE public.periodos_olimpiada
+    ADD COLUMN id_estado INTEGER NOT NULL DEFAULT 1
+        CONSTRAINT fk_periodo_estado REFERENCES public.estado_periodo(id_estado),
+    ADD COLUMN fecha_cancelacion TIMESTAMP,
+    ADD COLUMN motivo_cancelacion VARCHAR(300),
+    ADD COLUMN es_ampliacion BOOLEAN DEFAULT false,
+    ADD COLUMN id_periodo_original INTEGER;  -- Para referenciar el período original en caso de ampliación
+
+-- Eliminar la restricción única que impedía múltiples períodos del mismo tipo
+ALTER TABLE public.periodos_olimpiada DROP CONSTRAINT IF EXISTS uq_periodo_olimpiada;
+
+CREATE OR REPLACE FUNCTION actualizar_estado_periodos()
     RETURNS TRIGGER AS $$
-DECLARE
-    v_estado_actual VARCHAR;
-    v_estado_nuevo VARCHAR;
-    v_orden_actual INTEGER;
-    v_orden_nuevo INTEGER;
 BEGIN
-    -- Si el estado no está cambiando, no hay nada que validar
-    IF OLD.id_estado = NEW.id_estado THEN
-        RETURN NEW;
-    END IF;
+    -- Actualizar estados basados en fechas (excepto CANCELADOS)
+    UPDATE public.periodos_olimpiada
+    SET id_estado = CASE
+                        WHEN CURRENT_DATE < fecha_inicio THEN 1 -- PENDIENTE
+                        WHEN CURRENT_DATE BETWEEN fecha_inicio AND fecha_fin THEN 2 -- ACTIVO
+                        WHEN CURRENT_DATE > fecha_fin AND id_estado != 3 THEN 4 -- COMPLETADO
+                        ELSE id_estado
+        END
+    WHERE id_estado != 3; -- No cambiar estado de los cancelados
 
-    -- Obtener información de estados
-    SELECT nombre_estado, orden_estado INTO v_estado_actual, v_orden_actual
-    FROM estado_olimpiada WHERE id_estado = OLD.id_estado;
-
-    SELECT nombre_estado, orden_estado INTO v_estado_nuevo, v_orden_nuevo
-    FROM estado_olimpiada WHERE id_estado = NEW.id_estado;
-
-    -- Validar transición de estado (solo permitir +1 o -1 en el orden)
-    IF v_orden_nuevo NOT IN (v_orden_actual - 1, v_orden_actual + 1) THEN
-        RAISE EXCEPTION 'Transición no permitida de % a %', v_estado_actual, v_estado_nuevo;
-    END IF;
-
-    RETURN NEW;
+    RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 
--- Eliminar triggers existentes si es necesario
-DROP TRIGGER IF EXISTS trg_validar_cambio_estado ON olimpiada;
-DROP TRIGGER IF EXISTS trg_actualizar_estado_por_periodo ON periodos_olimpiada;
-
--- Crear trigger para validar cambios de estado
-CREATE TRIGGER trg_validar_cambio_estado
-    BEFORE UPDATE OF id_estado ON olimpiada
-    FOR EACH ROW
-EXECUTE FUNCTION validar_cambio_estado();
-
--- Crear trigger para actualización automática por períodos
-CREATE TRIGGER trg_actualizar_estado_por_periodo
-    AFTER INSERT OR UPDATE ON periodos_olimpiada
-    FOR EACH ROW
-EXECUTE FUNCTION actualizar_estado_por_periodo();
+-- Trigger que se ejecuta diariamente
+CREATE TRIGGER trg_actualizar_estado_periodos
+    AFTER INSERT OR UPDATE OR DELETE ON public.periodos_olimpiada
+EXECUTE FUNCTION actualizar_estado_periodos();
 
 
-CREATE OR REPLACE FUNCTION obtener_detalle_inscripcion(
-    p_codigo_unico_inscripcion VARCHAR
-)
-    RETURNS TABLE (
-                      id_inscripcion            INTEGER,
-                      fecha_inscripcion         DATE,
-                      hora_inscripcion          TIME,
-                      codigo_unico_inscripcion  VARCHAR,
-                      inscripcion_masiva        BOOLEAN,
-                      participante              JSON,
-                      areas                     JSON,
-                      num_areas                 INTEGER,
-                      precio_unitario           NUMERIC,
-                      precio_total              NUMERIC,
-                      tutores                   JSON,
-                      olimpiadas                JSON,
-                      edad_participante         INTEGER,
-                      orden_de_pago_generada    BOOLEAN
-                  )
-    LANGUAGE plpgsql
-AS $$
-DECLARE
-    v_id_inscripcion INTEGER;
-    v_fecha_inscripcion DATE;
-    v_hora_inscripcion TIME;
-    v_codigo_unico VARCHAR;
-    v_inscripcion_masiva BOOLEAN;
-    v_participante JSON;
-    v_areas JSON;
-    v_num_areas INTEGER;
-    v_precio_unitario NUMERIC;
-    v_precio_total NUMERIC;
-    v_tutores JSON;
-    v_olimpiadas JSON;
-    v_edad_participante INTEGER;
-    v_orden_generada BOOLEAN;
-BEGIN
-    -- Validar existencia de inscripción
-    SELECT i.id_inscripcion, i.fecha_inscripcion, i.hora_inscripcion,
-           i.codigo_unico_inscripcion, i.inscripcion_masiva
-    INTO v_id_inscripcion, v_fecha_inscripcion, v_hora_inscripcion,
-        v_codigo_unico, v_inscripcion_masiva
-    FROM inscripcion i
-    WHERE i.codigo_unico_inscripcion = p_codigo_unico_inscripcion;
+CREATE TABLE IF NOT EXISTS public.historial_periodos (
+                                                         id_historial SERIAL PRIMARY KEY,
+                                                         id_periodo INTEGER NOT NULL,
+                                                         id_olimpiada INTEGER NOT NULL,
+                                                         accion VARCHAR(10) NOT NULL, -- 'CREATE', 'UPDATE', 'CANCEL'
+                                                         fecha_cambio TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                                         usuario VARCHAR(100) NOT NULL,
+                                                         cambios JSONB, -- Detalles de los cambios
+                                                         motivo VARCHAR(300),
+                                                         CONSTRAINT fk_historial_periodo FOREIGN KEY (id_periodo, id_olimpiada)
+                                                             REFERENCES public.periodos_olimpiada(id_periodo, id_olimpiada)
+);
 
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'No existe inscripción con el código %', p_codigo_unico_inscripcion;
-    END IF;
 
-    -- Verificar si se requiere tutor
-    IF EXISTS (
-        SELECT 1
-        FROM participante p
-                 JOIN inscripcion i ON p.id_inscripcion = i.id_inscripcion
-                 LEFT JOIN participante_tutor pt ON pt.id_inscripcion = p.id_inscripcion
-        WHERE i.codigo_unico_inscripcion = p_codigo_unico_inscripcion
-          AND DATE_PART('year', AGE(NOW(), p.fecha_nacimiento)) < 15
-          AND pt.id_tutor IS NULL
-    ) THEN
-        RAISE EXCEPTION 'Se requiere al menos un tutor para participantes menores de 15 años';
-    END IF;
-
-    -- Participante y edad
-    SELECT to_json(p.*),
-           (DATE_PART('year', AGE(NOW(), p.fecha_nacimiento)))::INT
-    INTO v_participante, v_edad_participante
-    FROM participante p
-    WHERE p.id_inscripcion = v_id_inscripcion;
-
-    -- Áreas, precio unitario, precio total
-    SELECT json_agg(a.nombre_area),
-           COUNT(a.id_area),
-           o.precio_olimpiada,
-           COUNT(a.id_area) * o.precio_olimpiada
-    INTO v_areas, v_num_areas, v_precio_unitario, v_precio_total
-    FROM participante_catalogo pc
-             JOIN area a ON pc.id_area = a.id_area
-             JOIN catalogo_olimpiada co ON a.id_catalogo_olimpiada = co.id_catalogo_olimpiada
-             JOIN olimpiada o ON co.id_olimpiada = o.id_olimpiada
-    WHERE pc.id_inscripcion = v_id_inscripcion
-    GROUP BY o.precio_olimpiada;
-
-    -- Tutores
-    SELECT json_agg(
-                   json_build_object(
-                           'email', t.email_tutor,
-                           'nombres', t.nombres_tutor,
-                           'apellidos', t.apellidos_tutor,
-                           'telefono', t.telefono,
-                           'ci', t.carnet_identidad_tutor,
-                           'tipo', tt.nombre_tipo_tutor
-                   )
-           )
-    INTO v_tutores
-    FROM tutor t
-             JOIN participante_tutor pt ON pt.id_tutor = t.id_tutor
-             JOIN tipo_tutor tt ON t.id_tipo_tutor = tt.id_tipo_tutor
-    WHERE pt.id_inscripcion = v_id_inscripcion;
-
-    -- Olimpiadas (en estado PLANIFICACION)
-    SELECT json_agg(
-                   json_build_object(
-                           'id_olimpiada', o.id_olimpiada,
-                           'nombre', o.nombre_olimpiada,
-                           'precio', o.precio_olimpiada,
-                           'estado', e.nombre_estado
-                   )
-           )
-    INTO v_olimpiadas
-    FROM olimpiada o
-             JOIN estado_olimpiada e ON o.id_estado = e.id_estado
-    WHERE e.nombre_estado = 'PLANIFICACION';
-
-    -- Orden de pago
-    SELECT EXISTS (
-        SELECT 1
-        FROM orden_de_pago op
-        WHERE op.id_inscripcion = v_id_inscripcion
-    )
-    INTO v_orden_generada;
-
-    -- Retornar resultado
-    RETURN QUERY SELECT
-                     v_id_inscripcion,
-                     v_fecha_inscripcion,
-                     v_hora_inscripcion,
-                     v_codigo_unico,
-                     v_inscripcion_masiva,
-                     v_participante,
-                     v_areas,
-                     v_num_areas,
-                     v_precio_unitario,
-                     v_precio_total,
-                     v_tutores,
-                     v_olimpiadas,
-                     v_edad_participante,
-                     v_orden_generada;
-END;
-$$;
+select po.*
+from olimpiada o, estado_olimpiada eo, periodos_olimpiada po
+where po.id_estado = eo.id_estado
+  and o.id_olimpiada = po.id_olimpiada
+  and eo.nombre_estado = 'EN INSCRIPCION'
+  and CURRENT_DATE between DATE(po.fecha_inicio) and DATE(po.fecha_fin)
 
 
 
+select distinct cp.*, ecp.nombre_estado_comprobante
+from comprobante_pago cp, estado_comprobante_pago ecp, orden_de_pago op, periodos_olimpiada po,
+     olimpiada o, estado_olimpiada eo
+where cp.id_estado_comprobante = ecp.id_estado_comprobante
+and o.id_olimpiada = po.id_olimpiada
+and eo.id_estado = po.id_estado
+and eo.nombre_estado= 'EN INSCRIPCION'
 
 
-SELECT * FROM obtener_detalle_inscripcion('O3UXY6');
+select * from participante where id_inscripcion=767
 
-TRUNCATE neondb.public.inscripcion
+
+DELETE FROM participante;-- Primero, eliminar la restricción foreign key existente
+ALTER TABLE excel_association
+    DROP CONSTRAINT fk_participante;
+
+-- Luego, crear la nueva restricción con CASCADE
+ALTER TABLE excel_association
+    ADD CONSTRAINT fk_participante
+        FOREIGN KEY (ci_participante)
+            REFERENCES participante(carnet_identidad_participante)
+            ON DELETE CASCADE;
+
+-- Ahora puedes eliminar de participante y se eliminará en cascada
+DELETE FROM participante;
+
+-- Modificar la restricción en excel_association
+ALTER TABLE excel_association
+    DROP CONSTRAINT fk_participante;
+
+ALTER TABLE excel_association
+    ADD CONSTRAINT fk_participante
+        FOREIGN KEY (carnet_identidad_participante)
+            REFERENCES participante(carnet_identidad_participante)
+            ON DELETE CASCADE;
+
+-- Modificar la restricción en participante_catalogo
+ALTER TABLE participante_catalogo
+    DROP CONSTRAINT fk_particip_relations_particip;
+
+ALTER TABLE participante_catalogo
+    ADD CONSTRAINT fk_particip_relations_particip
+        FOREIGN KEY (id_inscripcion, id_participante)
+            REFERENCES participante(id_inscripcion, id_participante)
+            ON DELETE CASCADE;
+
+-- Ahora sí podrás eliminar de participante
+DELETE FROM participante;
+
+ALTER TABLE excel_association
+    DROP CONSTRAINT fk_excel;
+
+ALTER TABLE excel_association
+    ADD CONSTRAINT fk_excel
+        FOREIGN KEY (id_excel)
+            REFERENCES participante(carnet_identidad_participante)
+            ON DELETE CASCADE;
+ALTER TABLE orden_de_pago
+    DROP CONSTRAINT fk_orden_de_relations_inscripc;
+
+ALTER TABLE orden_de_pago
+    ADD CONSTRAINT fk_orden_de_relations_inscripc
+        FOREIGN KEY (id_inscripcion)
+            REFERENCES inscripcion(id_inscripcion)
+            ON DELETE CASCADE;
+
+
+alter table comprobante_pago
+    drop constraint fk_comproba_r30_orden_de;
+
+alter table comprobante_pago
+    add constraint fk_comproba_r30_orden_de
+        foreign key (id_inscripcion, id_orden_pago)
+            references orden_de_pago(id_inscripcion, id_orden_pago)
+            on delete cascade;
+
+SELECT
+    p.email_participante,
+    CONCAT(p.nombre_participante, ' ', p.apellido_paterno,
+           CASE WHEN p.apellido_materno IS NOT NULL THEN ' ' || p.apellido_materno ELSE '' END) AS nombre_completo,
+    i.codigo_unico_inscripcion,
+    po.tipo_periodo,
+    po.fecha_fin,
+    CAST(po.fecha_fin - CURRENT_DATE AS INTEGER) AS dias_restantes,
+    o.nombre_olimpiada
+FROM participante p
+         JOIN inscripcion i ON p.id_inscripcion = i.id_inscripcion
+         JOIN participante_catalogo pc ON p.id_inscripcion = pc.id_inscripcion AND p.id_participante = pc.id_participante
+         JOIN catalogo_olimpiada co ON pc.id_categoria = co.id_categoria
+    AND pc.id_area = co.id_area
+    AND pc.id_catalogo = co.id_catalogo
+    AND pc.id_olimpiada = co.id_olimpiada
+         JOIN olimpiada o ON co.id_olimpiada = o.id_olimpiada
+         JOIN periodos_olimpiada po ON o.id_olimpiada = po.id_olimpiada
+    AND po.id_estado = 1
+    AND po.fecha_fin >= CURRENT_DATE
+    AND po.fecha_fin <= CURRENT_DATE + ($1 * INTERVAL '1 day')
+    LEFT JOIN orden_de_pago odp ON i.id_inscripcion = odp.id_inscripcion
+         LEFT JOIN estado_orden_de_pago eop ON odp.id_estado = eop.id_estado
+WHERE (odp.id_orden_pago IS NULL OR eop.estado != 'PAGADO')
+ORDER BY po.fecha_fin ASC, p.email_participante;

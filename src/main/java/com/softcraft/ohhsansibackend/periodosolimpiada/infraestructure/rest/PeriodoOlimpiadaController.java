@@ -3,6 +3,7 @@ package com.softcraft.ohhsansibackend.periodosolimpiada.infraestructure.rest;
 import com.softcraft.ohhsansibackend.periodosolimpiada.application.usecases.PeriodoOlimpiadaService;
 import com.softcraft.ohhsansibackend.periodosolimpiada.application.usecases.OlimpiadaService;
 import com.softcraft.ohhsansibackend.periodosolimpiada.domain.models.PeriodoOlimpiada;
+import com.softcraft.ohhsansibackend.periodosolimpiada.domain.repository.implementation.PeriodoOlimpiadaDomainRepository;
 import com.softcraft.ohhsansibackend.periodosolimpiada.infraestructure.dto.OlimpiadaEventosDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +21,13 @@ import java.util.Map;
 public class PeriodoOlimpiadaController {
     private final PeriodoOlimpiadaService periodoOlimpiadaService;
     private final OlimpiadaService olimpiadaService;
+    private final PeriodoOlimpiadaDomainRepository periodoService;
 
     @Autowired
-    public PeriodoOlimpiadaController(PeriodoOlimpiadaService periodoOlimpiadaService, OlimpiadaService olimpiadaService) {
+    public PeriodoOlimpiadaController(PeriodoOlimpiadaService periodoOlimpiadaService, OlimpiadaService olimpiadaService, PeriodoOlimpiadaDomainRepository periodoService) {
         this.periodoOlimpiadaService = periodoOlimpiadaService;
         this.olimpiadaService = olimpiadaService;
+        this.periodoService = periodoService;
     }
 
     @PostMapping("register")
@@ -64,6 +67,33 @@ public class PeriodoOlimpiadaController {
     public ResponseEntity<Map<String, Object>> buscarPeriodoInscripcionActual() {
         Map<String, Object> response = periodoOlimpiadaService.encontrarPeriodoInscripcionActualMap();
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PutMapping("/{idPeriodo}")
+    public ResponseEntity<Map<String, Object>> actualizarPeriodo(@RequestBody PeriodoOlimpiada periodoOlimpiada,
+                                                                @PathVariable("idPeriodo") Integer idPeriodo) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            periodoOlimpiada.setIdPeriodo(idPeriodo);
+            Map<String, Object> updatedResponse = periodoOlimpiadaService.actualizarPeriodo(periodoOlimpiada);
+            if ("success".equals(updatedResponse.get("status"))) {
+                return ResponseEntity.ok(updatedResponse);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(updatedResponse);
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "Error al actualizar el período: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+
+    }
+
+
+    @GetMapping("/verificar-estados")
+    public ResponseEntity<String> verificarEstados() {
+        periodoService.verificarYActualizarEstados();
+        return ResponseEntity.ok("Estados verificados y actualizados");
     }
 
 }

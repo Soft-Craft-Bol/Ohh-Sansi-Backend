@@ -27,4 +27,8 @@ public class PeriodoOlimpiadaAdapter {
     public PeriodoOlimpiada encontrarPeriodoInscripcionActual(){
         return periodoOlimpiadaDomainService.encontrarPeriodoInscripcionActual();
     }
+
+    public PeriodoOlimpiada actualizarPeriodo(PeriodoOlimpiada periodoOlimpiada) {
+        return periodoOlimpiadaDomainService.actualizarPeriodo(periodoOlimpiada);
+    }
 }

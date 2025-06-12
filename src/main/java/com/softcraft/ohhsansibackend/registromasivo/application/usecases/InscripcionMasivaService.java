@@ -1,15 +1,22 @@
 package com.softcraft.ohhsansibackend.registromasivo.application.usecases;
 
+import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.CatalogoDomainRepository;
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
+import com.softcraft.ohhsansibackend.inscripcion.domain.models.Inscripcion;
+import com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementation.InscripcionDomainRepository;
+import com.softcraft.ohhsansibackend.inscripcion.domain.services.InscripcionDomainService;
 import com.softcraft.ohhsansibackend.participante.application.ports.ParticipanteAdapter;
+import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteCatalogoInscriptionService;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
 import com.monitorjbl.xlsx.StreamingReader;
 import com.softcraft.ohhsansibackend.participante.domain.repository.implementation.ParticipanteDomainRepository;
+import com.softcraft.ohhsansibackend.participante.infraestructure.request.AreaCatalogoDTO;
 import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorService;
 import com.softcraft.ohhsansibackend.tutor.domain.models.Tutor;
 import com.softcraft.ohhsansibackend.utils.UniqueCodeGenerator;
 import org.apache.poi.ss.usermodel.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,14 +31,21 @@ import java.util.*;
 public class InscripcionMasivaService {
 
     private final ParticipanteService participanteService;
+    private final ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService;
+    private final InscripcionDomainService inscripcionDomainService;
+    private final InscripcionDomainRepository inscripcionDomainRepository;
     private final TutorService tutorService;
     private final JdbcTemplate jdbcTemplate;
-    private int counterFaileds = 0;
+    private final CatalogoDomainRepository catalogoDomainRepository;
 
-    public InscripcionMasivaService(ParticipanteService participanteService, TutorService tutorService, JdbcTemplate jdbcTemplate) {
+    public InscripcionMasivaService(ParticipanteService participanteService, TutorService tutorService, JdbcTemplate jdbcTemplate, CatalogoDomainRepository catalogoDomainRepository, ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService, InscripcionDomainService inscripcionDomainService, InscripcionDomainRepository inscripcionDomainRepository) {
         this.participanteService = participanteService;
         this.tutorService = tutorService;
         this.jdbcTemplate = jdbcTemplate;
+        this.catalogoDomainRepository = catalogoDomainRepository;
+        this.participanteCatalogoInscriptionService = participanteCatalogoInscriptionService;
+        this.inscripcionDomainService = inscripcionDomainService;
+        this.inscripcionDomainRepository = inscripcionDomainRepository;
     }
 
     public Participante createExclParticipante() {
@@ -78,7 +92,6 @@ public class InscripcionMasivaService {
         }
 
         participante.setCarnetIdentidadParticipante(carnet);
-        System.out.println(carnet);
         participante.setEmailParticipante("amercer732@gmail.com");
         participante.setTutorRequerido(false);
 
@@ -93,6 +106,7 @@ public class InscripcionMasivaService {
         int registrosExitosos = 0;
         int registrosOmitidos = 0;
         int omitidosSeguidos = 0;
+        boolean primerRegistro = true;
         participanteService.save(participanteExcel);
 
         try (Workbook workbook = StreamingReader.builder()
@@ -145,6 +159,68 @@ public class InscripcionMasivaService {
                     Participante participante = mapRowToParticipanteHoja2(row);
                     Map<String, Object> saveResult = participanteService.save(participante);
                     resultado.putAll(saveResult);
+                    //actualizar su codigo unico
+                    Inscripcion setParticipante = inscripcionDomainService.getInscripcion(participante.getIdInscripcion());
+
+                    setParticipante.setCodigoUnicoInscripcion(inscripcionDomainService.getInscripcion(participanteExcel.getIdInscripcion()).getCodigoUnicoInscripcion());
+                    inscripcionDomainRepository.updateCodigoUnicoInscripcion(setParticipante);
+
+                    int area1 = (int)getSafeIntValue(rowArea.getCell(2));
+                    int area2 = (int)getSafeIntValue(rowArea.getCell(9));
+
+                    List<Map<String, Object>> catalogos = catalogoDomainRepository.getCatalogoByGrado(participante.getIdGrado());
+                    List<AreaCatalogoDTO> areasSeleccionadas = new ArrayList<>();
+
+                    if (area1 > 0) {
+                        Optional<Map<String, Object>> catalogoArea1 = catalogos.stream()
+                                .filter(c -> ((int) c.get("id_area")) == area1)
+                                .findFirst();
+
+                        if (catalogoArea1.isPresent()) {
+                            AreaCatalogoDTO dto1 = new AreaCatalogoDTO();
+                            dto1.setIdArea((Integer) catalogoArea1.get().get("id_area"));
+                            dto1.setIdCategoria((Integer) catalogoArea1.get().get("id_categoria"));
+                            dto1.setIdCatalogo((Integer) catalogoArea1.get().get("id_catalogo"));
+                            dto1.setIdOlimpiada((Integer) catalogoArea1.get().get("id_olimpiada"));
+                            areasSeleccionadas.add(dto1);
+
+                            if(primerRegistro){
+                                primerRegistro = false;
+                                AreaCatalogoDTO dtoExc = new AreaCatalogoDTO();
+                                dtoExc.setIdArea((Integer) catalogoArea1.get().get("id_area"));
+                                dtoExc.setIdCategoria((Integer) catalogoArea1.get().get("id_categoria"));
+                                dtoExc.setIdCatalogo((Integer) catalogoArea1.get().get("id_catalogo"));
+                                dtoExc.setIdOlimpiada((Integer) catalogoArea1.get().get("id_olimpiada"));
+
+                                // Registrar al participanteExcel también con esa área
+                                participanteCatalogoInscriptionService.registerParticipantWithCatalogoComposition(
+                                        participanteExcel.getCarnetIdentidadParticipante(),
+                                        List.of(dtoExc)
+                                );
+                            }
+                        }
+                    }
+
+                    if (area2 > 0) {
+                        Optional<Map<String, Object>> catalogoArea2 = catalogos.stream()
+                                .filter(c -> ((int) c.get("id_area")) == area2)
+                                .findFirst();
+
+                        if (catalogoArea2.isPresent()) {
+                            AreaCatalogoDTO dto2 = new AreaCatalogoDTO();
+                            dto2.setIdArea((Integer) catalogoArea2.get().get("id_area"));
+                            dto2.setIdCategoria((Integer) catalogoArea2.get().get("id_categoria"));
+                            dto2.setIdCatalogo((Integer) catalogoArea2.get().get("id_catalogo"));
+                            dto2.setIdOlimpiada((Integer) catalogoArea2.get().get("id_olimpiada"));
+                            areasSeleccionadas.add(dto2);
+                        }
+                    }
+                    Map<String, Object> resultadoRegistroCatalogo =
+                            participanteCatalogoInscriptionService.registerParticipantWithCatalogoComposition(
+                                    participante.getCarnetIdentidadParticipante(),
+                                    areasSeleccionadas
+                            );
+                    resultado.put("registro_catalogo", resultadoRegistroCatalogo);
 
                     // Asociar participanteExcel con el nuevo participante
                     String insertSql = "INSERT INTO excel_association (id_excel, ci_participante, id_inscripcion_excel) VALUES (?, ?, ?)";
@@ -153,8 +229,6 @@ public class InscripcionMasivaService {
                     // También agregar al resultado del body
                     resultado.put("ci_participante_excel", participanteExcel.getCarnetIdentidadParticipante());
                     resultado.put("id_inscripcion", participanteExcel.getIdInscripcion());
-
-
 
                     // 2. Procesar tutor si es requerido
                     if (participante.isTutorRequerido()) {
@@ -168,8 +242,7 @@ public class InscripcionMasivaService {
 
                                 // Validar parentesco
                                 int parentescoId = (int)getSafeIntValue(row.getCell(20));
-                                int area1 = (int)getSafeIntValue(rowArea.getCell(2));
-                                int area2 = (int)getSafeIntValue(rowArea.getCell(9));
+
                                 if (parentescoId == 0) {
                                     throw new IllegalArgumentException("Parentesco del tutor es obligatorio");
                                 }
@@ -257,7 +330,10 @@ public class InscripcionMasivaService {
             tutor.setApellidosTutor(getSafeStringValue(row.getCell(16)));
             tutor.setTelefono(getSafeIntValue(row.getCell(17)));
             tutor.setCarnetIdentidadTutor(getSafeIntValue(row.getCell(18)));
-            tutor.setComplementoCiTutor(getSafeStringValue(row.getCell(19)));
+            String complemento = getSafeStringValue(row.getCell(19));
+            if(!"0".equals(complemento.trim())){
+                tutor.setComplementoCiTutor(complemento);
+            }
 
 
             return tutor;
@@ -419,7 +495,10 @@ public class InscripcionMasivaService {
         participante.setApellidoMaterno(getStringCellValue(row.getCell(7)));
         participante.setFechaNacimiento(getDateCellValue(row.getCell(8)));
         participante.setCarnetIdentidadParticipante((int) getNumericCellValue(row.getCell(9)));
-        participante.setComplementoCiParticipante(getStringCellValue(row.getCell(10)));
+        String complemento = getSafeStringValue(row.getCell(19));
+        if(!"0".equals(complemento.trim())){
+            participante.setComplementoCiParticipante(complemento);
+        }
         participante.setEmailParticipante(getStringCellValue(row.getCell(11)));
         participante.setTutorRequerido(getBooleanCellValue(row.getCell(12)));
 

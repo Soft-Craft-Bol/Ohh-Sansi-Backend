@@ -9,4 +9,7 @@ public interface ICatalogoOlimpiadaRepository {
     CatalogoOlimpiada save(CatalogoOlimpiada catalogoOlimpiada);
 
     List<CatalogoOlimpiadaDTO> findAll();
+
+    List<CatalogoOlimpiadaDTO> getCatalogoOlimpiadaById(Integer idCatalogoOlimpiada);
+
 }

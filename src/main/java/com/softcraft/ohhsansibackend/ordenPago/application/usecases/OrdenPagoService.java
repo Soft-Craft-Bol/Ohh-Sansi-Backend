@@ -2,6 +2,7 @@ package com.softcraft.ohhsansibackend.ordenPago.application.usecases;
 
 import com.softcraft.ohhsansibackend.exception.ResourceNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.application.usecases.InscripcionService;
+import com.softcraft.ohhsansibackend.ordenPago.domain.models.EstadoOrdenDePago;
 import com.softcraft.ohhsansibackend.ordenPago.domain.models.OrdenDePago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import com.softcraft.ohhsansibackend.ordenPago.domain.repository.implementation.
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class OrdenPagoService {
@@ -44,9 +46,52 @@ public class OrdenPagoService {
     public boolean verificarExistenciaDeInscripcionEnOrdenPago(int idInscripcion){
         return ordenPagoDomainRepository.verificarExistenciaDeInscripcionEnOrdenPago(idInscripcion);
     }
+    public Integer verificarParticipanteDeMasivo(int ciParticipante){
+        return ordenPagoDomainRepository.verificarParticipanteDeMasivo(ciParticipante);
+    }
+
+    public Integer verificarCarnetDeMasivo(int ciParticipante){
+        return ordenPagoDomainRepository.verificarCarnetDeMasivo(ciParticipante);
+    }
+
     public List<OrdenDePago> obtenerOrdenesNoVencidasEnRango(Date fechaInicio, Date fechaFin) {
         return ordenPagoDomainRepository.findOrdenesNoVencidasEnRango(fechaInicio, fechaFin);
     }
 
+    public OrdenDePago findOrdenDePagoByIdOrdenPago(int idOrdenDePago) {
+        try{
+             return ordenPagoDomainRepository.findOrdenPagoByIDOrdenPago(idOrdenDePago);
+        }catch(Exception e){
+            throw new ResourceNotFoundException("Orden de pago con ID " + idOrdenDePago + " no encontrada");
+        }
+    }
+    public Map<String, Object> findOrdenPagoByOlimpiada(int idOlimpiada){
+        Map<String, Object> response = new java.util.HashMap<>();
+        List<OrdenDePago> ordenes = ordenPagoDomainRepository.findOrdenPagoByOlimpiada(idOlimpiada);
+        List<EstadoOrdenDePago> estadoOrdenDePagos = ordenPagoDomainRepository.getAllEstadoOrdenPago();
+        try{
+            if (ordenes.isEmpty()) {
+                throw new ResourceNotFoundException("No se encontraron órdenes de pago para la olimpiada"); //con ID: " + idInscripcion);
+            }
+            response.put("estadosOrden", estadoOrdenDePagos);
+            response.put("ordenes", ordenes);
+
+            return response;
+        }catch (Exception e){
+            throw new ResourceNotFoundException("No se encontraron órdenes de pago para la olimpiada con ID: " + idOlimpiada);
+        }
+
+    }
+    public boolean changeEstadoOrdenPagoAPagado(int idOrdenPago){
+        return ordenPagoDomainRepository.changeEstadoOrdenPagoAPagado(idOrdenPago);
+    }
+
+    public OrdenDePago getOrdenDePagoByIdComprobantePago(int idComprobantePago) {
+        try {
+            return ordenPagoDomainRepository.getOrdenDePagoByIdComprobantePago(idComprobantePago);
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Orden de pago no encontrada para el comprobante de pago con ID: " + idComprobantePago);
+        }
+    }
 
 }

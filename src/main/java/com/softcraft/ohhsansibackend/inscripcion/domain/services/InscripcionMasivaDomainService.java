@@ -3,6 +3,7 @@ package com.softcraft.ohhsansibackend.inscripcion.domain.services;
 import com.softcraft.ohhsansibackend.inscripcion.domain.models.InscripcionMasivaDetail;
 import com.softcraft.ohhsansibackend.inscripcion.domain.repository.abstraction.IInscripcionMasivaDetail;
 import com.softcraft.ohhsansibackend.inscripcion.domain.repository.implementation.InscripcionDomainRepository;
+import com.softcraft.ohhsansibackend.periodosolimpiada.application.usecases.PeriodoOlimpiadaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +15,14 @@ import java.util.Map;
 public class InscripcionMasivaDomainService {
     private final IInscripcionMasivaDetail iInscripcionMasivaDetail;
     private final InscripcionDomainRepository inscripcionDomainRepository;
+    private final PeriodoOlimpiadaService periodoOlimpiadaService;
 
 
     @Autowired
-    public InscripcionMasivaDomainService(IInscripcionMasivaDetail iInscripcionMasivaDetail,InscripcionDomainRepository inscripcionDomainRepository){
+    public InscripcionMasivaDomainService(IInscripcionMasivaDetail iInscripcionMasivaDetail,InscripcionDomainRepository inscripcionDomainRepository, PeriodoOlimpiadaService periodoOlimpiadaService){
         this.iInscripcionMasivaDetail = iInscripcionMasivaDetail;
         this.inscripcionDomainRepository = inscripcionDomainRepository;
+        this.periodoOlimpiadaService = periodoOlimpiadaService;
     }
 
     public ResponseEntity<Map<String, Object>> getDetailsInscription(String codUnique) {
@@ -31,7 +34,7 @@ public class InscripcionMasivaDomainService {
             }
 
             return ResponseEntity.status(HttpStatus.OK).body(Map.of("Responsable", inscription,
-                    "olimpiadas", inscripcionDomainRepository.findOlimapiada()));
+                    "olimpiadas", periodoOlimpiadaService.encontrarPeriodoInscripcionActualMap()));
 
         } catch (Exception e) {
             e.printStackTrace(); // Considera usar un logger adecuado

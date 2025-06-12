@@ -30,7 +30,7 @@ public class ParticipanteCatalogoInscriptionService {
         this.participanteDomainService = participanteDomainService;
     }
 
-
+    //TODO: USAR ESTE SERVICIO PARA REGISTRAR PARTICIPANTE EN CATALOGO
     public Map<String, Object> registerParticipantWithCatalogoComposition(int ciParticipante, List<AreaCatalogoDTO> areaCatalogoDTO) {
         List<Map<String, Object>> results = new ArrayList<>();
         try {
@@ -45,7 +45,6 @@ public class ParticipanteCatalogoInscriptionService {
             if(areasParticipante >= 2){
                 throw new RuntimeException("El participante ya tiene áreas registradas en el catálogo, areas registradas :"+ areasParticipante);
             }
-
             for (int i = 0; i < areaCatalogoDTO.size(); i++) {
                 AreaCatalogoDTO area = areaCatalogoDTO.get(i);
                 try {

@@ -35,6 +35,10 @@ public class InscripcionAdapter {
         return inscripcionDomainService.createInscripcion(inscripcion);
     }
 
+    public String findCodigoUnicoById(int idInscripcion) {
+        return inscripcionDomainService.findCodigoUnicoByIdInscripcion(idInscripcion);
+    }
+
 
     public Inscripcion findInscripcionById(int id) {
         return inscripcionDomainService.getInscripcion(id);
@@ -72,7 +76,7 @@ public class InscripcionAdapter {
         return ordenPagoService.verificarExistenciaDeInscripcionEnOrdenPago(idInscripcion);
     }
 
-    public List<Map<String, Object>> getReporteInscripcionByArea(int idArea, int idOlimpiada) {
+    public List<Map<String, Object>> getReporteInscripcionByArea(Integer idArea, int idOlimpiada) {
         return inscripcionDomainService.getReporteInscripcionByArea(idArea, idOlimpiada);
     }
 }

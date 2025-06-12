@@ -1,7 +1,6 @@
 package com.softcraft.ohhsansibackend.periodosolimpiada.domain.models;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 public class Olimpiada {
 
@@ -10,17 +9,13 @@ public class Olimpiada {
     private String nombreOlimpiada;
     private String nombreEstado;
     private BigDecimal precioOlimpiada;
-    private Date fechaInicio;
-    private Date fechaFin;
 
-    public Olimpiada(int idOlimpiada, int anio, String nombreOlimpiada, String nombreEstado, BigDecimal precioOlimpiada, Date fechaInicio, Date fechaFin) {
+    public Olimpiada(int idOlimpiada, int anio, String nombreOlimpiada, String nombreEstado, BigDecimal precioOlimpiada) {
         this.idOlimpiada = idOlimpiada;
         this.anio = anio;
         this.nombreOlimpiada = nombreOlimpiada;
         this.nombreEstado = nombreEstado;
         this.precioOlimpiada = precioOlimpiada;
-        this.fechaInicio = fechaInicio;
-        this.fechaFin = fechaFin;
     }
 
     public Olimpiada() {
@@ -65,16 +60,14 @@ public class Olimpiada {
         this.precioOlimpiada = precioOlimpiada;
     }
 
-    public Date getFechaInicio() {
-        return fechaInicio;
-    }
-    public void setFechaInicio(Date fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
-    public Date getFechaFin() {
-        return fechaFin;
-    }
-    public void setFechaFin(Date fechaFin) {
-        this.fechaFin = fechaFin;
+    @Override
+    public String toString() {
+        return "Olimpiada{" +
+                "idOlimpiada=" + idOlimpiada +
+                ", anio=" + anio +
+                ", nombreOlimpiada='" + nombreOlimpiada + '\'' +
+                ", nombreEstado='" + nombreEstado + '\'' +
+                ", precioOlimpiada=" + precioOlimpiada +
+                '}';
     }
 }

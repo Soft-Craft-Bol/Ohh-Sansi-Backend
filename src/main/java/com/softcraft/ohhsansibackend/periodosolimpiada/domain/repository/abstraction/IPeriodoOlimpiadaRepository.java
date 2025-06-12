@@ -9,4 +9,6 @@ public interface IPeriodoOlimpiadaRepository {
     PeriodoOlimpiada insertPeriodoOlimpiada(PeriodoOlimpiada periodoOlimpiada);
 
     List<OlimpiadaEventosDTO> findAllOlimpiadasEventos();
+
+    PeriodoOlimpiada actualizarPeriodo(PeriodoOlimpiada periodoOlimpiada);
 }

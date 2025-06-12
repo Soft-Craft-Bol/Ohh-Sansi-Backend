@@ -44,6 +44,11 @@ public class InscripcionDomainRepository {
         return inscripcion;
     }
 
+    public int updateCodigoUnicoInscripcion(Inscripcion inscripcion) {
+        String sql = "UPDATE inscripcion SET codigo_unico_inscripcion = ? WHERE id_inscripcion = ?";
+        return jdbcTemplate.update(sql, inscripcion.getCodigoUnicoInscripcion(), inscripcion.getIdInscripcion());
+    }
+
 
     public Inscripcion findByIdInscripcion(int idInscripcion) {
         String sql = "SELECT * FROM inscripcion WHERE id_inscripcion = ?";
@@ -67,6 +72,15 @@ public class InscripcionDomainRepository {
             return jdbcTemplate.queryForObject(sql, new Object[]{codigoUnico}, new ColumnMapRowMapper());
         } catch (EmptyResultDataAccessException e) {
             throw new ResourceNotFoundException("Inscripción no encontrada");
+        }
+    }
+
+    public String findCodigoUnicoByIdInscripcion(int idInscripcion) {
+        String sql = "SELECT codigo_unico_inscripcion FROM inscripcion WHERE id_inscripcion = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, String.class, idInscripcion);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
         }
     }
 
@@ -126,22 +140,43 @@ public class InscripcionDomainRepository {
         return rowsAffected > 0;
     }
 
-    public List<Map<String, Object>> getReporteInscripcionByArea(int idArea, int idOlimpiada) {
+    public List<Map<String, Object>> getReporteInscripcionByArea(Integer idArea, int idOlimpiada) {
         String sql = """
-                    select distinct p.apellido_paterno, p.apellido_materno, p.nombre_participante, p.id_inscripcion, c.nombre_colegio, m.nombre_municipio, d.nombre_departamento, g.nombre_grado
-                    from orden_de_pago op, participante p, inscripcion i, olimpiada o, catalogo_olimpiada co,
-                         area a, estado_orden_de_pago eop, participante_catalogo pc,
-                         municipio m, colegio c, departamento d, grado g
-                    where eop.estado = 'PAGADO' and eop.id_estado = op.id_estado
-                      and op.id_inscripcion = i.id_inscripcion and p.id_inscripcion = i.id_inscripcion
-                      and p.id_participante = pc.id_participante and pc.id_catalogo = co.id_catalogo
-                      and pc.id_catalogo = co.id_catalogo and a.id_area = ?
-                      and p.id_colegio = c.id_colegio and c.id_municipio = m.id_municipio
-                      and m.id_departamento = d.id_departamento and o.id_olimpiada = ?
-                      and g.id_grado = p.id_grado
-                    order by (g.nombre_grado);
-                """;
-        return jdbcTemplate.queryForList(sql, idArea, idOlimpiada);
-    }
+                SELECT p.apellido_paterno,
+                    p.apellido_materno,
+                    p.nombre_participante,
+                    p.id_inscripcion,
+                    c.nombre_colegio,
+                    m.nombre_municipio,
+                    d.nombre_departamento,
+                    g.nombre_grado,
+                    STRING_AGG(a.nombre_area, ', ') as areas  
+                FROM orden_de_pago op
+                         JOIN estado_orden_de_pago eop ON eop.id_estado = op.id_estado
+                         JOIN inscripcion i ON op.id_inscripcion = i.id_inscripcion
+                         JOIN participante p ON p.id_inscripcion = i.id_inscripcion
+                         JOIN participante_catalogo pc ON p.id_participante = pc.id_participante
+                         JOIN catalogo_olimpiada co ON pc.id_catalogo = co.id_catalogo
+                         JOIN olimpiada o ON co.id_olimpiada = o.id_olimpiada 
+                         JOIN area a ON co.id_area = a.id_area 
+                         JOIN colegio c ON p.id_colegio = c.id_colegio
+                         JOIN municipio m ON c.id_municipio = m.id_municipio
+                         JOIN departamento d ON m.id_departamento = d.id_departamento
+                         JOIN grado g ON g.id_grado = p.id_grado
+                WHERE eop.estado = 'PAGADO'
+                  AND o.id_olimpiada = ?
+                  {0}
+                GROUP BY p.id_inscripcion, p.apellido_paterno, p.apellido_materno, 
+                         p.nombre_participante, c.nombre_colegio, m.nombre_municipio,
+                         d.nombre_departamento, g.nombre_grado
+                ORDER BY g.nombre_grado, p.apellido_paterno;
+            """;
 
+        String areaFilter = (idArea != null) ? "AND a.id_area = ?" : "";
+        sql = sql.replace("{0}", areaFilter);
+
+        return (idArea != null)
+                ? jdbcTemplate.queryForList(sql, idOlimpiada, idArea)
+                : jdbcTemplate.queryForList(sql, idOlimpiada);
+    }
 }

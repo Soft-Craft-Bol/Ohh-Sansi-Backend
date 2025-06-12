@@ -1,11 +1,14 @@
 package com.softcraft.ohhsansibackend.catalogoolimpiadas.application;
 
 import com.softcraft.ohhsansibackend.area.domain.models.Area;
+import com.softcraft.ohhsansibackend.catalogoolimpiadas.application.adapter.CatalogoOlimpiadaAdapter;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.CatalogoDomainRepository;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.model.ParticipanteCatalogo;
 import com.softcraft.ohhsansibackend.participante.application.usecases.ParticipanteService;
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.participante.domain.repository.implementation.ParticipanteDomainRepository;
+import com.softcraft.ohhsansibackend.participante.infraestructure.request.AreaCatalogoDTO;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,7 +21,8 @@ public class CatalogoService {
     private final ParticipanteService participanteService;
     private final ParticipanteDomainRepository participanteDomainRepository;
 
-    public CatalogoService(CatalogoDomainRepository catalogoDomainRepository, ParticipanteService participanteService, ParticipanteDomainRepository participanteDomainRepository) {
+
+    public CatalogoService(CatalogoDomainRepository catalogoDomainRepository, @Lazy ParticipanteService participanteService,@Lazy ParticipanteDomainRepository participanteDomainRepository) {
         this.catalogoDomainRepository = catalogoDomainRepository;
         this.participanteService = participanteService;
         this.participanteDomainRepository = participanteDomainRepository;
@@ -27,12 +31,12 @@ public class CatalogoService {
     public List<Map<String, Object>> getAreasByGradoParticipante(int ciParticipante) {
         // Obtener el participante
         Participante participante = participanteService.findByCarnetIdentidadService(ciParticipante);
-
+        System.out.println("Participante encontrado: " + participante);
         if (participante == null) {
             throw new IllegalArgumentException("Participante no encontrado con el CI proporcionado.");
         }
 
-        // Obtener todas las áreas con estado de asignación para el participante
+
         List<Map<String, Object>> areas = catalogoDomainRepository
                 .getRegisterAreaParticipante(participante.getIdParticipante(), participante.getIdGrado());
 
@@ -56,4 +60,5 @@ public class CatalogoService {
     public List<Integer> getRegisteredAreasByParticipante(int idParticipante) {
         return catalogoDomainRepository.getRegisteredAreasByParticipante(idParticipante);
     }
+
 }

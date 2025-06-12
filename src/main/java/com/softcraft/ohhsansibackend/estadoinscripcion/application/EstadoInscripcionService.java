@@ -1,6 +1,10 @@
 package com.softcraft.ohhsansibackend.estadoinscripcion.application;
 
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.application.CatalogoService;
+import com.softcraft.ohhsansibackend.comprobantepago.application.ComprobantePagoAppService;
+import com.softcraft.ohhsansibackend.comprobantepago.domain.model.ComprobantePago;
+import com.softcraft.ohhsansibackend.comprobantepago.domain.model.EstadoComprobantePago;
+import com.softcraft.ohhsansibackend.comprobantepago.domain.model.EstadoComprobantePagoEnum;
 import com.softcraft.ohhsansibackend.estadoinscripcion.domain.EstadoInscripcionDomainRepository;
 import com.softcraft.ohhsansibackend.exception.ParticipanteNotFoundException;
 import com.softcraft.ohhsansibackend.inscripcion.application.ports.InscripcionAdapter;
@@ -9,6 +13,7 @@ import com.softcraft.ohhsansibackend.participante.application.usecases.Participa
 import com.softcraft.ohhsansibackend.participante.domain.models.Participante;
 import com.softcraft.ohhsansibackend.tutor.application.usecases.TutorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.xml.catalog.Catalog;
@@ -23,13 +28,16 @@ public class EstadoInscripcionService {
     private final InscripcionAdapter inscripcionAdapter;
     private final CatalogoService catalogoService;
     private final OrdenPagoService ordenPagoService;
+    private final ComprobantePagoAppService comprobantePagoAppService;
+
     @Autowired
     public EstadoInscripcionService(EstadoInscripcionDomainRepository estadoInscripcionDomainRepository,
-                                    ParticipanteService participanteService,
-                                    TutorService tutorService,
+                                    @Lazy ParticipanteService participanteService,
+                                    @Lazy TutorService tutorService,
                                     InscripcionAdapter inscripcionAdapter,
                                     CatalogoService catalogoService,
-                                    OrdenPagoService ordenPagoService
+                                    @Lazy OrdenPagoService ordenPagoService,
+                                    ComprobantePagoAppService comprobantePagoAppService
     ) {
         this.estadoInscripcionDomainRepository = estadoInscripcionDomainRepository;
         this.participanteService = participanteService;
@@ -37,6 +45,7 @@ public class EstadoInscripcionService {
         this.inscripcionAdapter = inscripcionAdapter;
         this.catalogoService = catalogoService;
         this.ordenPagoService = ordenPagoService;
+        this.comprobantePagoAppService = comprobantePagoAppService;
     }
     public Map<String, Object> verificarExistenciaDeTutores(int ciParticipante) {
         Map<String, Object> response = new HashMap<>();
@@ -135,22 +144,23 @@ public class EstadoInscripcionService {
             }
         }
 
-
-
-
-
-
-
-
-
-        if(ordenPagoService.verificarExistenciaDeInscripcionEnOrdenPago(participante.getIdInscripcion())){
+        int idParaOrden = 0;
+        int ciParaOrden = 0;
+        if(ordenPagoService.verificarParticipanteDeMasivo(participante.getCarnetIdentidadParticipante()) != null){
+            idParaOrden = ordenPagoService.verificarParticipanteDeMasivo(participante.getCarnetIdentidadParticipante());
+            ciParaOrden = ordenPagoService.verificarCarnetDeMasivo(participante.getCarnetIdentidadParticipante());
+        }else{
+            idParaOrden = participante.getIdInscripcion();
+            ciParaOrden = participante.getCarnetIdentidadParticipante();
+        }
+        if(ordenPagoService.verificarExistenciaDeInscripcionEnOrdenPago(idParaOrden)){
             response.put("registroOrdenPago",
                     Map.of(
                             "estado", "Generado",
                             "fechaRegistro", "No seteado hacer querys",
                             "comentarios", "Orden de pago registrada correctamente.",
                             "codigoUnico", inscripcionAdapter.
-                                    findInscripcionById(participante.getIdInscripcion()).
+                                    findInscripcionById(idParaOrden).
                                     getCodigoUnicoInscripcion()
                     ));
         }else{
@@ -160,9 +170,51 @@ public class EstadoInscripcionService {
                             "fechaRegistro", "No seteado hacer querys",
                             "comentarios", "No se encontraron ordenes de pago registradas para el participante.",
                             "codigoUnico", inscripcionAdapter.
-                                    findInscripcionById(participante.getIdInscripcion()).
+                                    findInscripcionById(idParaOrden).
                                     getCodigoUnicoInscripcion()
                     ));
+        }
+
+        if(comprobantePagoAppService.verificarExistenciaComprobantePago(ciParaOrden)){
+            ComprobantePago comprobantePago = comprobantePagoAppService.getComprobantePagoByCiParticipante(ciParaOrden);
+            EstadoComprobantePago estadoComprobantePago = comprobantePagoAppService.obtenerEstadoComprobantePago(idParaOrden);
+            if(EstadoComprobantePagoEnum.ACEPTADA.getId()==estadoComprobantePago.getIdEstadoComprobantePago()){
+                response.put("comprobantePagoStatus", Map.of(
+                        "estado",comprobantePagoAppService.obtenerEstadoComprobantePago(idParaOrden).getNombreEstadoComprobante(),
+                        "fechaRegistro", comprobantePago.getFechaPago(),
+                        "comentarios","El comprobante de pago fue Aceptado",
+                        "comprobantePago",comprobantePago
+                ));
+            }else if(EstadoComprobantePagoEnum.PENDIENTE.getId()==estadoComprobantePago.getIdEstadoComprobantePago()){
+                response.put("comprobantePagoStatus", Map.of(
+                        "estado",comprobantePagoAppService.obtenerEstadoComprobantePago(idParaOrden).getNombreEstadoComprobante(),
+                        "fechaRegistro", comprobantePago.getFechaPago(),
+                        "comentarios","El comprobante de pago esta pendiente de revision",
+                        "comprobantePago",comprobantePago
+                ));
+            } else if (EstadoComprobantePagoEnum.RECHAZADA.getId()==estadoComprobantePago.getIdEstadoComprobantePago()) {
+                response.put("comprobantePagoStatus", Map.of(
+                        "estado",comprobantePagoAppService.obtenerEstadoComprobantePago(idParaOrden).getNombreEstadoComprobante(),
+                        "fechaRegistro", comprobantePago.getFechaPago(),
+                        "comentarios","El comprobante de pago fue rechazado, sube de nuevo el comprobante de pago",
+                        "comprobantePago",comprobantePago
+                ));
+            }else{
+                response.put("comprobantePagoStatus", Map.of(
+                        "estado","No Pagado",
+                        "fechaRegistro", "No existe fecha",
+                        "comentarios","No existe ningun pago para la orden de pago",
+                        "comprobantePago","No existen registros"
+                ));
+            }
+
+        }else{
+            response.put("comprobantePagoStatus", Map.of(
+                    "estado","No Pagado",
+                    "fechaRegistro", "No existe fecha",
+                    "comentarios","No existe ningun pago para la orden de pago",
+                    "comprobantePago","No existen registros"
+            ));
         }
         return response;
     }

@@ -2,6 +2,10 @@ package com.softcraft.ohhsansibackend.catalogoolimpiadas.domain;
 
 import com.softcraft.ohhsansibackend.area.domain.models.Area;
 import com.softcraft.ohhsansibackend.catalogoolimpiadas.domain.model.ParticipanteCatalogo;
+import com.softcraft.ohhsansibackend.periodosolimpiada.application.usecases.PeriodoOlimpiadaService;
+import com.softcraft.ohhsansibackend.periodosolimpiada.domain.models.Olimpiada;
+import com.softcraft.ohhsansibackend.periodosolimpiada.domain.models.PeriodoOlimpiada;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,10 +19,16 @@ import java.util.Optional;
 @Repository
 public class CatalogoDomainRepository {
     private final JdbcTemplate jdbcTemplate;
+    private final PeriodoOlimpiadaService periodoOlimpiadaService;
+    @Autowired
+    public CatalogoDomainRepository(JdbcTemplate jdbcTemplate,
+                                    PeriodoOlimpiadaService periodoOlimpiadaService
 
-    public CatalogoDomainRepository(JdbcTemplate jdbcTemplate) {
+    ) {
         this.jdbcTemplate = jdbcTemplate;
+        this.periodoOlimpiadaService = periodoOlimpiadaService;
     }
+
 
     public List<Map<String, Object>> getCatalogoByGrado(int grado) {
         String sql = """
@@ -34,7 +44,7 @@ public class CatalogoDomainRepository {
             WHERE gc.id_grado = ?
             AND o.id_estado IN (
                 SELECT id_estado FROM estado_olimpiada 
-                WHERE nombre_estado IN ('PRE_INSCRIPCION', 'INSCRIPCION', 'EN_CURSO')
+                WHERE nombre_estado IN ('EN INSCRIPCION')
             )
             ORDER BY a.nombre_area
         """;
@@ -47,9 +57,9 @@ public class CatalogoDomainRepository {
                 .orElseThrow(() -> new IllegalStateException("La olimpiada especificada no existe"));
 
         // Validar período de inscripción
-        if (estado.equals("EN_CURSO") && !isPeriodoInscripcionActivo(participanteCatalogo.getIdOlimpiada())) {
+        if (estado.equals("EN INSCRIPCION") && !isPeriodoInscripcionActivo(participanteCatalogo.getIdOlimpiada())) {
             throw new IllegalStateException("No se pueden registrar participantes fuera del período de inscripción");
-        } else if (!List.of("PRE_INSCRIPCION", "INSCRIPCION").contains(estado)) {
+        } else if (!List.of( "EN INSCRIPCION").contains(estado)) {
             throw new IllegalStateException("No se pueden registrar participantes en el estado actual de la olimpiada: " + estado);
         }
 
@@ -59,7 +69,7 @@ public class CatalogoDomainRepository {
         // Insertar registro
         String sql = """
             INSERT INTO participante_catalogo (
-                id_categoria, id_area, id_catalogo, id_olimpiada, 
+                id_categoria, id_area, id_catalogo, id_olimpiada,
                 id_inscripcion, id_participante
             ) VALUES (?, ?, ?, ?, ?, ?)
             RETURNING id_participante_catalogo
@@ -148,7 +158,7 @@ public class CatalogoDomainRepository {
             SELECT EXISTS (
                 SELECT 1 FROM periodos_olimpiada po
                 WHERE po.id_olimpiada = ?
-                AND po.tipo_periodo IN ('PRE_INSCRIPCION', 'INSCRIPCION')
+                AND po.tipo_periodo IN ('INSCRIPCION', 'AMPLIACION')
                 AND CURRENT_TIMESTAMP BETWEEN po.fecha_inicio AND po.fecha_fin
             )
         """;
@@ -157,10 +167,10 @@ public class CatalogoDomainRepository {
 
     public Optional<Map<String, Object>> getOlimpiadaActiva() {
         String sql = """
-            SELECT o.id_olimpiada, e.nombre_estado 
+            SELECT o.id_olimpiada, e.nombre_estado
             FROM olimpiada o
             JOIN estado_olimpiada e ON o.id_estado = e.id_estado
-            WHERE e.nombre_estado IN ('PRE_INSCRIPCION', 'INSCRIPCION', 'EN_CURSO')
+            WHERE e.nombre_estado IN ( 'EN INSCRIPCION')
             ORDER BY o.id_olimpiada DESC
             LIMIT 1
         """;
@@ -172,18 +182,11 @@ public class CatalogoDomainRepository {
     }
 
     public List<Map<String, Object>> getRegisterAreaParticipante(int idParticipante, int idGrado) {
-        Map<String, Object> olimpiadaInfo = getOlimpiadaActiva()
-                .orElseThrow(() -> new IllegalStateException("No hay olimpiadas en período de inscripción o en curso"));
-
-        Integer idOlimpiada = (Integer) olimpiadaInfo.get("id_olimpiada");
-        String estadoOlimpiada = (String) olimpiadaInfo.get("nombre_estado");
-
-        if ("EN_CURSO".equals(estadoOlimpiada)){
-            if (!isPeriodoInscripcionActivo(idOlimpiada)) {
-                throw new IllegalStateException("No está habilitado el período de inscripciones para esta olimpiada");
-            }
-        }
-
+        PeriodoOlimpiada periodoOlimpiadaActual = periodoOlimpiadaService.encontrarPeriodoInscripcionActual();
+        Olimpiada olimpiadaActual = periodoOlimpiadaService.encontrarOlimpiadaPorPeriodoInscripcionActual(periodoOlimpiadaActual.getIdOlimpiada());
+        System.out.println(periodoOlimpiadaActual.toString());
+        System.out.println(olimpiadaActual.toString());
+        Integer idOlimpiada = olimpiadaActual.getIdOlimpiada();
         String sql = """
             SELECT
                 a.id_area, a.nombre_area, a.nombre_corto_area, a.descripcion_area,

@@ -17,9 +17,7 @@ import com.softcraft.ohhsansibackend.handler.GlobalExceptionHandler;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ParticipanteService {
@@ -47,7 +45,7 @@ public class ParticipanteService {
         }
 
         try {
-            mailService.sendEmailAsync(participante.getEmailParticipante(), participante.getParticipanteHash());
+            mailService.sendEmailAsync(participante.getEmailParticipante(), inscripcion.getCodigoUnicoInscripcion());
 
         } catch (MessagingException e) {
             System.err.println("Error al enviar el correo: " + e.getMessage());
@@ -60,7 +58,6 @@ public class ParticipanteService {
     private Inscripcion createInscripcion() {
         return inscripcionService.saveInscripcion();
     }
-
 
     public Map<String, Object> findById(Long id) {
         Map<String, Object> response = new HashMap<>();
@@ -109,8 +106,37 @@ public class ParticipanteService {
         }
         return participante;
     }
+
     public Participante findParticipanteByIdInscripcion(int idInscripcion) {
         return participanteAdapter.findParticipanteByIdInscripcion(idInscripcion);
+    }
+
+    //TODO: para hacer pruebas, metodo no funcional para el uso
+    public Map<String, Object> saveMultipleParticipant(List<Participante> participantes){
+        Inscripcion inscripcion = createInscripcion();
+        List<Participante> participantesInscritos= new ArrayList<Participante>();
+        Map<String,Object> response = new HashMap<>();
+        try{
+            for (Participante participante : participantes) {
+                participante.setIdInscripcion(inscripcion.getIdInscripcion());
+                participanteAdapter.save(participante);
+                participantesInscritos.add(participante);
+            }
+
+
+
+
+        }catch (DuplicateKeyException e){
+            try {
+                inscripcionService.deleteInscripcionById(inscripcion.getIdInscripcion());
+            } catch (RuntimeException ex) {
+                throw new RuntimeException("Error al eliminar la inscripción del participante");
+            }
+            throw new DuplicateResourceException("Carnet de identidad del participante ya registrado");
+        }
+        response.put("message", "Participantes registrados exitosamente");
+        response.put("participantesInscritos", participantesInscritos);
+        return response;
     }
 
 }

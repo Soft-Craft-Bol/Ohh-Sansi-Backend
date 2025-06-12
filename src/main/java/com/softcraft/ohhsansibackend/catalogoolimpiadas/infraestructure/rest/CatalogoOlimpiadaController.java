@@ -22,26 +22,14 @@ public class CatalogoOlimpiadaController {
         this.catalogoOlimpiadaService = catalogoOlimpiadaService;
     }
 
-    @PostMapping("/save")
+    @PutMapping("/save")
     public ResponseEntity<Map<String, Object>> save(@RequestBody CatalogoOlimpiada catalogoOlimpiada) {
         Map<String, Object> response = catalogoOlimpiadaService.save(catalogoOlimpiada);
 
-        if ("success".equals(response.get("status"))) {
-            return ResponseEntity.ok(
-                    Map.of(
-                            "status", "success",
-                            "message", response.get("message"),
-                            "data", response.get("data")
-                    )
-            );
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    Map.of(
-                            "status", "error",
-                            "message", response.get("message")
-                    )
-            );
-        }
+        HttpStatus status = "success".equals(response.get("status")) ?
+                HttpStatus.OK : HttpStatus.BAD_REQUEST;
+
+        return ResponseEntity.status(status).body(response);
     }
 
 
@@ -49,4 +37,6 @@ public class CatalogoOlimpiadaController {
     public List<CatalogoOlimpiadaDTO> getCatalogoOlimpiadas() {
         return catalogoOlimpiadaService.findAll();
     }
+
+
 }

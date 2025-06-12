@@ -1,5 +1,6 @@
 package com.softcraft.ohhsansibackend.periodosolimpiada.domain.models;
 
+
 import java.time.LocalDate;
 
 public class PeriodoOlimpiada {
@@ -7,26 +8,23 @@ public class PeriodoOlimpiada {
     private int idPeriodo;
     private int idOlimpiada;
     private String nombrePeriodo;
+    private int idEstado;
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
-    private int idEstado;
     private String tipoPeriodo;
-    private Boolean obligatorio;
-    private int orden;
+
 
     public PeriodoOlimpiada() {
     }
 
-    public PeriodoOlimpiada(int idPeriodo, int idOlimpiada, String nombrePeriodo, LocalDate fechaInicio, LocalDate fechaFin, int idEstado, String tipoPeriodo, Boolean obligatorio, int orden) {
+    public PeriodoOlimpiada(int idPeriodo, int idOlimpiada, String nombrePeriodo, int idEstado, LocalDate fechaInicio, LocalDate fechaFin, String tipoPeriodo) {
         this.idPeriodo = idPeriodo;
         this.idOlimpiada = idOlimpiada;
         this.nombrePeriodo = nombrePeriodo;
+        this.idEstado = idEstado;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
-        this.idEstado = idEstado;
         this.tipoPeriodo = tipoPeriodo;
-        this.obligatorio = obligatorio;
-        this.orden = orden;
     }
 
     public int getIdPeriodo() {
@@ -47,6 +45,15 @@ public class PeriodoOlimpiada {
     public void setNombrePeriodo(String nombrePeriodo) {
         this.nombrePeriodo = nombrePeriodo;
     }
+
+    public int getIdEstado() {
+        return idEstado;
+    }
+
+    public void setIdEstado(int idEstado) {
+        this.idEstado = idEstado;
+    }
+
     public LocalDate getFechaInicio() {
         return fechaInicio;
     }
@@ -59,29 +66,22 @@ public class PeriodoOlimpiada {
     public void setFechaFin(LocalDate fechaFin) {
         this.fechaFin = fechaFin;
     }
-    public int getIdEstado() {
-        return idEstado;
-    }
-    public void setIdEstado(int idEstado) {
-        this.idEstado = idEstado;
-    }
     public String getTipoPeriodo() {
         return tipoPeriodo;
     }
     public void setTipoPeriodo(String tipoPeriodo) {
         this.tipoPeriodo = tipoPeriodo;
     }
-    public Boolean getObligatorio() {
-        return obligatorio;
-    }
-    public void setObligatorio(Boolean obligatorio) {
-        this.obligatorio = obligatorio;
-    }
-    public int getOrden() {
-        return orden;
-    }
-    public void setOrden(int orden) {
-        this.orden = orden;
-    }
 
+    @Override
+    public String toString() {
+        return "PeriodoOlimpiada{" +
+                "idPeriodo=" + idPeriodo +
+                ", idOlimpiada=" + idOlimpiada +
+                ", nombrePeriodo='" + nombrePeriodo + '\'' +
+                ", fechaInicio=" + fechaInicio +
+                ", fechaFin=" + fechaFin +
+                ", tipoPeriodo='" + tipoPeriodo + '\'' +
+                '}';
+    }
 }

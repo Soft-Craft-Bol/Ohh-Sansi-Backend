@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -22,33 +23,38 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
 
     @Override
     public Olimpiada saveOlimpiada(Olimpiada olimpiada) {
-        String sql = "SELECT * FROM crear_olimpiada(?, ?, ?, ?, ?)";
+        String sql = "SELECT * FROM crear_olimpiada(?, ?, ?)";
         return jdbcTemplate.queryForObject(sql, new Object[]{
                 olimpiada.getAnio(),
                 olimpiada.getNombreOlimpiada(),
                 olimpiada.getPrecioOlimpiada(),
-                olimpiada.getFechaInicio(),
-                olimpiada.getFechaFin()
         }, new BeanPropertyRowMapper<>(Olimpiada.class));
     }
 
     @Override
     public Olimpiada updateOlimpiada(Olimpiada olimpiada) {
-        String sql = "SELECT * FROM actualizar_olimpiada(?, ?, ?, ?, ?, ?)";
+        String sql = "SELECT * FROM actualizar_olimpiada(?, ?, ?, ?)";
         return jdbcTemplate.queryForObject(sql, new Object[]{
                 olimpiada.getIdOlimpiada(),
                 olimpiada.getAnio(),
                 olimpiada.getNombreOlimpiada(),
-                olimpiada.getPrecioOlimpiada(),
-                olimpiada.getFechaInicio(),
-                olimpiada.getFechaFin()
+                olimpiada.getPrecioOlimpiada()
         }, new BeanPropertyRowMapper<>(Olimpiada.class));
     }
 
     @Override
     public List<Olimpiada> getOlimpiadas() {
-        String sql = "SELECT * FROM selectOlimpiada()";
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Olimpiada.class));
+        String sql = "SELECT o.id_olimpiada, o.anio, o.nombre_olimpiada, e.nombre_estado, o.precio_olimpiada " +
+                "FROM olimpiada o JOIN estado_olimpiada e ON o.id_estado = e.id_estado";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Olimpiada o = new Olimpiada();
+            o.setIdOlimpiada(rs.getInt("id_olimpiada"));
+            o.setAnio(rs.getInt("anio"));
+            o.setNombreOlimpiada(rs.getString("nombre_olimpiada"));
+            o.setNombreEstado(rs.getString("nombre_estado"));
+            o.setPrecioOlimpiada(rs.getBigDecimal("precio_olimpiada"));
+            return o;
+        });
     }
 
     @Override
@@ -66,7 +72,8 @@ public class OlimpiadaDomainRepository implements IOlimpiadaRepository {
         }
     }
     public Olimpiada findOlimpiadaById(int idOlimpiada){
-        String sql = "select * from olimpiada where id_olimpiada = ?";
+        String sql = "SELECT o.id_olimpiada, o.anio, o.nombre_olimpiada, e.nombre_estado, o.precio_olimpiada " +
+                     "FROM olimpiada o JOIN estado_olimpiada e ON o.id_estado = e.id_estado WHERE o.id_olimpiada = ?";
         return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Olimpiada.class), idOlimpiada);
     }
 }
