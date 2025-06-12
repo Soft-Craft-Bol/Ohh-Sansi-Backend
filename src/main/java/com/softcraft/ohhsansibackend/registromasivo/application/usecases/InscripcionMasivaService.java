@@ -331,8 +331,9 @@ public class InscripcionMasivaService {
             tutor.setTelefono(getSafeIntValue(row.getCell(17)));
             tutor.setCarnetIdentidadTutor(getSafeIntValue(row.getCell(18)));
             String complemento = getSafeStringValue(row.getCell(19));
-            tutor.setComplementoCiTutor("0".equals(complemento.trim()) ? "" : complemento);
-
+            if(!"0".equals(complemento.trim())){
+                tutor.setComplementoCiTutor(complemento);
+            }
 
             return tutor;
         } catch (Exception e) {
@@ -494,7 +495,9 @@ public class InscripcionMasivaService {
         participante.setFechaNacimiento(getDateCellValue(row.getCell(8)));
         participante.setCarnetIdentidadParticipante((int) getNumericCellValue(row.getCell(9)));
         String complemento = getSafeStringValue(row.getCell(19));
-        participante.setComplementoCiParticipante("0".equals(complemento.trim()) ? "" : complemento);
+        if(!"0".equals(complemento.trim())){
+            participante.setComplementoCiParticipante(complemento);
+        }
         participante.setEmailParticipante(getStringCellValue(row.getCell(11)));
         participante.setTutorRequerido(getBooleanCellValue(row.getCell(12)));
 

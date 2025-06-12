@@ -45,7 +45,7 @@ public class ParticipanteService {
         }
 
         try {
-            mailService.sendEmailAsync(participante.getEmailParticipante(), participante.getParticipanteHash());
+            mailService.sendEmailAsync(participante.getEmailParticipante(), inscripcion.getCodigoUnicoInscripcion());
 
         } catch (MessagingException e) {
             System.err.println("Error al enviar el correo: " + e.getMessage());
@@ -58,7 +58,6 @@ public class ParticipanteService {
     private Inscripcion createInscripcion() {
         return inscripcionService.saveInscripcion();
     }
-
 
     public Map<String, Object> findById(Long id) {
         Map<String, Object> response = new HashMap<>();
@@ -107,6 +106,7 @@ public class ParticipanteService {
         }
         return participante;
     }
+
     public Participante findParticipanteByIdInscripcion(int idInscripcion) {
         return participanteAdapter.findParticipanteByIdInscripcion(idInscripcion);
     }
