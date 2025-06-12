@@ -47,12 +47,14 @@ public class ComprobantePagoAppRepository {
 
     public EstadoComprobantePago getEstadoComprobantePago(int ciParticipante) {
         String sql = """
-        select distinct ecp.id_estado_comprobante, ecp.nombre_estado_comprobante
+        select distinct ecp.id_estado_comprobante, ecp.nombre_estado_comprobante, cp.id_comprobante_pago
         from participante p, inscripcion i, comprobante_pago cp, estado_comprobante_pago ecp
         where p.id_inscripcion = i.id_inscripcion
           and i.id_inscripcion = cp.id_inscripcion
           and cp.id_estado_comprobante = ecp.id_estado_comprobante
-          and cp.id_inscripcion = ?;
+          and cp.id_inscripcion = ?
+          ORDER BY cp.id_comprobante_pago DESC
+          LIMIT 1;
     """;
         return jdbcTemplate.queryForObject(sql, new Object[]{ciParticipante}, (rs, rowNum) -> {
             EstadoComprobantePago estadoComprobantePago = new EstadoComprobantePago();
@@ -64,11 +66,13 @@ public class ComprobantePagoAppRepository {
 
     public ComprobantePago getComprobantePagoByCiParticipante(int ciParticipante) {
         String sql = """
-        select distinct cp.*
-        from participante p, inscripcion i, comprobante_pago cp
-        where p.id_inscripcion = i.id_inscripcion
-          and i.id_inscripcion = cp.id_inscripcion
-          and p.carnet_identidad_participante = ?;
+        SELECT cp.*
+        FROM participante p
+        JOIN inscripcion i ON p.id_inscripcion = i.id_inscripcion
+        JOIN comprobante_pago cp ON i.id_inscripcion = cp.id_inscripcion
+        WHERE p.carnet_identidad_participante = ?
+        ORDER BY cp.id_comprobante_pago DESC
+        LIMIT 1;
     """;
         return jdbcTemplate.queryForObject(sql, new Object[]{ciParticipante}, (rs, rowNum) -> {
             ComprobantePago comprobantePago = new ComprobantePago();
@@ -85,6 +89,7 @@ public class ComprobantePagoAppRepository {
             return comprobantePago;
         });
     }
+
     public List<ComprobantePago> findAllComprobanteByIdOlimpiada(int idOlimpiada){
         String sql=
                 """
