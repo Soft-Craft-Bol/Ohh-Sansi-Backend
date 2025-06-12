@@ -37,7 +37,6 @@ public class InscripcionMasivaService {
     private final TutorService tutorService;
     private final JdbcTemplate jdbcTemplate;
     private final CatalogoDomainRepository catalogoDomainRepository;
-    private int counterFaileds = 0;
 
     public InscripcionMasivaService(ParticipanteService participanteService, TutorService tutorService, JdbcTemplate jdbcTemplate, CatalogoDomainRepository catalogoDomainRepository, ParticipanteCatalogoInscriptionService participanteCatalogoInscriptionService, InscripcionDomainService inscripcionDomainService, InscripcionDomainRepository inscripcionDomainRepository) {
         this.participanteService = participanteService;
@@ -231,8 +230,6 @@ public class InscripcionMasivaService {
                     resultado.put("ci_participante_excel", participanteExcel.getCarnetIdentidadParticipante());
                     resultado.put("id_inscripcion", participanteExcel.getIdInscripcion());
 
-
-
                     // 2. Procesar tutor si es requerido
                     if (participante.isTutorRequerido()) {
                         try {
@@ -333,7 +330,8 @@ public class InscripcionMasivaService {
             tutor.setApellidosTutor(getSafeStringValue(row.getCell(16)));
             tutor.setTelefono(getSafeIntValue(row.getCell(17)));
             tutor.setCarnetIdentidadTutor(getSafeIntValue(row.getCell(18)));
-            tutor.setComplementoCiTutor(getSafeStringValue(row.getCell(19)));
+            String complemento = getSafeStringValue(row.getCell(19));
+            tutor.setComplementoCiTutor("0".equals(complemento.trim()) ? "" : complemento);
 
 
             return tutor;
@@ -495,7 +493,8 @@ public class InscripcionMasivaService {
         participante.setApellidoMaterno(getStringCellValue(row.getCell(7)));
         participante.setFechaNacimiento(getDateCellValue(row.getCell(8)));
         participante.setCarnetIdentidadParticipante((int) getNumericCellValue(row.getCell(9)));
-        participante.setComplementoCiParticipante(getStringCellValue(row.getCell(10)));
+        String complemento = getSafeStringValue(row.getCell(19));
+        participante.setComplementoCiParticipante("0".equals(complemento.trim()) ? "" : complemento);
         participante.setEmailParticipante(getStringCellValue(row.getCell(11)));
         participante.setTutorRequerido(getBooleanCellValue(row.getCell(12)));
 
