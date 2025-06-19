@@ -142,7 +142,9 @@ public class InscripcionDomainRepository {
 
     public List<Map<String, Object>> getReporteInscripcionByArea(Integer idArea, int idOlimpiada) {
         String sql = """
-                SELECT p.apellido_paterno,
+                -- 1. Participantes normales
+                SELECT
+                    p.apellido_paterno,
                     p.apellido_materno,
                     p.nombre_participante,
                     p.id_inscripcion,
@@ -150,33 +152,68 @@ public class InscripcionDomainRepository {
                     m.nombre_municipio,
                     d.nombre_departamento,
                     g.nombre_grado,
-                    STRING_AGG(a.nombre_area, ', ') as areas  
+                    STRING_AGG(a.nombre_area, ', ') as areas
                 FROM orden_de_pago op
-                         JOIN estado_orden_de_pago eop ON eop.id_estado = op.id_estado
-                         JOIN inscripcion i ON op.id_inscripcion = i.id_inscripcion
-                         JOIN participante p ON p.id_inscripcion = i.id_inscripcion
-                         JOIN participante_catalogo pc ON p.id_participante = pc.id_participante
-                         JOIN catalogo_olimpiada co ON pc.id_catalogo = co.id_catalogo
-                         JOIN olimpiada o ON co.id_olimpiada = o.id_olimpiada 
-                         JOIN area a ON co.id_area = a.id_area 
-                         JOIN colegio c ON p.id_colegio = c.id_colegio
-                         JOIN municipio m ON c.id_municipio = m.id_municipio
-                         JOIN departamento d ON m.id_departamento = d.id_departamento
-                         JOIN grado g ON g.id_grado = p.id_grado
+                JOIN estado_orden_de_pago eop ON eop.id_estado = op.id_estado
+                JOIN inscripcion i ON op.id_inscripcion = i.id_inscripcion
+                JOIN participante p ON p.id_inscripcion = i.id_inscripcion
+                LEFT JOIN excel_association ea ON ea.id_inscripcion_excel = i.id_inscripcion
+                JOIN participante_catalogo pc ON p.id_participante = pc.id_participante
+                JOIN catalogo_olimpiada co ON pc.id_catalogo = co.id_catalogo
+                JOIN olimpiada o ON co.id_olimpiada = o.id_olimpiada
+                JOIN area a ON co.id_area = a.id_area
+                JOIN colegio c ON p.id_colegio = c.id_colegio
+                JOIN municipio m ON c.id_municipio = m.id_municipio
+                JOIN departamento d ON m.id_departamento = d.id_departamento
+                JOIN grado g ON g.id_grado = p.id_grado
+                WHERE eop.estado = 'PAGADO'
+                  AND o.id_olimpiada = ?
+                  AND ea.id_inscripcion_excel IS NULL  -- Excluir masiva
+                  {0}
+                GROUP BY p.id_inscripcion, p.apellido_paterno, p.apellido_materno,
+                         p.nombre_participante, c.nombre_colegio, m.nombre_municipio,
+                         d.nombre_departamento, g.nombre_grado
+        
+                UNION
+        
+                -- 2. Participantes asociados a inscripciones masivas
+                SELECT
+                    p.apellido_paterno,
+                    p.apellido_materno,
+                    p.nombre_participante,
+                    i.id_inscripcion,
+                    c.nombre_colegio,
+                    m.nombre_municipio,
+                    d.nombre_departamento,
+                    g.nombre_grado,
+                    STRING_AGG(a.nombre_area, ', ') as areas
+                FROM excel_association ea
+                JOIN participante p ON p.carnet_identidad_participante = ea.ci_participante
+                JOIN inscripcion i ON i.id_inscripcion = ea.id_inscripcion_excel
+                JOIN orden_de_pago op ON op.id_inscripcion = i.id_inscripcion
+                JOIN estado_orden_de_pago eop ON eop.id_estado = op.id_estado
+                JOIN participante_catalogo pc ON p.id_participante = pc.id_participante
+                JOIN catalogo_olimpiada co ON pc.id_catalogo = co.id_catalogo
+                JOIN olimpiada o ON co.id_olimpiada = o.id_olimpiada
+                JOIN area a ON co.id_area = a.id_area
+                JOIN colegio c ON p.id_colegio = c.id_colegio
+                JOIN municipio m ON c.id_municipio = m.id_municipio
+                JOIN departamento d ON m.id_departamento = d.id_departamento
+                JOIN grado g ON g.id_grado = p.id_grado
                 WHERE eop.estado = 'PAGADO'
                   AND o.id_olimpiada = ?
                   {0}
-                GROUP BY p.id_inscripcion, p.apellido_paterno, p.apellido_materno, 
+                GROUP BY p.id_participante, i.id_inscripcion, p.apellido_paterno, p.apellido_materno,\s
                          p.nombre_participante, c.nombre_colegio, m.nombre_municipio,
                          d.nombre_departamento, g.nombre_grado
-                ORDER BY g.nombre_grado, p.apellido_paterno;
+                
             """;
 
         String areaFilter = (idArea != null) ? "AND a.id_area = ?" : "";
         sql = sql.replace("{0}", areaFilter);
 
         return (idArea != null)
-                ? jdbcTemplate.queryForList(sql, idOlimpiada, idArea)
-                : jdbcTemplate.queryForList(sql, idOlimpiada);
+                ? jdbcTemplate.queryForList(sql, idOlimpiada, idArea, idOlimpiada, idArea)
+                : jdbcTemplate.queryForList(sql, idOlimpiada, idOlimpiada);
     }
 }
